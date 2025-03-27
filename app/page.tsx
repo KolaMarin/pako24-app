@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { SearchParamsProvider } from "@/components/client-search-params"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
 import { useAuth } from "@/lib/auth"
@@ -22,6 +23,14 @@ import { Save } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function HomePage() {
+  return (
+    <SearchParamsProvider>
+      <HomePageContent />
+    </SearchParamsProvider>
+  )
+}
+
+function HomePageContent() {
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("order")
   const [showLoginModal, setShowLoginModal] = useState(false)
@@ -204,11 +213,18 @@ export default function HomePage() {
                   </button>
                 </Card>
               ) : (
-                router.push("/orders") && (
-                  <Card className="bg-white shadow-sm p-6 text-center">
-                    <p className="text-gray-700 mb-4">Duke ju ridrejtuar tek porositë tuaja...</p>
-                  </Card>
-                )
+                (() => {
+                  // Use an IIFE to handle the navigation
+                  if (typeof window !== "undefined") {
+                    // Only run on client side
+                    setTimeout(() => router.push("/orders"), 100);
+                  }
+                  return (
+                    <Card className="bg-white shadow-sm p-6 text-center">
+                      <p className="text-gray-700 mb-4">Duke ju ridrejtuar tek porositë tuaja...</p>
+                    </Card>
+                  );
+                })()
               )}
             </motion.div>
           )}
@@ -391,4 +407,3 @@ function SettingsContent({ user }: { user: any }) {
     </Card>
   )
 }
-
