@@ -14,13 +14,17 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    unoptimized: true, // Required for AWS Amplify deployment
   },
+  // Disable experimental features for production stability
   experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
+    // Keep only essential experimental features
+    webpackBuildWorker: false,
+    parallelServerBuildTraces: false,
+    parallelServerCompiles: false,
   },
+  // Add output configuration for AWS Amplify
+  output: 'standalone',
 }
 
 mergeConfig(nextConfig, userConfig)
