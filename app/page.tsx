@@ -51,6 +51,7 @@ function HomePageContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
+        credentials: "include" // Include cookies in the request
       })
 
       if (response.ok) {
@@ -290,13 +291,32 @@ function SettingsContent({ user }: { user: any }) {
     setIsSubmitting(true)
 
     try {
-      await updateUser({ email, phoneNumber, location })
-      if (oldPassword !== "********" && newPassword) {
-        const success = await updatePassword(oldPassword, newPassword)
-        if (!success) {
-          throw new Error("Fjalëkalimi i vjetër është i pasaktë.")
-        }
+      // Prepare update data
+      const updateData: any = {
+        email,
+        phoneNumber,
+        location
       }
+      
+      // Add password data if provided
+      if (oldPassword !== "********" && newPassword) {
+        updateData.oldPassword = oldPassword
+        updateData.newPassword = newPassword
+      }
+      
+      // Send update request
+      const response = await fetch("/api/update-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+        credentials: "include" // Include cookies in the request
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Përditësimi i të dhënave dështoi")
+      }
+      
       toast({
         title: "Sukses",
         description: "Të dhënat tuaja u përditësuan me sukses.",

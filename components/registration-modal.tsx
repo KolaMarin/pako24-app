@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -27,8 +27,13 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
   const router = useRouter()
   const { register } = useAuth()
 
-  // Check if there's a pending order
-  const hasPendingOrder = !!localStorage.getItem("pendingOrder")
+  // Initialize with false, will be updated in useEffect
+  const [hasPendingOrder, setHasPendingOrder] = useState(false)
+  
+  // Check for pending order after component mounts (client-side only)
+  useEffect(() => {
+    setHasPendingOrder(!!localStorage.getItem("pendingOrder"))
+  }, [])
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,7 +64,7 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
     }
   }
 
-  // Function to submit the pending order
+  // Function to submit the pending order (only called client-side)
   const submitPendingOrder = async () => {
     try {
       const pendingOrderJson = localStorage.getItem("pendingOrder")
@@ -197,4 +202,3 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
     </Dialog>
   )
 }
-

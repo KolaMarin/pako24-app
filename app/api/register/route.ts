@@ -34,14 +34,25 @@ export async function POST(request: Request) {
       }
     })
 
-    // In a real application, you would set a session or JWT token here
-    return NextResponse.json({ 
+    // Create response with user data
+    const response = NextResponse.json({ 
       success: true, 
       user: { 
         email: user.email, 
-        phoneNumber: user.phoneNumber 
+        phoneNumber: user.phoneNumber,
+        location: user.location
       } 
     })
+    
+    // Set a session cookie
+    response.cookies.set("session", user.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: "/"
+    })
+    
+    return response
   } catch (error) {
     console.error("Failed to register user:", error)
     return NextResponse.json({ success: false, error: "Regjistrimi dështoi" }, { status: 500 })

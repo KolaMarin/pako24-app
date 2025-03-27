@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -30,8 +30,13 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
   const searchParams = useSearchParams()
   const { login, register } = useAuth()
 
-  // Check if there's a pending order
-  const hasPendingOrder = !!localStorage.getItem("pendingOrder")
+  // Initialize with false, will be updated in useEffect
+  const [hasPendingOrder, setHasPendingOrder] = useState(false)
+  
+  // Check for pending order after component mounts (client-side only)
+  useEffect(() => {
+    setHasPendingOrder(!!localStorage.getItem("pendingOrder"))
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -91,7 +96,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
     }
   }
 
-  // Function to submit the pending order
+  // Function to submit the pending order (only called client-side)
   const submitPendingOrder = async () => {
     try {
       const pendingOrderJson = localStorage.getItem("pendingOrder")
@@ -102,6 +107,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
+        credentials: "include" // Include cookies in the request
       })
 
       if (response.ok) {
@@ -298,4 +304,3 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
     </Dialog>
   )
 }
-

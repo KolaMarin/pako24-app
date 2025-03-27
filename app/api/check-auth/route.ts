@@ -2,15 +2,38 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
 export async function GET(request: Request) {
-  // In a real application, you would check the session or JWT token here
-  // For this example, we'll just return a mock authenticated user
-  const mockUser = await prisma.user.findUnique({
-    where: { email: "user@example.com" }
-  })
-
-  if (mockUser) {
-    return NextResponse.json({ email: mockUser.email, phoneNumber: mockUser.phoneNumber })
-  } else {
+  // Get the session cookie from the request
+  const cookieHeader = request.headers.get("cookie")
+  const cookies = cookieHeader?.split(';').reduce((acc, cookie) => {
+    const [key, value] = cookie.trim().split('=')
+    if (key && value) acc[key] = value
+    return acc
+  }, {} as Record<string, string>) || {}
+  
+  const sessionId = cookies["session"]
+  
+  if (!sessionId) {
+    return NextResponse.json(null)
+  }
+  
+  // Find the user by session ID (which is the user ID)
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: sessionId }
+    })
+    
+    if (user) {
+      // Return user data (excluding password)
+      return NextResponse.json({
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        location: user.location
+      })
+    } else {
+      return NextResponse.json(null)
+    }
+  } catch (error) {
+    console.error("Error checking authentication:", error)
     return NextResponse.json(null)
   }
 }
