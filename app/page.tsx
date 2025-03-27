@@ -47,10 +47,33 @@ function HomePageContent() {
     }
 
     try {
+      // Transform the product links to match the expected API format
+      const transformedData = {
+        productLinks: data.productLinks.map(link => {
+          // Calculate fees similar to what's in the form
+          const euroPrice = link.price * 1.15; // Approximate GBP to EUR conversion
+          const basePriceEUR = euroPrice * link.quantity;
+          const customsFee = basePriceEUR * 0.2; // 20% of price in EUR
+          const shippingFee = link.isHeavy ? 20 : 10; // 10€ if under 1kg, 20€ if over
+          const shippingTotal = shippingFee * link.quantity;
+
+          return {
+            url: link.url,
+            quantity: link.quantity,
+            size: link.size || "",
+            color: link.color || "",
+            priceGBP: link.price * link.quantity,
+            priceEUR: basePriceEUR,
+            customsFee: customsFee,
+            transportFee: shippingTotal
+          };
+        })
+      };
+
       const response = await fetch("/api/submit-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(transformedData),
         credentials: "include" // Include cookies in the request
       })
 
