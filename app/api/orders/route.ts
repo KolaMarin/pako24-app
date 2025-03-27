@@ -1,20 +1,36 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // In a real application, you would get the user from the session
-    // For now, we'll use the same mock user email as before
-    const mockUser = await prisma.user.findUnique({
-      where: { email: "user@example.com" }
+    // Get the session cookie from the request
+    const cookieHeader = request.headers.get("cookie")
+    const cookies = cookieHeader?.split(';').reduce((acc, cookie) => {
+      const [key, value] = cookie.trim().split('=')
+      if (key && value) acc[key] = value
+      return acc
+    }, {} as Record<string, string>) || {}
+    
+    const sessionId = cookies["session"]
+    
+    if (!sessionId) {
+      return NextResponse.json(
+        { success: false, error: "Ju nuk jeni të identifikuar" },
+        { status: 401 }
+      )
+    }
+    
+    // Find the user by session ID
+    const user = await prisma.user.findUnique({
+      where: { id: sessionId }
     })
 
-    if (!mockUser) {
+    if (!user) {
       return NextResponse.json({ success: false, error: "Përdoruesi nuk u gjet" }, { status: 401 })
     }
 
     const orders = await prisma.order.findMany({
-      where: { userId: mockUser.id },
+      where: { userId: user.id },
       include: {
         productLinks: true
       }

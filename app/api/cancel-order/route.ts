@@ -5,12 +5,29 @@ export async function POST(request: Request) {
   try {
     const { orderId } = await request.json()
 
-    // In a real application, you would get the user from the session
-    const mockUser = await prisma.user.findUnique({
-      where: { email: "user@example.com" }
+    // Get the session cookie from the request
+    const cookieHeader = request.headers.get("cookie")
+    const cookies = cookieHeader?.split(';').reduce((acc, cookie) => {
+      const [key, value] = cookie.trim().split('=')
+      if (key && value) acc[key] = value
+      return acc
+    }, {} as Record<string, string>) || {}
+    
+    const sessionId = cookies["session"]
+    
+    if (!sessionId) {
+      return NextResponse.json(
+        { success: false, error: "Ju nuk jeni të identifikuar" },
+        { status: 401 }
+      )
+    }
+    
+    // Find the user by session ID
+    const user = await prisma.user.findUnique({
+      where: { id: sessionId }
     })
 
-    if (!mockUser) {
+    if (!user) {
       return NextResponse.json({ success: false, error: "Përdoruesi nuk u gjet" }, { status: 401 })
     }
 
@@ -18,7 +35,7 @@ export async function POST(request: Request) {
     const order = await prisma.order.findFirst({
       where: {
         id: orderId,
-        userId: mockUser.id
+        userId: user.id
       }
     })
 
