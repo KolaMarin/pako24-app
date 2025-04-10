@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
+import { useProductFormStore } from "@/lib/product-form-store"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -50,7 +51,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
         // Check if there's a pending order
         if (hasPendingOrder) {
-          await submitPendingOrder()
+          handlePendingOrder()
         } else {
           toast({
             title: "Sukses",
@@ -79,7 +80,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
         // Check if there's a pending order
         if (hasPendingOrder) {
-          await submitPendingOrder()
+          handlePendingOrder()
         } else {
           toast({
             title: "Sukses",
@@ -96,36 +97,38 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
     }
   }
 
-  // Function to submit the pending order (only called client-side)
-  const submitPendingOrder = async () => {
+  // Get the setProductLinks function from the Zustand store
+  const { setProductLinks } = useProductFormStore()
+
+  // Function to handle pending order after login (only called client-side)
+  const handlePendingOrder = () => {
     try {
       const pendingOrderJson = localStorage.getItem("pendingOrder")
       if (!pendingOrderJson) return
 
-      const orderData = JSON.parse(pendingOrderJson)
-      const response = await fetch("/api/submit-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
-        credentials: "include" // Include cookies in the request
-      })
-
-      if (response.ok) {
-        toast({
-          title: "Sukses",
-          description: "Porosia juaj u dërgua me sukses. Do t'ju kontaktojmë së shpejti.",
-        })
-        // Clear the pending order
-        localStorage.removeItem("pendingOrder")
-        // Redirect to orders page
-        router.push("/orders")
-      } else {
-        throw new Error("Dërgimi i porosisë dështoi")
+      // Parse the pending order data
+      const pendingOrder = JSON.parse(pendingOrderJson)
+      
+      // Set the product links in the Zustand store
+      if (pendingOrder && pendingOrder.productLinks) {
+        setProductLinks(pendingOrder.productLinks)
       }
+      
+      // Clear the pending order as it's now in the Zustand store
+      localStorage.removeItem("pendingOrder")
+      
+      // Show success message
+      toast({
+        title: "Sukses",
+        description: "Identifikimi u krye me sukses. Ju mund të vazhdoni me porosinë tuaj.",
+      })
+      
+      // Redirect to home page to show the order form
+      router.push("/")
     } catch (error) {
       toast({
         title: "Gabim",
-        description: "Dërgimi i porosisë dështoi. Ju lutemi provoni përsëri.",
+        description: "Ndodhi një gabim gjatë përpunimit të porosisë. Ju lutemi provoni përsëri.",
         variant: "destructive",
       })
     }
@@ -281,11 +284,9 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
               className="w-full py-4 sm:py-6 bg-primary hover:bg-primary/90 text-white text-sm sm:text-base"
             >
               {isSubmitting
-                ? hasPendingOrder
-                  ? "Duke identifikuar dhe dërguar porosinë..."
-                  : "Duke identifikuar..."
+                ? "Duke identifikuar..."
                 : hasPendingOrder
-                  ? "Identifikohu dhe dërgo porosinë"
+                  ? "Identifikohu dhe vazhdo me porosinë"
                   : "Identifikohu"}
             </Button>
 

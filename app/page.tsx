@@ -1,8 +1,7 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { SearchParamsProvider } from "@/components/client-search-params"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
@@ -39,9 +38,8 @@ function HomePageContent() {
 
   const handleSubmitOrder = async (data: { productLinks: any[] }) => {
     if (!user) {
-      // Store the current order data in localStorage to retrieve it after registration
-      localStorage.setItem("pendingOrder", JSON.stringify(data))
-      // Show registration modal
+      // No need to store in localStorage - the Zustand store already persists the data
+      // Just show the registration modal
       setShowRegistrationModal(true)
       return
     }
@@ -77,15 +75,15 @@ function HomePageContent() {
         credentials: "include" // Include cookies in the request
       })
 
-      if (response.ok) {
-        // Clear the draft product links from localStorage after successful submission
-        localStorage.removeItem("draftProductLinks")
-
-        toast({
-          title: "Sukses",
-          description: "Porosia juaj u dërgua me sukses. Do t'ju kontaktojmë së shpejti.",
-        })
-      } else {
+        if (response.ok) {
+          // The form will be cleared in the ProductForm component
+          // No need to manually clear localStorage
+          
+          toast({
+            title: "Sukses",
+            description: "Porosia juaj u dërgua me sukses. Do t'ju kontaktojmë së shpejti.",
+          })
+        } else {
         throw new Error("Dërgimi i porosisë dështoi")
       }
     } catch (error) {
@@ -97,8 +95,17 @@ function HomePageContent() {
     }
   }
 
+  // Import the useIsMobile hook
+  const isMobile = useIsMobile()
+  const [isClient, setIsClient] = useState(false)
+  
+  // Set isClient to true after hydration
+  React.useEffect(() => {
+    setIsClient(true)
+  }, [])
+  
   // For desktop screens, use the Layout component
-  if (typeof window !== "undefined" && window.innerWidth >= 768) {
+  if (!isMobile && isClient) {
     return (
       <Layout>
         <div className="max-w-4xl mx-auto">
@@ -173,7 +180,7 @@ function HomePageContent() {
     )
   }
 
-  // For mobile screens, use the mobile layout
+  // Default to mobile layout for server-side rendering and mobile clients
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <MobileHeader user={user} onLoginClick={() => setShowLoginModal(true)} />
@@ -237,18 +244,7 @@ function HomePageContent() {
                   </button>
                 </Card>
               ) : (
-                (() => {
-                  // Use an IIFE to handle the navigation
-                  if (typeof window !== "undefined") {
-                    // Only run on client side
-                    setTimeout(() => router.push("/orders"), 100);
-                  }
-                  return (
-                    <Card className="bg-white shadow-sm p-6 text-center">
-                      <p className="text-gray-700 mb-4">Duke ju ridrejtuar tek porositë tuaja...</p>
-                    </Card>
-                  );
-                })()
+                <RedirectToOrders />
               )}
             </motion.div>
           )}
@@ -295,6 +291,22 @@ function HomePageContent() {
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
       <RegistrationModal open={showRegistrationModal} onOpenChange={setShowRegistrationModal} />
     </div>
+  )
+}
+
+// Component to handle client-side navigation to orders page
+function RedirectToOrders() {
+  const router = useRouter()
+  
+  // Only navigate after hydration
+  useEffect(() => {
+    setTimeout(() => router.push("/orders"), 100)
+  }, [router])
+  
+  return (
+    <Card className="bg-white shadow-sm p-6 text-center">
+      <p className="text-gray-700 mb-4">Duke ju ridrejtuar tek porositë tuaja...</p>
+    </Card>
   )
 }
 

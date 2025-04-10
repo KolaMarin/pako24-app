@@ -9,19 +9,28 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
-import { Eye, EyeOff, Save } from "lucide-react"
+import { Eye, EyeOff, Save, Lock } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function SettingsPage() {
   const { user, updateUser, updatePassword } = useAuth()
+  const router = useRouter()
+  
+  // User info form state
   const [email, setEmail] = useState(user?.email || "")
   const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || "")
   const [location, setLocation] = useState(user?.location || "")
-  const [oldPassword, setOldPassword] = useState("********")
+  const [isSubmittingInfo, setIsSubmittingInfo] = useState(false)
+  
+  // Password form state
+  const [oldPassword, setOldPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [showOldPassword, setShowOldPassword] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const router = useRouter()
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false)
+  const [passwordError, setPasswordError] = useState("")
 
   useEffect(() => {
     // Redirect if not logged in
@@ -36,24 +45,16 @@ export default function SettingsPage() {
     }
   }, [user, router])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleUserInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
+    setIsSubmittingInfo(true)
 
     try {
       await updateUser({ email, phoneNumber, location })
-      if (oldPassword !== "********" && newPassword) {
-        const success = await updatePassword(oldPassword, newPassword)
-        if (!success) {
-          throw new Error("Fjalëkalimi i vjetër është i pasaktë.")
-        }
-      }
       toast({
         title: "Sukses",
         description: "Të dhënat tuaja u përditësuan me sukses.",
       })
-      setOldPassword("********")
-      setNewPassword("")
     } catch (error) {
       toast({
         title: "Gabim",
@@ -62,7 +63,56 @@ export default function SettingsPage() {
         variant: "destructive",
       })
     } finally {
-      setIsSubmitting(false)
+      setIsSubmittingInfo(false)
+    }
+  }
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError("")
+    
+    // Validate passwords match
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Fjalëkalimet e reja nuk përputhen.")
+      return
+    }
+    
+    // Validate password is not empty
+    if (!newPassword) {
+      setPasswordError("Ju lutemi vendosni një fjalëkalim të ri.")
+      return
+    }
+    
+    setIsSubmittingPassword(true)
+
+    try {
+      if (!oldPassword) {
+        throw new Error("Për të ndryshuar fjalëkalimin, duhet të vendosni fjalëkalimin e vjetër.")
+      }
+      
+      const success = await updatePassword(oldPassword, newPassword)
+      if (!success) {
+        throw new Error("Fjalëkalimi i vjetër është i pasaktë.")
+      }
+      
+      toast({
+        title: "Sukses",
+        description: "Fjalëkalimi juaj u ndryshua me sukses.",
+      })
+      
+      // Reset password fields
+      setOldPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
+    } catch (error) {
+      setPasswordError(error instanceof Error ? error.message : "Ndryshimi i fjalëkalimit dështoi.")
+      toast({
+        title: "Gabim",
+        description: error instanceof Error ? error.message : "Ndryshimi i fjalëkalimit dështoi.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmittingPassword(false)
     }
   }
 
@@ -75,10 +125,12 @@ export default function SettingsPage() {
     <Layout>
       <div className="max-w-2xl mx-auto px-4">
         <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-primary">Cilësimet</h1>
-        <Card className="bg-white shadow-lg border-0">
+        
+        {/* Section 1: User Information */}
+        <Card className="bg-white shadow-lg border-0 mb-6">
           <CardContent className="p-6">
             <h2 className="text-xl font-semibold mb-6 text-primary">Të Dhënat e Përdoruesit</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleUserInfoSubmit} className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email
@@ -103,6 +155,29 @@ export default function SettingsPage() {
                 </label>
                 <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} required />
               </div>
+              <Button
+                type="submit"
+                disabled={isSubmittingInfo}
+                className="w-full bg-primary hover:bg-primary/90 text-white mt-6"
+              >
+                {isSubmittingInfo ? (
+                  "Duke ruajtur..."
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Ruaj Ndryshimet
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+        
+        {/* Section 2: Password Change */}
+        <Card className="bg-white shadow-lg border-0">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-semibold mb-6 text-primary">Ndryshimi i Fjalëkalimit</h2>
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <div>
                 <label htmlFor="oldPassword" className="block text-sm font-medium text-gray-700">
                   Fjalëkalimi i Vjetër
@@ -112,22 +187,8 @@ export default function SettingsPage() {
                     id="oldPassword"
                     type={showOldPassword ? "text" : "password"}
                     value={oldPassword}
-                    onChange={(e) => {
-                      // Only update if the user is actually typing a new password
-                      if (e.target.value !== "********") {
-                        setOldPassword(e.target.value)
-                      }
-                    }}
-                    onFocus={() => {
-                      if (oldPassword === "********") {
-                        setOldPassword("")
-                      }
-                    }}
-                    onBlur={() => {
-                      if (oldPassword === "") {
-                        setOldPassword("********")
-                      }
-                    }}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    required
                   />
                   <Button
                     type="button"
@@ -144,24 +205,64 @@ export default function SettingsPage() {
                 <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
                   Fjalëkalimi i Ri
                 </label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showNewPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
               </div>
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                  Përsëritja e Fjalëkalimit të Ri
+                </label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+              
+              {passwordError && (
+                <div className="text-red-500 text-sm mt-2">{passwordError}</div>
+              )}
+              
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmittingPassword}
                 className="w-full bg-primary hover:bg-primary/90 text-white mt-6"
               >
-                {isSubmitting ? (
-                  "Duke ruajtur..."
+                {isSubmittingPassword ? (
+                  "Duke ndryshuar..."
                 ) : (
                   <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Ruaj Ndryshimet
+                    <Lock className="mr-2 h-4 w-4" />
+                    Ndysho Fjalëkalimin
                   </>
                 )}
               </Button>
@@ -172,4 +273,3 @@ export default function SettingsPage() {
     </Layout>
   )
 }
-

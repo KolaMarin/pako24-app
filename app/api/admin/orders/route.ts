@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { verifyAdminAuth } from "@/lib/admin-auth"
 
 // Define a simple type for the order with user information
 interface OrderWithUser {
@@ -31,8 +32,14 @@ interface OrderWithUser {
   }>;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Verify admin authentication
+    const admin = await verifyAdminAuth(request)
+    if (!admin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    
     const orders = await prisma.order.findMany({
       include: {
         user: {

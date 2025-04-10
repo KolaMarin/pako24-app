@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
+import { useProductFormStore } from "@/lib/product-form-store"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -47,7 +48,7 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
 
         // Check if there's a pending order
         if (hasPendingOrder) {
-          await submitPendingOrder()
+          handlePendingOrder()
         } else {
           toast({
             title: "Sukses",
@@ -64,59 +65,38 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
     }
   }
 
-  // Function to submit the pending order (only called client-side)
-  const submitPendingOrder = async () => {
+  // Get the setProductLinks function from the Zustand store
+  const { setProductLinks } = useProductFormStore()
+
+  // Function to handle pending order after registration (only called client-side)
+  const handlePendingOrder = () => {
     try {
       const pendingOrderJson = localStorage.getItem("pendingOrder")
       if (!pendingOrderJson) return
 
-      const data = JSON.parse(pendingOrderJson)
+      // Parse the pending order data
+      const pendingOrder = JSON.parse(pendingOrderJson)
       
-      // Transform the product links to match the expected API format
-      const transformedData = {
-        productLinks: data.productLinks.map((link: any) => {
-          // Calculate fees similar to what's in the form
-          const euroPrice = link.price * 1.15; // Approximate GBP to EUR conversion
-          const basePriceEUR = euroPrice * link.quantity;
-          const customsFee = basePriceEUR * 0.2; // 20% of price in EUR
-          const shippingFee = link.isHeavy ? 20 : 10; // 10€ if under 1kg, 20€ if over
-          const shippingTotal = shippingFee * link.quantity;
-
-          return {
-            url: link.url,
-            quantity: link.quantity,
-            size: link.size || "",
-            color: link.color || "",
-            priceGBP: link.price * link.quantity,
-            priceEUR: basePriceEUR,
-            customsFee: customsFee,
-            transportFee: shippingTotal
-          };
-        })
-      };
-      
-      const response = await fetch("/api/submit-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(transformedData),
-      })
-
-      if (response.ok) {
-        toast({
-          title: "Sukses",
-          description: "Porosia juaj u dërgua me sukses. Do t'ju kontaktojmë së shpejti.",
-        })
-        // Clear the pending order
-        localStorage.removeItem("pendingOrder")
-        // Redirect to orders page
-        router.push("/orders")
-      } else {
-        throw new Error("Dërgimi i porosisë dështoi")
+      // Set the product links in the Zustand store
+      if (pendingOrder && pendingOrder.productLinks) {
+        setProductLinks(pendingOrder.productLinks)
       }
+      
+      // Clear the pending order as it's now in the Zustand store
+      localStorage.removeItem("pendingOrder")
+      
+      // Show success message
+      toast({
+        title: "Sukses",
+        description: "Regjistrimi u krye me sukses. Ju mund të vazhdoni me porosinë tuaj.",
+      })
+      
+      // Redirect to home page to show the order form
+      router.push("/")
     } catch (error) {
       toast({
         title: "Gabim",
-        description: "Dërgimi i porosisë dështoi. Ju lutemi provoni përsëri.",
+        description: "Ndodhi një gabim gjatë përpunimit të porosisë. Ju lutemi provoni përsëri.",
         variant: "destructive",
       })
     }
@@ -201,11 +181,9 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
             className="w-full py-4 sm:py-6 bg-primary hover:bg-primary/90 text-white text-sm sm:text-base"
           >
             {isSubmitting
-              ? hasPendingOrder
-                ? "Duke regjistruar dhe dërguar porosinë..."
-                : "Duke regjistruar..."
+              ? "Duke regjistruar..."
               : hasPendingOrder
-                ? "Regjistrohu dhe dërgo porosinë"
+                ? "Regjistrohu dhe vazhdo me porosinë"
                 : "Regjistrohu"}
           </Button>
 

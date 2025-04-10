@@ -8,22 +8,47 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { toast } from "@/components/ui/use-toast"
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (username === "admin" && password === "admin") {
-      // In a real application, you would set a secure session or token here
-      localStorage.setItem("adminAuthenticated", "true")
-      router.push("/admin/dashboard")
-    } else {
+    setIsLoading(true)
+    
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok && data.success) {
+        toast({
+          title: "Sukses",
+          description: "Jeni identifikuar me sukses.",
+        })
+        router.push("/admin/dashboard")
+        router.refresh() // Refresh to update auth state
+      } else {
+        toast({
+          title: "Gabim",
+          description: data.error || "Emaili ose fjalëkalimi është i pasaktë.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Login error:', error)
       toast({
         title: "Gabim",
-        description: "Emri i përdoruesit ose fjalëkalimi është i pasaktë.",
+        description: "Ka ndodhur një gabim gjatë identifikimit. Ju lutemi provoni përsëri.",
         variant: "destructive",
       })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -37,10 +62,12 @@ export default function AdminLogin() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Emri i përdoruesit"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
               required
+              disabled={isLoading}
             />
             <Input
               type="password"
@@ -48,9 +75,10 @@ export default function AdminLogin() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Fjalëkalimi"
               required
+              disabled={isLoading}
             />
-            <Button type="submit" className="w-full">
-              Hyr
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Duke u identifikuar..." : "Hyr"}
             </Button>
           </form>
         </CardContent>
@@ -58,4 +86,3 @@ export default function AdminLogin() {
     </div>
   )
 }
-

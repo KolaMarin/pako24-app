@@ -445,7 +445,7 @@ export default function OrdersPage() {
                     <AccordionContent className="px-3 pb-3">
                       <div className="space-y-3">
                         {order.productLinks.map((product, index) => (
-                          <div
+                            <div
                             key={index}
                             className="bg-gray-50 rounded-lg border border-gray-100 overflow-hidden p-2 mb-2"
                           >
@@ -471,12 +471,10 @@ export default function OrdersPage() {
                                   {/* Product price on the right */}
                                   {product.priceEUR && (
                                     <span className="text-xs font-medium text-primary">
-                                      €
-                                      {(
-                                        (product.priceEUR || 0) * product.quantity +
-                                        (product.customsFee || 0) * product.quantity +
-                                        (product.isHeavy ? 20 : 10)
-                                      ).toFixed(2)}
+                                      €{((product.priceEUR || 0) * product.quantity).toFixed(2)}
+                                      <span className="text-xs text-gray-500 ml-1">
+                                        (€{(product.priceEUR || 0).toFixed(2)} × {product.quantity})
+                                      </span>
                                     </span>
                                   )}
                                 </div>
@@ -499,30 +497,6 @@ export default function OrdersPage() {
                                     </span>
                                   )}
                                 </div>
-
-                                {/* Price details with separators */}
-                                {product.priceGBP && (
-                                  <div className="flex flex-wrap items-center text-xs mt-1.5 text-gray-600">
-                                    <span>
-                                      <span className="text-gray-500">Çmimi bazë:</span> €
-                                      {(product.priceEUR || 0).toFixed(2)}{" "}
-                                      <span className="text-gray-500">(£{product.priceGBP.toFixed(2)})</span> ×{" "}
-                                      {product.quantity}
-                                    </span>
-                                    <span className="mx-1.5 text-gray-300">•</span>
-                                    {product.customsFee && (
-                                      <span>
-                                        <span className="text-gray-500">Dogana:</span> €{product.customsFee.toFixed(2)}{" "}
-                                        × {product.quantity}
-                                      </span>
-                                    )}
-                                    <span className="mx-1.5 text-gray-300">•</span>
-                                    <span>
-                                      <span className="text-gray-500">Transporti:</span> €
-                                      {product.isHeavy ? "20.00" : "10.00"}
-                                    </span>
-                                  </div>
-                                )}
                               </div>
                             </div>
                           </div>
@@ -537,42 +511,33 @@ export default function OrdersPage() {
                         </div>
                       )}
 
-                      {/* Order summary */}
+                      {/* Order summary - simplified to match invoice format */}
                       <div className="mt-3 pt-3 border-t border-gray-100">
                         <h4 className="text-sm font-medium mb-2">Përmbledhje e Porosisë</h4>
                         <div className="space-y-1 text-sm bg-gray-50 p-3 rounded-md">
                           {/* Base price total */}
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Çmimi bazë total:</span>
-                            <span>
-                              €
-                              {order.productLinks
-                                .reduce((sum, p) => sum + (p.priceEUR || 0) * p.quantity, 0)
-                                .toFixed(2)}
-                              {order.totalPriceGBP && (
-                                <span className="text-gray-500 text-xs ml-1">
-                                  (£
-                                  {order.productLinks
-                                    .reduce((sum, p) => sum + (p.priceGBP || 0) * p.quantity, 0)
-                                    .toFixed(2)}
-                                  )
-                                </span>
-                              )}
-                            </span>
+                            <span className="text-gray-500">Çmimi bazë:</span>
+                            <div>
+                              <span>
+                                €
+                                {order.productLinks
+                                  .reduce((sum, p) => sum + (p.priceEUR || 0) * p.quantity, 0)
+                                  .toFixed(2)}
+                              </span>
+                            </div>
                           </div>
                           {/* Customs fee total */}
                           {order.totalCustomsFee && (
                             <div className="flex justify-between">
-                              <span className="text-gray-500">Dogana totale:</span>
+                              <span className="text-gray-500">Dogana (20%):</span>
                               <span>€{order.totalCustomsFee.toFixed(2)}</span>
                             </div>
                           )}
-                          {/* Transport fee total - fixed at €10 or €20 per product */}
+                          {/* Transport fee total - flat fee of €10.00 */}
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Transporti total:</span>
-                            <span>
-                              €{order.productLinks.reduce((sum, p) => sum + (p.isHeavy ? 20 : 10), 0).toFixed(2)}
-                            </span>
+                            <span className="text-gray-500">Transporti:</span>
+                            <span>€{order.totalTransportFee?.toFixed(2) || "10.00"}</span>
                           </div>
                           {/* Grand total */}
                           <div className="flex justify-between font-medium pt-1 mt-1 border-t border-gray-200">
@@ -665,4 +630,3 @@ export default function OrdersPage() {
     </Layout>
   )
 }
-

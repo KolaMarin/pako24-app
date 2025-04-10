@@ -3,6 +3,11 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { OrderInvoiceModal } from "@/components/order-invoice-modal"
+import { LoginModal } from "@/components/login-modal"
+import { useProductFormStore, type ProductLink, getEmptyProduct } from "@/lib/product-form-store"
+import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -22,6 +27,7 @@ import {
   Loader2,
   PoundSterling,
   Minus,
+  RefreshCw,
 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Separator } from "@/components/ui/separator"
@@ -31,72 +37,45 @@ import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 
-interface ProductLink {
-  url: string
-  quantity: number
-  size: string
-  color: string
-  additionalInfo: string
-  price: number
-  isHeavy: boolean
-}
+// ProductLink type is now imported from product-form-store.ts
 
 interface ProductFormProps {
   onSubmit: (data: { productLinks: ProductLink[] }) => Promise<void>
 }
 
 export function ProductForm({ onSubmit }: ProductFormProps) {
-  const [productLinks, setProductLinks] = useState<ProductLink[]>(() => {
-    // Try to get saved product links from localStorage
-    if (typeof window !== "undefined") {
-      const savedLinks = localStorage.getItem("draftProductLinks")
-      if (savedLinks) {
-        try {
-          return JSON.parse(savedLinks)
-        } catch (e) {
-          console.error("Failed to parse saved product links", e)
-        }
-      }
+  // Use the Zustand store instead of local state
+  const { 
+    productLinks, 
+    addProductLink: addProductLinkToStore, 
+    updateProductLink: updateProductLinkInStore,
+    removeProductLink: removeProductLinkFromStore,
+    clearForm: clearFormInStore
+  } = useProductFormStore()
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
+  const router = useRouter()
+  const { user } = useAuth()
+  
+  // Function to clear the form
+  const clearForm = () => {
+    if (window.confirm("Jeni i sigurt që dëshironi të pastroni formularin? Të gjitha të dhënat do të fshihen.")) {
+      clearFormInStore()
+      toast({
+        title: "Formulari u pastrua",
+        description: "Të gjitha të dhënat e formularit u fshinë.",
+      })
     }
-
-    // Default initial state
-    return [
-      {
-        url: "",
-        quantity: 1,
-        size: "",
-        color: "",
-        additionalInfo: "",
-        price: 0,
-        isHeavy: false,
-      },
-    ]
-  })
+  }
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({})
   const [expandedProductIndex, setExpandedProductIndex] = useState<number | null>(0) // Start with first product expanded
 
-  useEffect(() => {
-    // Save product links to localStorage whenever they change
-    if (typeof window !== "undefined" && productLinks.length > 0) {
-      localStorage.setItem("draftProductLinks", JSON.stringify(productLinks))
-    }
-  }, [productLinks])
+  // No need for the useEffect to save to localStorage - Zustand handles that automatically
 
   const addProductLink = () => {
-    // Create a new empty product
-    const newProduct = {
-      url: "",
-      quantity: 1,
-      size: "",
-      color: "",
-      additionalInfo: "",
-      price: 0,
-      isHeavy: false,
-    }
-
-    // Add it to the list
-    setProductLinks([...productLinks, newProduct])
+    // Use the store's function to add a product
+    addProductLinkToStore()
 
     // Expand the new product
     setExpandedProductIndex(productLinks.length)
@@ -114,7 +93,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
     e.stopPropagation()
 
     if (productLinks.length > 1) {
-      setProductLinks(productLinks.filter((_, i) => i !== index))
+      removeProductLinkFromStore(index)
 
       // If we're removing the expanded product, collapse all
       if (expandedProductIndex === index) {
@@ -125,40 +104,34 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         setExpandedProductIndex(expandedProductIndex - 1)
       }
     } else {
-      toast({
-        title: "Kujdes",
-        description: "Duhet të keni të paktën një produkt në porosi.",
-        variant: "default",
-      })
+      // Clear the form instead of showing a toast message
+      updateProductLinkInStore(index, "url", "")
+      updateProductLinkInStore(index, "quantity", 1)
+      updateProductLinkInStore(index, "size", "")
+      updateProductLinkInStore(index, "color", "")
+      updateProductLinkInStore(index, "additionalInfo", "")
+      updateProductLinkInStore(index, "price", 0)
     }
   }
 
-  const calculateFees = (price: number, quantity: number, isHeavy: boolean) => {
+  const calculateFees = (price: number, quantity: number) => {
     const euroPrice = price * 1.15 // Approximate GBP to EUR conversion
     const basePriceEUR = euroPrice * quantity
     const customsFee = basePriceEUR * 0.2 // 20% of price in EUR
-    const shippingFee = isHeavy ? 20 : 10 // 10€ if under 1kg, 20€ if over
-    const shippingTotal = shippingFee * quantity
-
+    const shippingFee = 10 // Base shipping fee of 10€ per order, not per product
+    
     return {
       basePriceGBP: price * quantity,
       basePriceEUR,
       customsFee,
-      shippingFee: shippingTotal,
-      totalEUR: basePriceEUR + customsFee + shippingTotal,
+      shippingFee: shippingFee, // Flat fee, not multiplied by quantity
+      totalEUR: basePriceEUR + customsFee + shippingFee,
     }
   }
 
   const updateProductLink = (index: number, field: keyof ProductLink, value: string | number | boolean) => {
-    const updatedLinks = [...productLinks]
-
-    // Ensure quantity is always an integer
-    if (field === "quantity" && typeof value === "number") {
-      value = Math.max(1, Math.floor(value))
-    }
-
-    updatedLinks[index] = { ...updatedLinks[index], [field]: value }
-    setProductLinks(updatedLinks)
+    // Use the store's function to update a product
+    updateProductLinkInStore(index, field, value)
 
     // Clear validation error when field is updated
     if (validationErrors[`${index}-${field}`]) {
@@ -170,21 +143,44 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
 
   const validateForm = () => {
     const errors: { [key: string]: string } = {}
+    let firstErrorIndex: number | null = null
 
     productLinks.forEach((link, index) => {
       if (!link.url) {
         errors[`${index}-url`] = "URL është e detyrueshme"
+        if (firstErrorIndex === null) firstErrorIndex = index
       } else if (!link.url.startsWith("http")) {
         errors[`${index}-url`] = "URL duhet të fillojë me http:// ose https://"
+        if (firstErrorIndex === null) firstErrorIndex = index
       }
 
       if (link.quantity < 1) {
         errors[`${index}-quantity`] = "Sasia duhet të jetë të paktën 1"
+        if (firstErrorIndex === null) firstErrorIndex = index
       }
     })
 
     setValidationErrors(errors)
+    
+    // Expand the first product with an error
+    if (firstErrorIndex !== null) {
+      setExpandedProductIndex(firstErrorIndex)
+      
+      // Scroll to the product with error
+      setTimeout(() => {
+        const errorElement = document.getElementById(`product-${firstErrorIndex}`)
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: "smooth", block: "center" })
+        }
+      }, 100)
+    }
+    
     return Object.keys(errors).length === 0
+  }
+
+  // Save order to localStorage for later retrieval after login
+  const savePendingOrder = () => {
+    localStorage.setItem("pendingOrder", JSON.stringify({ productLinks }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -199,13 +195,30 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       return
     }
 
-    setIsSubmitting(true)
-    try {
-      await onSubmit({ productLinks })
-      // Clear the draft product links from localStorage after successful submission
-      localStorage.removeItem("draftProductLinks")
+    // Check if user is authenticated
+    if (!user) {
+      // Save the current order to localStorage
+      savePendingOrder()
+      
+      // Show login modal
+      setShowLoginModal(true)
+      
+      toast({
+        title: "Identifikim i nevojshëm",
+        description: "Ju duhet të identifikoheni ose të regjistroheni për të vazhduar me porosinë.",
+      })
+      return
+    }
 
-      setProductLinks([{ url: "", quantity: 1, size: "", color: "", additionalInfo: "", price: 0, isHeavy: false }])
+    // User is authenticated, show invoice modal
+    setShowInvoiceModal(true)
+  }
+
+  const handleFinalSubmit = async (data: { productLinks: ProductLink[] }) => {
+    try {
+      await onSubmit(data)
+      // Clear the form using the store's function
+      clearFormInStore()
       toast({
         title: "Sukses",
         description: "Porosia juaj u dërgua me sukses.",
@@ -216,8 +229,6 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         description: "Dërgimi i porosisë dështoi. Ju lutemi provoni përsëri.",
         variant: "destructive",
       })
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -229,8 +240,22 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
     }
   }
 
+
   return (
     <div className="space-y-6 p-4 md:p-6">
+      {/* Invoice Modal */}
+      <OrderInvoiceModal 
+        open={showInvoiceModal} 
+        onOpenChange={setShowInvoiceModal} 
+        onSubmit={handleFinalSubmit} 
+      />
+      
+      {/* Login Modal */}
+      <LoginModal
+        open={showLoginModal}
+        onOpenChange={setShowLoginModal}
+      />
+      
       {/* Instructions */}
       <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
         <div className="flex gap-3">
@@ -247,7 +272,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
 
       <AnimatePresence initial={false}>
         {productLinks.map((link, index) => {
-          const fees = link.price > 0 ? calculateFees(link.price, link.quantity, link.isHeavy) : null
+          const fees = link.price > 0 ? calculateFees(link.price, link.quantity) : null
 
           return (
             <motion.div
@@ -270,7 +295,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                 <div
                   className={cn(
                     "p-4 cursor-pointer transition-colors",
-                    expandedProductIndex === index ? "bg-primary-50" : "hover:bg-gray-50",
+                    expandedProductIndex === index ? "bg-primary-50" : "bg-gray-50/50 hover:bg-gray-50",
                   )}
                   onClick={() => toggleProductExpansion(index)}
                 >
@@ -286,7 +311,12 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      {fees && <div className="text-sm font-medium text-primary">€{fees.totalEUR.toFixed(2)}</div>}
+                        {link.price > 0 && (
+                          <div className="text-sm font-medium text-primary">
+                            €{(link.price * 1.15 * link.quantity).toFixed(2)}
+                            <span className="text-xs text-gray-500 ml-1">(£{(link.price * link.quantity).toFixed(2)})</span>
+                          </div>
+                        )}
                       <div className="flex items-center">
                         <Button
                           type="button"
@@ -320,11 +350,6 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                     {link.color && (
                       <Badge variant="outline" className="text-xs bg-primary-50 text-primary-700 border-primary-200">
                         {link.color}
-                      </Badge>
-                    )}
-                    {link.isHeavy && (
-                      <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
-                        Mbi 1kg
                       </Badge>
                     )}
                   </div>
@@ -478,59 +503,6 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                             </div>
                           </div>
 
-                          {/* Weight toggle */}
-                          <div className="flex items-center justify-between space-x-2 bg-gray-50 p-3 rounded-md">
-                            <div className="space-y-0.5">
-                              <Label className="text-sm font-medium text-gray-700">Produkt mbi 1kg?</Label>
-                              <p className="text-xs text-gray-500">Aktivizo nëse produkti peshon më shumë se 1kg</p>
-                            </div>
-                            <Switch
-                              checked={link.isHeavy}
-                              onCheckedChange={(checked) => updateProductLink(index, "isHeavy", checked)}
-                            />
-                          </div>
-
-                          {/* Price calculations */}
-                          {fees && (
-                            <div className="bg-gray-50 p-3 rounded-md">
-                              <div className="space-y-2 text-sm">
-                                <div className="flex justify-between items-center">
-                                  <span className="text-gray-600 flex items-center">
-                                    Çmimi bazë:{" "}
-                                    <Badge className="ml-2 bg-primary-100 text-primary-700 border-0">
-                                      {link.quantity}x
-                                    </Badge>
-                                  </span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">€{fees.basePriceEUR.toFixed(2)}</span>
-                                    <span className="text-xs text-gray-500">(£{fees.basePriceGBP.toFixed(2)})</span>
-                                  </div>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                  <span className="text-gray-600 flex items-center">
-                                    Dogana (20%):{" "}
-                                    <Badge className="ml-2 bg-primary-100 text-primary-700 border-0">
-                                      {link.quantity}x
-                                    </Badge>
-                                  </span>
-                                  <span className="font-medium">€{fees.customsFee.toFixed(2)}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                  <span className="text-gray-600 flex items-center">
-                                    Transporti:{" "}
-                                    <Badge className="ml-2 bg-primary-100 text-primary-700 border-0">
-                                      {link.quantity}x
-                                    </Badge>
-                                  </span>
-                                  <span className="font-medium">€{fees.shippingFee.toFixed(2)}</span>
-                                </div>
-                                <div className="flex justify-between items-center pt-2 mt-1 border-t border-gray-200 font-medium">
-                                  <span>Totali:</span>
-                                  <span className="text-primary">€{fees.totalEUR.toFixed(2)}</span>
-                                </div>
-                              </div>
-                            </div>
-                          )}
 
                           {/* Additional info */}
                           <div>
@@ -578,20 +550,6 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
 
       <Separator className="my-8" />
 
-      <div className="space-y-4">
-        <div className="bg-primary-50 border border-primary-100 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-primary-800 mb-1">Informacion për Porosinë</h3>
-              <p className="text-sm text-primary-700">
-                Pasi të dërgoni porosinë, ekipi ynë do ta shqyrtojë dhe do t'ju kontaktojë për të konfirmuar detajet dhe
-                çmimin. Ju mund të ndiqni statusin e porosisë suaj në seksionin "Porositë e Mia".
-              </p>
-            </div>
-          </div>
-        </div>
-
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting}
@@ -609,8 +567,19 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
             </>
           )}
         </Button>
+
+        <div className="space-y-4">
+        <div className="bg-primary-50 border border-primary-100 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-primary-700">
+                Pasi të dërgoni porosinë, ekipi ynë do t'ju kontaktojë për të konfirmuar detajet.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
-

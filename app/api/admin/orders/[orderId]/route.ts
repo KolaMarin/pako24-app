@@ -1,8 +1,15 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { verifyAdminAuth } from "@/lib/admin-auth"
 
-export async function PATCH(request: Request, { params }: { params: { orderId: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: { orderId: string } }) {
   try {
+    // Verify admin authentication
+    const admin = await verifyAdminAuth(request)
+    if (!admin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    
     const { status } = await request.json()
     
     // Check if the order exists

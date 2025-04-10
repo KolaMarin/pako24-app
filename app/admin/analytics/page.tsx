@@ -2,253 +2,429 @@
 
 import { useState, useEffect } from "react"
 import AdminLayout from "@/components/admin-layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { toast } from "@/components/ui/use-toast"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { format } from "date-fns"
+import { Calendar as CalendarIcon, Download, BarChart as BarChartIcon, LineChart as LineChartIcon, PieChart, TrendingUp } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent
+} from "@/components/ui/chart"
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  Legend,
   ResponsiveContainer,
+  Tooltip,
+  Legend
 } from "recharts"
 
-// Mock data
-const orderData = [
-  { month: "Jan", orders: 65, revenue: 4200 },
-  { month: "Feb", orders: 59, revenue: 3800 },
-  { month: "Mar", orders: 80, revenue: 5100 },
-  { month: "Apr", orders: 81, revenue: 5300 },
-  { month: "May", orders: 56, revenue: 3700 },
-  { month: "Jun", orders: 55, revenue: 3600 },
-  { month: "Jul", orders: 40, revenue: 2800 },
-  { month: "Aug", orders: 70, revenue: 4500 },
-  { month: "Sep", orders: 90, revenue: 5800 },
-  { month: "Oct", orders: 110, revenue: 7200 },
-  { month: "Nov", orders: 130, revenue: 8500 },
-  { month: "Dec", orders: 150, revenue: 9800 },
-]
+interface AnalyticsData {
+  totalOrders: number
+  totalRevenue: number
+  averageOrderValue: number
+  pendingOrders: number
+  processingOrders: number
+  shippedOrders: number
+  deliveredOrders: number
+  cancelledOrders: number
+  dailyOrders: { date: string; count: number; revenue: number }[]
+  topProducts: { url: string; count: number }[]
+}
 
-const categoryData = [
-  { name: "Fashion", value: 40 },
-  { name: "Electronics", value: 30 },
-  { name: "Beauty", value: 15 },
-  { name: "Home", value: 10 },
-  { name: "Other", value: 5 },
-]
-
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
-
-const userAcquisitionData = [
-  { month: "Jan", organic: 30, referral: 20, social: 15 },
-  { month: "Feb", organic: 25, referral: 25, social: 20 },
-  { month: "Mar", organic: 35, referral: 30, social: 25 },
-  { month: "Apr", organic: 40, referral: 35, social: 30 },
-  { month: "May", organic: 30, referral: 25, social: 20 },
-  { month: "Jun", organic: 25, referral: 20, social: 15 },
-  { month: "Jul", organic: 20, referral: 15, social: 10 },
-  { month: "Aug", organic: 30, referral: 25, social: 20 },
-  { month: "Sep", organic: 40, referral: 35, social: 30 },
-  { month: "Oct", organic: 50, referral: 40, social: 35 },
-  { month: "Nov", organic: 60, referral: 45, social: 40 },
-  { month: "Dec", organic: 70, referral: 50, social: 45 },
-]
-
-export default function AnalyticsDashboard() {
-  const [timeRange, setTimeRange] = useState("year")
-  const [isLoading, setIsLoading] = useState(false)
-
-  // Key metrics
-  const [metrics, setMetrics] = useState({
-    totalOrders: 0,
-    totalRevenue: 0,
-    averageOrderValue: 0,
-    activeUsers: 0,
+export default function AdminAnalyticsPage() {
+  const [loading, setLoading] = useState(true)
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
+  const [dateRange, setDateRange] = useState({
+    from: new Date(new Date().setDate(new Date().getDate() - 30)),
+    to: new Date(),
   })
 
   useEffect(() => {
-    // In a real implementation, this would fetch data from your API
-    setIsLoading(true)
+    fetchAnalyticsData()
+  }, [dateRange])
 
-    // Mock data loading
-    setTimeout(() => {
-      setMetrics({
-        totalOrders: 986,
-        totalRevenue: 64300,
-        averageOrderValue: 65.21,
-        activeUsers: 342,
+  const fetchAnalyticsData = async () => {
+    try {
+      setLoading(true)
+      
+      const queryParams = new URLSearchParams()
+      if (dateRange.from) {
+        queryParams.append('from', dateRange.from.toISOString())
+      }
+      if (dateRange.to) {
+        queryParams.append('to', dateRange.to.toISOString())
+      }
+      
+      const response = await fetch(`/api/admin/analytics?${queryParams.toString()}`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        setAnalyticsData(data)
+      } else {
+        throw new Error("Failed to fetch analytics data")
+      }
+    } catch (error) {
+      toast({
+        title: "Gabim",
+        description: "Marrja e të dhënave analitike dështoi. Ju lutemi provoni përsëri.",
+        variant: "destructive",
       })
-      setIsLoading(false)
-    }, 1000)
-  }, [timeRange])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const downloadReport = async (format: 'csv' | 'pdf' | 'excel') => {
+    try {
+      const queryParams = new URLSearchParams()
+      if (dateRange.from) {
+        queryParams.append('from', dateRange.from.toISOString())
+      }
+      if (dateRange.to) {
+        queryParams.append('to', dateRange.to.toISOString())
+      }
+      queryParams.append('format', format)
+      
+      const response = await fetch(`/api/admin/analytics/download?${queryParams.toString()}`)
+      
+      if (response.ok) {
+        // Create a blob from the response
+        const blob = await response.blob()
+        
+        // Create a link element to trigger the download
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.style.display = 'none'
+        a.href = url
+        
+        // Set the file name based on the format
+        const fileName = `analytics-report-${format === 'csv' ? 'csv' : format === 'pdf' ? 'pdf' : 'xlsx'}`
+        a.download = fileName
+        
+        // Append to the document, click and cleanup
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        
+        toast({
+          title: "Sukses",
+          description: "Raporti u shkarkua me sukses.",
+        })
+      } else {
+        throw new Error("Failed to download report")
+      }
+    } catch (error) {
+      toast({
+        title: "Gabim",
+        description: "Shkarkimi i raportit dështoi. Ju lutemi provoni përsëri.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Mock data for chart visualization
+  const mockChartData = {
+    dailyOrders: [
+      { date: '2025-03-01', count: 5, revenue: 250 },
+      { date: '2025-03-02', count: 7, revenue: 350 },
+      { date: '2025-03-03', count: 3, revenue: 150 },
+      { date: '2025-03-04', count: 8, revenue: 400 },
+      { date: '2025-03-05', count: 12, revenue: 600 },
+      { date: '2025-03-06', count: 10, revenue: 500 },
+      { date: '2025-03-07', count: 6, revenue: 300 },
+    ],
+    statusDistribution: [
+      { status: 'PENDING', count: 15 },
+      { status: 'PROCESSING', count: 25 },
+      { status: 'SHIPPED', count: 20 },
+      { status: 'DELIVERED', count: 35 },
+      { status: 'CANCELLED', count: 5 },
+    ]
+  }
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[200px]">
+          <p className="text-muted-foreground">Duke ngarkuar...</p>
+        </div>
+      </AdminLayout>
+    )
+  }
 
   return (
     <AdminLayout>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Analitika e Biznesit</h1>
-        <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Periudha kohore" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="week">Java e fundit</SelectItem>
-            <SelectItem value="month">Muaji i fundit</SelectItem>
-            <SelectItem value="quarter">3 muajt e fundit</SelectItem>
-            <SelectItem value="year">Viti i fundit</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="space-y-6">
         <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Porosi Totale</CardDescription>
-            <CardTitle className="text-3xl">{metrics.totalOrders}</CardTitle>
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row justify-between gap-4">
+              <div>
+                <CardTitle>Analitika</CardTitle>
+                <CardDescription>
+                  Shikoni statistikat e shitjeve dhe porosive
+                </CardDescription>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex items-center gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "justify-start text-left font-normal w-[240px]",
+                          !dateRange.from && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dateRange.from ? (
+                          dateRange.to ? (
+                            <>
+                              {format(dateRange.from, "P")} - {format(dateRange.to, "P")}
+                            </>
+                          ) : (
+                            format(dateRange.from, "P")
+                          )
+                        ) : (
+                          <span>Zgjidhni datat</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        initialFocus
+                        mode="range"
+                        defaultMonth={dateRange.from}
+                        selected={{
+                          from: dateRange.from,
+                          to: dateRange.to,
+                        }}
+                        onSelect={(range) => {
+                          if (range?.from) {
+                            setDateRange({
+                              from: range.from,
+                              to: range.to || range.from,
+                            });
+                          }
+                        }}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => downloadReport('csv')}>
+                    <Download className="mr-2 h-4 w-4" />
+                    CSV
+                  </Button>
+                  <Button variant="outline" onClick={() => downloadReport('excel')}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Excel
+                  </Button>
+                  <Button variant="outline" onClick={() => downloadReport('pdf')}>
+                    <Download className="mr-2 h-4 w-4" />
+                    PDF
+                  </Button>
+                </div>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <p className="text-xs text-green-600">+12% nga periudha e mëparshme</p>
-          </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Të Ardhura Totale</CardDescription>
-            <CardTitle className="text-3xl">€{metrics.totalRevenue.toLocaleString()}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-green-600">+8% nga periudha e mëparshme</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Vlera Mesatare e Porosisë</CardDescription>
-            <CardTitle className="text-3xl">€{metrics.averageOrderValue.toFixed(2)}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-red-600">-2% nga periudha e mëparshme</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Përdorues Aktivë</CardDescription>
-            <CardTitle className="text-3xl">{metrics.activeUsers}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-green-600">+15% nga periudha e mëparshme</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts */}
-      <Tabs defaultValue="orders" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="orders">Porositë & Të Ardhurat</TabsTrigger>
-          <TabsTrigger value="categories">Kategoritë</TabsTrigger>
-          <TabsTrigger value="users">Përdoruesit</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="orders" className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Porositë dhe Të Ardhurat Mujore</CardTitle>
-              <CardDescription>Numri i porosive dhe të ardhurat për çdo muaj</CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Totali i Porosive</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[400px]">
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-bold">{analyticsData?.totalOrders || mockChartData.statusDistribution.reduce((sum, item) => sum + item.count, 0)}</div>
+                <BarChart className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Të Ardhurat Totale</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-bold">€{analyticsData?.totalRevenue?.toFixed(2) || mockChartData.dailyOrders.reduce((sum, item) => sum + item.revenue, 0)}</div>
+                <LineChartIcon className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Vlera Mesatare e Porosisë</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-bold">€{analyticsData?.averageOrderValue?.toFixed(2) || (mockChartData.dailyOrders.reduce((sum, item) => sum + item.revenue, 0) / mockChartData.dailyOrders.reduce((sum, item) => sum + item.count, 0)).toFixed(2)}</div>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Porosi të Dorëzuara</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-bold">{analyticsData?.deliveredOrders || mockChartData.statusDistribution.find(item => item.status === 'DELIVERED')?.count}</div>
+                <PieChart className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Porositë sipas Statusit</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] flex items-center justify-center">
+                {/* This would be a real chart in production */}
+                <div className="w-full max-w-md">
+                  {mockChartData.statusDistribution.map((item, index) => (
+                    <div key={index} className="mb-2">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm">{item.status}</span>
+                        <span className="text-sm font-medium">{item.count}</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2.5">
+                        <div 
+                          className="bg-primary h-2.5 rounded-full" 
+                          style={{ width: `${(item.count / mockChartData.statusDistribution.reduce((sum, i) => sum + i.count, 0)) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Porositë dhe të Ardhurat Ditore</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={orderData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <BarChart
+                    data={analyticsData?.dailyOrders || mockChartData.dailyOrders.map(item => ({
+                      ...item,
+                      date: format(new Date(item.date), "dd/MM")
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      yAxisId="left"
-                      type="monotone"
-                      dataKey="orders"
-                      stroke="#8884d8"
-                      activeDot={{ r: 8 }}
-                      name="Porosi"
+                    <XAxis 
+                      dataKey="date" 
+                      fontSize={12}
                     />
-                    <Line yAxisId="right" type="monotone" dataKey="revenue" stroke="#82ca9d" name="Të Ardhura (€)" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="categories" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Shpërndarja e Kategorive</CardTitle>
-              <CardDescription>Porositë sipas kategorive të produkteve</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={categoryData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={150}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="users" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Burimet e Përdoruesve</CardTitle>
-              <CardDescription>Si po vijnë përdoruesit në platformë</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={userAcquisitionData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="organic" stackId="a" fill="#8884d8" name="Organik" />
-                    <Bar dataKey="referral" stackId="a" fill="#82ca9d" name="Referim" />
-                    <Bar dataKey="social" stackId="a" fill="#ffc658" name="Social Media" />
+                    <YAxis 
+                      yAxisId="left"
+                      orientation="left" 
+                      label={{ 
+                        value: 'Porositë', 
+                        angle: -90, 
+                        position: 'insideLeft',
+                        style: { textAnchor: 'middle' }
+                      }}
+                      fontSize={12}
+                    />
+                    <YAxis 
+                      yAxisId="right" 
+                      orientation="right" 
+                      label={{ 
+                        value: 'Të Ardhurat (€)', 
+                        angle: 90, 
+                        position: 'insideRight',
+                        style: { textAnchor: 'middle' }
+                      }}
+                      fontSize={12}
+                    />
+                    <Tooltip
+                      formatter={(value, name) => {
+                        if (name === "revenue") return [`€${value}`, "Të Ardhurat"];
+                        if (name === "count") return [value, "Porositë"];
+                        return [value, name];
+                      }}
+                    />
+                    <Legend 
+                      formatter={(value) => {
+                        if (value === "count") return "Porositë";
+                        if (value === "revenue") return "Të Ardhurat";
+                        return value;
+                      }}
+                    />
+                    <Bar 
+                      yAxisId="left" 
+                      dataKey="count" 
+                      fill="#007bff" 
+                      name="count"
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <Bar 
+                      yAxisId="right" 
+                      dataKey="revenue" 
+                      fill="#16a34a" 
+                      name="revenue"
+                      radius={[4, 4, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Produktet më të Porositura</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {(analyticsData?.topProducts || [
+                { url: "https://example.com/product1", count: 15 },
+                { url: "https://example.com/product2", count: 12 },
+                { url: "https://example.com/product3", count: 10 },
+                { url: "https://example.com/product4", count: 8 },
+                { url: "https://example.com/product5", count: 6 },
+              ]).map((product, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex-1 truncate">
+                    <a 
+                      href={product.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline truncate"
+                    >
+                      {product.url}
+                    </a>
+                  </div>
+                  <div className="ml-4 text-sm font-medium">{product.count} porosi</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </AdminLayout>
   )
 }
-

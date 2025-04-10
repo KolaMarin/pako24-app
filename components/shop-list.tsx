@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, Copy, Check, Heart, Store, Globe, ShoppingBag } from "lucide-react"
@@ -11,50 +11,32 @@ import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-// Categories and shops
-const categories = [
-  {
-    name: "Fashion & Clothing",
-    shops: [
-      { name: "ASOS", url: "https://www.asos.com/" },
-      { name: "Zara", url: "https://www.zara.com/uk/" },
-      { name: "H&M", url: "https://www2.hm.com/en_gb/" },
-      { name: "Mango", url: "https://shop.mango.com/gb" },
-      { name: "Uniqlo", url: "https://www.uniqlo.com/uk/" },
-      { name: "& Other Stories", url: "https://www.stories.com/" },
-      { name: "COS", url: "https://www.cosstores.com/" },
-      { name: "Arket", url: "https://www.arket.com/" },
-    ],
-  },
-  {
-    name: "Fast Fashion",
-    shops: [
-      { name: "Boohoo", url: "https://www.boohoo.com/" },
-      { name: "PrettyLittleThing", url: "https://www.prettylittlething.com/" },
-      { name: "SHEIN", url: "https://www.shein.co.uk/" },
-      { name: "Missguided", url: "https://www.missguided.co.uk/" },
-      { name: "Nasty Gal", url: "https://www.nastygal.com/" },
-    ],
-  },
-  {
-    name: "Department Stores",
-    shops: [
-      { name: "Marks & Spencer", url: "https://www.marksandspencer.com/" },
-      { name: "Selfridges", url: "https://www.selfridges.com/" },
-      { name: "Harrods", url: "https://www.harrods.com/" },
-      { name: "John Lewis", url: "https://www.johnlewis.com/" },
-    ],
-  },
-  {
-    name: "Beauty & Cosmetics",
-    shops: [
-      { name: "Sephora", url: "https://www.sephora.com/" },
-      { name: "Boots", url: "https://www.boots.com/" },
-      { name: "Cult Beauty", url: "https://www.cultbeauty.co.uk/" },
-      { name: "Look Fantastic", url: "https://www.lookfantastic.com/" },
-    ],
-  },
-]
+// Type for category data
+interface Category {
+  id: string
+  name: string
+  description?: string | null
+}
+
+// Type for shop data
+interface Shop {
+  id: string
+  name: string
+  description?: string | null
+  logoUrl?: string | null
+  website: string
+  active: boolean
+  categoryId?: string | null
+  category?: Category | null
+  createdAt: string
+  updatedAt: string
+}
+
+// Type for categorized shops
+interface CategoryWithShops {
+  name: string
+  shops: Shop[]
+}
 
 export function ShopList() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -62,8 +44,32 @@ export function ShopList() {
   const [activeTab, setActiveTab] = useState("all")
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [isMobile, setIsMobile] = useState(false)
+  const [shops, setShops] = useState<Shop[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Check if we're on mobile
+  // Fetch shops from API
+  const fetchShops = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await fetch('/api/shops')
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch shops')
+      }
+      
+      const data = await response.json()
+      setShops(data)
+    } catch (err) {
+      console.error('Error fetching shops:', err)
+      setError('Could not load shops. Please try again later.')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  // Check if we're on mobile and load favorites
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -80,50 +86,78 @@ export function ShopList() {
         console.error("Failed to parse saved favorites", e)
       }
     }
+    
+    // Fetch shops
+    fetchShops()
 
     return () => {
       window.removeEventListener("resize", checkMobile)
     }
-  }, [])
+  }, [fetchShops])
 
-  // Get all shops in a flat array
+  // Get all shops with their categories
   const allShops = useMemo(() => {
-    return categories.flatMap((category) =>
-      category.shops.map((shop) => ({
-        ...shop,
-        category: category.name,
-      })),
-    )
-  }, [])
+    return shops.map(shop => ({
+      ...shop
+    }))
+  }, [shops])
+  
+  // Group shops by category
+  const categories: CategoryWithShops[] = useMemo(() => {
+    const groupedShops: Record<string, Shop[]> = {}
+    
+    // First, initialize categories, even those with no shops
+    allShops.forEach(shop => {
+      if (shop.category) {
+        // Use category name from the database
+        const categoryName = shop.category.name
+        if (!groupedShops[categoryName]) {
+          groupedShops[categoryName] = []
+        }
+        groupedShops[categoryName].push(shop)
+      } else {
+        // For shops with no category, put them in "Other"
+        if (!groupedShops["Other"]) {
+          groupedShops["Other"] = []
+        }
+        groupedShops["Other"].push(shop)
+      }
+    })
+    
+    return Object.entries(groupedShops).map(([name, shops]) => ({
+      name,
+      shops: shops.sort((a, b) => a.name.localeCompare(b.name))
+    }))
+  }, [allShops])
 
   const filteredShops = useMemo(() => {
-    let shops = allShops
+    let filteredShops = allShops
 
     // Filter by search term
     if (searchTerm) {
-      shops = shops.filter(
+      filteredShops = filteredShops.filter(
         (shop) =>
           shop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          shop.url.toLowerCase().includes(searchTerm.toLowerCase()),
+          shop.website.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     }
 
     // Filter by tab
     if (activeTab === "favorites") {
-      shops = shops.filter((shop) => favorites.has(shop.url))
+      filteredShops = filteredShops.filter((shop) => favorites.has(shop.website))
     }
 
-    return shops
+    return filteredShops
   }, [searchTerm, activeTab, favorites, allShops])
 
-  const handleShopClick = (url: string) => {
-    window.open(url, "_blank")
+  const handleShopClick = (website: string) => {
+    window.open(website, "_blank")
   }
 
-  const copyToClipboard = (url: string, e: React.MouseEvent) => {
+  const copyToClipboard = (website: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    navigator.clipboard.writeText(url)
-    setCopiedUrl(url)
+    navigator.clipboard.writeText(website)
+    setCopiedUrl(website)
     toast({
       title: "URL u kopjua",
       description: "URL u kopjua në clipboard. Tani mund ta ngjisni në formën e porosisë.",
@@ -134,14 +168,14 @@ export function ShopList() {
     }, 2000)
   }
 
-  const toggleFavorite = (url: string, e: React.MouseEvent) => {
+  const toggleFavorite = (website: string, e: React.MouseEvent) => {
     e.stopPropagation()
 
     const newFavorites = new Set(favorites)
-    if (newFavorites.has(url)) {
-      newFavorites.delete(url)
+    if (newFavorites.has(website)) {
+      newFavorites.delete(website)
     } else {
-      newFavorites.add(url)
+      newFavorites.add(website)
     }
 
     setFavorites(newFavorites)
@@ -150,29 +184,29 @@ export function ShopList() {
     localStorage.setItem("favoriteShops", JSON.stringify(Array.from(newFavorites)))
   }
 
-  // Modifica la funzione getShopIcon per assegnare colori diversi alle icone dei negozi
-  const getShopIcon = (url: string) => {
-    if (url.includes("asos")) return <ShoppingBag className="h-5 w-5 text-blue-600" />
-    if (url.includes("zara")) return <ShoppingBag className="h-5 w-5 text-red-600" />
-    if (url.includes("hm")) return <ShoppingBag className="h-5 w-5 text-green-600" />
-    if (url.includes("mango")) return <ShoppingBag className="h-5 w-5 text-yellow-600" />
-    if (url.includes("uniqlo")) return <ShoppingBag className="h-5 w-5 text-purple-600" />
-    if (url.includes("stories")) return <ShoppingBag className="h-5 w-5 text-pink-600" />
-    if (url.includes("cos")) return <ShoppingBag className="h-5 w-5 text-indigo-600" />
-    if (url.includes("arket")) return <ShoppingBag className="h-5 w-5 text-teal-600" />
-    if (url.includes("boohoo")) return <ShoppingBag className="h-5 w-5 text-orange-600" />
-    if (url.includes("prettylittlething")) return <ShoppingBag className="h-5 w-5 text-pink-500" />
-    if (url.includes("shein")) return <ShoppingBag className="h-5 w-5 text-black" />
-    if (url.includes("missguided")) return <ShoppingBag className="h-5 w-5 text-purple-500" />
-    if (url.includes("nastygal")) return <ShoppingBag className="h-5 w-5 text-red-500" />
-    if (url.includes("marks")) return <Store className="h-5 w-5 text-green-700" />
-    if (url.includes("selfridges")) return <Store className="h-5 w-5 text-yellow-700" />
-    if (url.includes("harrods")) return <Store className="h-5 w-5 text-amber-700" />
-    if (url.includes("johnlewis")) return <Store className="h-5 w-5 text-blue-700" />
-    if (url.includes("sephora")) return <ShoppingBag className="h-5 w-5 text-purple-800" />
-    if (url.includes("boots")) return <ShoppingBag className="h-5 w-5 text-blue-800" />
-    if (url.includes("cultbeauty")) return <ShoppingBag className="h-5 w-5 text-pink-800" />
-    if (url.includes("lookfantastic")) return <ShoppingBag className="h-5 w-5 text-teal-800" />
+  // Get icon based on website URL
+  const getShopIcon = (website: string) => {
+    if (website.includes("asos")) return <ShoppingBag className="h-5 w-5 text-blue-600" />
+    if (website.includes("zara")) return <ShoppingBag className="h-5 w-5 text-red-600" />
+    if (website.includes("hm")) return <ShoppingBag className="h-5 w-5 text-green-600" />
+    if (website.includes("mango")) return <ShoppingBag className="h-5 w-5 text-yellow-600" />
+    if (website.includes("uniqlo")) return <ShoppingBag className="h-5 w-5 text-purple-600" />
+    if (website.includes("stories")) return <ShoppingBag className="h-5 w-5 text-pink-600" />
+    if (website.includes("cos")) return <ShoppingBag className="h-5 w-5 text-indigo-600" />
+    if (website.includes("arket")) return <ShoppingBag className="h-5 w-5 text-teal-600" />
+    if (website.includes("boohoo")) return <ShoppingBag className="h-5 w-5 text-orange-600" />
+    if (website.includes("prettylittlething")) return <ShoppingBag className="h-5 w-5 text-pink-500" />
+    if (website.includes("shein")) return <ShoppingBag className="h-5 w-5 text-black" />
+    if (website.includes("missguided")) return <ShoppingBag className="h-5 w-5 text-purple-500" />
+    if (website.includes("nastygal")) return <ShoppingBag className="h-5 w-5 text-red-500" />
+    if (website.includes("marks")) return <Store className="h-5 w-5 text-green-700" />
+    if (website.includes("selfridges")) return <Store className="h-5 w-5 text-yellow-700" />
+    if (website.includes("harrods")) return <Store className="h-5 w-5 text-amber-700" />
+    if (website.includes("johnlewis")) return <Store className="h-5 w-5 text-blue-700" />
+    if (website.includes("sephora")) return <ShoppingBag className="h-5 w-5 text-purple-800" />
+    if (website.includes("boots")) return <ShoppingBag className="h-5 w-5 text-blue-800" />
+    if (website.includes("cultbeauty")) return <ShoppingBag className="h-5 w-5 text-pink-800" />
+    if (website.includes("lookfantastic")) return <ShoppingBag className="h-5 w-5 text-teal-800" />
 
     // Default icon
     return <Globe className="h-5 w-5 text-gray-600" />
@@ -197,8 +231,16 @@ export function ShopList() {
         </TabsList>
       </Tabs>
 
-      <ScrollArea className={isMobile ? "h-[calc(100vh-300px)]" : "h-[500px]"} className="pr-4">
-        {filteredShops.length === 0 ? (
+      <ScrollArea className={`${isMobile ? "h-[calc(100vh-300px)]" : "h-[500px]"} pr-4`}>
+        {loading ? (
+          <div className="text-center py-8 text-gray-500">
+            Duke ngarkuar dyqanet...
+          </div>
+        ) : error ? (
+          <div className="text-center py-8 text-red-500">
+            {error}
+          </div>
+        ) : filteredShops.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             {activeTab === "favorites"
               ? "Nuk keni dyqane të preferuara. Shtoni disa duke klikuar ikonën e zemrës."
@@ -214,14 +256,19 @@ export function ShopList() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {category.shops.map((shop) => (
                       <ShopCard
-                        key={shop.url}
-                        shop={shop}
-                        isFavorite={favorites.has(shop.url)}
-                        isCopied={copiedUrl === shop.url}
+                        key={shop.id}
+                        shop={{
+                          name: shop.name,
+                          url: shop.website,
+                          category: shop.category?.name
+                        }}
+                        isFavorite={favorites.has(shop.website)}
+                        isCopied={copiedUrl === shop.website}
                         onShopClick={handleShopClick}
                         onToggleFavorite={toggleFavorite}
                         onCopyUrl={copyToClipboard}
-                        icon={getShopIcon(shop.url)}
+                        icon={getShopIcon(shop.website)}
+                        logoUrl={shop.logoUrl}
                       />
                     ))}
                   </div>
@@ -231,14 +278,19 @@ export function ShopList() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {filteredShops.map((shop) => (
                   <ShopCard
-                    key={shop.url}
-                    shop={shop}
-                    isFavorite={favorites.has(shop.url)}
-                    isCopied={copiedUrl === shop.url}
+                    key={shop.id}
+                    shop={{
+                      name: shop.name,
+                      url: shop.website,
+                      category: shop.category?.name
+                    }}
+                    isFavorite={favorites.has(shop.website)}
+                    isCopied={copiedUrl === shop.website}
                     onShopClick={handleShopClick}
                     onToggleFavorite={toggleFavorite}
                     onCopyUrl={copyToClipboard}
-                    icon={getShopIcon(shop.url)}
+                    icon={getShopIcon(shop.website)}
+                    logoUrl={shop.logoUrl}
                   />
                 ))}
               </div>
@@ -259,6 +311,7 @@ function ShopCard({
   onToggleFavorite,
   onCopyUrl,
   icon,
+  logoUrl,
 }: {
   shop: { name: string; url: string; category?: string }
   isFavorite: boolean
@@ -267,14 +320,32 @@ function ShopCard({
   onToggleFavorite: (url: string, e: React.MouseEvent) => void
   onCopyUrl: (url: string, e: React.MouseEvent) => void
   icon: React.ReactNode
+  logoUrl?: string | null
 }) {
   return (
     <Card key={shop.url} className="overflow-hidden hover:shadow-md transition-shadow">
       <CardContent className="p-0">
         <div className="flex items-center justify-between p-3 cursor-pointer" onClick={() => onShopClick(shop.url)}>
           <div className="flex items-center gap-3 flex-1">
-            <div className="flex-shrink-0 bg-gray-50 rounded-full h-10 w-10 flex items-center justify-center">
-              {icon}
+            <div className="flex-shrink-0 bg-gray-50 rounded-md h-12 w-12 flex items-center justify-center overflow-hidden p-0.5">
+              {logoUrl ? (
+                <img 
+                  src={logoUrl} 
+                  alt={`${shop.name} logo`} 
+                  className="h-11 w-11 object-contain"
+                  onError={(e) => {
+                    // If logo fails to load, fall back to the icon
+                    e.currentTarget.style.display = 'none';
+                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (nextElement) {
+                      nextElement.style.display = 'block';
+                    }
+                  }}
+                />
+              ) : null}
+              <div className={logoUrl ? "hidden" : "block"}>
+                {icon}
+              </div>
             </div>
             <div className="flex-1 min-w-0">
               <span className="font-medium block">{shop.name}</span>
@@ -304,4 +375,3 @@ function ShopCard({
     </Card>
   )
 }
-

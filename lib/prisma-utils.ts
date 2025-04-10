@@ -17,9 +17,11 @@ export async function recalculateOrderTotals(orderId: string) {
   let totalTransportFee = 0
 
   for (const product of productLinks) {
-    totalPriceGBP += product.priceGBP * product.quantity
-    totalPriceEUR += product.priceEUR * product.quantity
-    totalCustomsFee += product.customsFee * product.quantity
+    // Prices are already multiplied by quantity when they're calculated in the order-invoice-modal
+    // and sent to the API, so we don't need to multiply them again here
+    totalPriceGBP += product.priceGBP
+    totalPriceEUR += product.priceEUR
+    totalCustomsFee += product.customsFee
     totalTransportFee += product.transportFee
   }
 

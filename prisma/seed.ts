@@ -1,6 +1,11 @@
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
+// Import shop and category seed functions
+// Using require since the module exports are CommonJS style
+const seedCategories = require('./seed-categories')
+const seedShops = require('./seed-shops')
+
 const prisma = new PrismaClient()
 
 async function main() {
@@ -10,6 +15,20 @@ async function main() {
   await prisma.productLink.deleteMany()
   await prisma.order.deleteMany()
   await prisma.user.deleteMany()
+  await prisma.admin.deleteMany()
+  await prisma.shop.deleteMany()
+  await prisma.shopCategory.deleteMany()
+  
+  // Create admin user
+  const adminUser = await prisma.admin.create({
+    data: {
+      email: 'admin@pako24.com',
+      password: bcrypt.hashSync('secureAdminPass123!', 10),
+      role: 'ADMIN',
+    },
+  })
+  
+  console.log('Created admin user:', adminUser.id)
 
   // Create default user
   const defaultUser = await prisma.user.create({
@@ -246,6 +265,13 @@ async function main() {
     })
   }
 
+  // Seed shop categories and shops
+  console.log('Seeding shop categories...')
+  await seedCategories()
+  
+  console.log('Seeding shops with categories...')
+  await seedShops()
+  
   console.log('Seed completed successfully')
 }
 
