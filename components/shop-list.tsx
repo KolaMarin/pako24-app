@@ -2,7 +2,8 @@
 
 import type React from "react"
 
-import { useState, useMemo, useEffect, useCallback } from "react"
+import { useState, useMemo, useEffect } from "react"
+import { useShopsStore } from "@/lib/shops-store"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, Copy, Check, Heart, Store, Globe, ShoppingBag } from "lucide-react"
@@ -44,30 +45,8 @@ export function ShopList() {
   const [activeTab, setActiveTab] = useState("all")
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [isMobile, setIsMobile] = useState(false)
-  const [shops, setShops] = useState<Shop[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  // Fetch shops from API
-  const fetchShops = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await fetch('/api/shops')
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch shops')
-      }
-      
-      const data = await response.json()
-      setShops(data)
-    } catch (err) {
-      console.error('Error fetching shops:', err)
-      setError('Could not load shops. Please try again later.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  // Use the Zustand store instead of local state and fetch
+  const { shops, isLoading: loading, error, fetchShops } = useShopsStore()
 
   // Check if we're on mobile and load favorites
   useEffect(() => {
@@ -87,8 +66,19 @@ export function ShopList() {
       }
     }
     
-    // Fetch shops
-    fetchShops()
+    // Optional: Fetch shops if they're not already loaded
+    if (shops.length === 0) {
+      fetchShops()
+    }
+    
+    // Add a manual refresh option on error or timeout
+    if (error) {
+      const retryTimer = setTimeout(() => {
+        fetchShops()
+      }, 5000) // Retry after 5 seconds if there was an error
+      
+      return () => clearTimeout(retryTimer)
+    }
 
     return () => {
       window.removeEventListener("resize", checkMobile)

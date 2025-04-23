@@ -2,8 +2,9 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import { debounce } from "lodash"
 import { OrderInvoiceModal } from "@/components/order-invoice-modal"
 import { LoginModal } from "@/components/login-modal"
 import { useProductFormStore, type ProductLink, getEmptyProduct } from "@/lib/product-form-store"
@@ -28,6 +29,7 @@ import {
   PoundSterling,
   Minus,
   RefreshCw,
+  Download,
 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Separator } from "@/components/ui/separator"
@@ -54,6 +56,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   } = useProductFormStore()
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
+  const [urlsLoading, setUrlsLoading] = useState<{[key: number]: boolean}>({})
   const router = useRouter()
   const { user } = useAuth()
   
@@ -129,6 +132,54 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
     }
   }
 
+  // Function to fetch product details from URL
+  const fetchProductDetails = async (url: string, index: number) => {
+    if (!url || !url.startsWith('http')) return
+
+    setUrlsLoading(prev => ({ ...prev, [index]: true }))
+    
+    try {
+      const response = await fetch('/api/scrape-product', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      })
+
+      if (!response.ok) {
+        console.error('Error fetching product details:', await response.text())
+        return
+      }
+
+      const data = await response.json()
+      
+      // Update product details with fetched data
+      if (data.price) {
+        updateProductLinkInStore(index, 'price', data.price)
+      }
+      
+      if (data.size) {
+        updateProductLinkInStore(index, 'size', data.size)
+      }
+      
+      if (data.color) {
+        updateProductLinkInStore(index, 'color', data.color)
+      }
+      
+    } catch (error) {
+      console.error('Error fetching product details:', error)
+    } finally {
+      setUrlsLoading(prev => ({ ...prev, [index]: false }))
+    }
+  }
+
+  // Debounced version of fetchProductDetails to avoid too many requests
+  const debouncedFetchProductDetails = useCallback(
+    debounce((url: string, index: number) => fetchProductDetails(url, index), 800),
+    []
+  )
+
   const updateProductLink = (index: number, field: keyof ProductLink, value: string | number | boolean) => {
     // Use the store's function to update a product
     updateProductLinkInStore(index, field, value)
@@ -138,6 +189,11 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       const newErrors = { ...validationErrors }
       delete newErrors[`${index}-${field}`]
       setValidationErrors(newErrors)
+    }
+    
+    // If URL field is updated, fetch product details
+    if (field === 'url' && typeof value === 'string' && value.startsWith('http')) {
+      debouncedFetchProductDetails(value, index)
     }
   }
 
@@ -377,16 +433,23 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                                 </Label>
                               </div>
                               <div className="relative">
-                                <Input
-                                  value={link.url}
-                                  onChange={(e) => updateProductLink(index, "url", e.target.value)}
-                                  required
-                                  placeholder="https://www.example.com/product"
-                                  className={cn(
-                                    "h-10 pl-3 pr-8 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0",
-                                    validationErrors[`${index}-url`] ? "border-red-500 focus-visible:ring-red-500" : "",
+                                <div className="relative">
+                                  <Input
+                                    value={link.url}
+                                    onChange={(e) => updateProductLink(index, "url", e.target.value)}
+                                    required
+                                    placeholder="https://www.example.com/product"
+                                    className={cn(
+                                      "h-10 pl-3 pr-10 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0",
+                                      validationErrors[`${index}-url`] ? "border-red-500 focus-visible:ring-red-500" : "",
+                                    )}
+                                  />
+                                  {urlsLoading[index] && (
+                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    </div>
                                   )}
-                                />
+                                </div>
                                 {validationErrors[`${index}-url`] && (
                                   <div className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500">
                                     <AlertCircle className="h-4 w-4" />

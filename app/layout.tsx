@@ -2,6 +2,7 @@ import "./globals.css"
 import { Inter } from "next/font/google"
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/lib/auth"
+import { ShopsInitializer } from "@/components/shops-initializer"
 import type React from "react"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="sq">
       <body className={inter.className}>
         <AuthProvider>
+          <ShopsInitializer />
           {children}
           <Toaster />
         </AuthProvider>

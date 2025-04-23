@@ -147,7 +147,6 @@ function HomePageContent() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <h1 className="text-4xl font-bold mb-8 text-primary">Dërgo Porosi</h1>
                 <Card className="bg-white shadow-lg border-0 overflow-hidden">
                   <CardContent className="p-0">
                     <ProductForm onSubmit={handleSubmitOrder} />
@@ -164,7 +163,6 @@ function HomePageContent() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <h1 className="text-4xl font-bold mb-8 text-primary">Dyqanet</h1>
                 <Card className="bg-white shadow-lg border-0 overflow-hidden">
                   <CardContent className="p-4">
                     <ShopList />
