@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useProductFormStore, type ProductLink } from "@/lib/product-form-store"
+import { useConfigStore } from "@/lib/config-store"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "@/components/ui/use-toast"
@@ -33,12 +34,13 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
   const currentDate = new Date().toLocaleDateString()
+  const transportFeePerProduct = useConfigStore(state => state.getTransportFee())
 
   const calculateFees = (price: number, quantity: number) => {
     const euroPrice = price * 1.15 // Approximate GBP to EUR conversion
     const basePriceEUR = euroPrice * quantity
     const customsFee = basePriceEUR * 0.2 // 20% of price in EUR
-    const shippingFee = 10 // Base shipping fee of 10€ per order, not per product
+    const shippingFee = transportFeePerProduct // Base shipping fee per product
     
     return {
       basePriceGBP: price * quantity,
@@ -73,7 +75,7 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
       }
       return totals
     },
-    { basePriceGBP: 0, basePriceEUR: 0, customsFee: 0, shippingFee: 10, totalEUR: 0 }
+    { basePriceGBP: 0, basePriceEUR: 0, customsFee: 0, shippingFee: transportFeePerProduct * productLinks.length, totalEUR: 0 }
   )
   
   // Add shipping fee to total
@@ -82,19 +84,19 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
-      // Calculate a flat transport fee of 10 euros for the entire order
-      const flatTransportFee = 10;
+      // Calculate transport fee based on the number of products
+      const totalTransportFee = transportFeePerProduct * productLinks.length;
       
       // Transform product links to include calculated fees
       const enrichedProductLinks = productLinks.map((link, index) => {
         const fees = link.price > 0 ? calculateFees(link.price, link.quantity) : null
         return {
           ...link,
-          priceGBP: link.price,
-          priceEUR: link.price * 1.15,
+          priceGBP: link.price * link.quantity,  // Price already includes quantity
+          priceEUR: link.price * 1.15 * link.quantity,  // Price already includes quantity
           customsFee: fees?.customsFee || 0,
-          // Only add transport fee to the first product to avoid duplicating it
-          transportFee: index === 0 ? flatTransportFee : 0
+          // Use flat fee per product from configuration
+          transportFee: transportFeePerProduct
         }
       })
       

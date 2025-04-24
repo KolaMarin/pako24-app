@@ -32,6 +32,33 @@ interface OrderWithUser {
   }>;
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    // Verify admin authentication
+    const admin = await verifyAdminAuth(request)
+    if (!admin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { orderId } = await request.json()
+    
+    // First delete all product links for this order
+    await prisma.productLink.deleteMany({
+      where: { orderId }
+    })
+
+    // Then delete the order itself
+    await prisma.order.delete({
+      where: { id: orderId }
+    })
+
+    return NextResponse.json({ message: "Porosia u fshi me sukses" })
+  } catch (error) {
+    console.error("Failed to delete order:", error)
+    return NextResponse.json({ error: "Fshirja e porosisë dështoi" }, { status: 500 })
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication

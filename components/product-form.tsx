@@ -154,16 +154,20 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
 
       const data = await response.json()
       
-      // Update product details with fetched data
-      if (data.price) {
+      // Get current product link state (safely)
+      const currentLink = productLinks[index]
+      
+      // Update product details with fetched data only if not already set by user
+      // Using optional chaining (?.) to safely access properties
+      if (data.price && !currentLink?.price) {
         updateProductLinkInStore(index, 'price', data.price)
       }
       
-      if (data.size) {
+      if (data.size && !currentLink?.size) {
         updateProductLinkInStore(index, 'size', data.size)
       }
       
-      if (data.color) {
+      if (data.color && !currentLink?.color) {
         updateProductLinkInStore(index, 'color', data.color)
       }
       

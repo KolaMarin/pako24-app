@@ -31,7 +31,7 @@ export default function AdminLogin() {
           title: "Sukses",
           description: "Jeni identifikuar me sukses.",
         })
-        router.push("/admin/dashboard")
+        router.push("/admin/orders")
         router.refresh() // Refresh to update auth state
       } else {
         toast({

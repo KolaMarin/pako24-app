@@ -14,7 +14,8 @@ import {
   Sliders, 
   Menu, 
   X, 
-  LogOut 
+  LogOut,
+  Shield
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -92,9 +93,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       label: "Analytics",
     },
     {
-      href: "/admin/users",
+      href: "/admin/customers",
       icon: <Users className="h-4 w-4" />,
-      label: "Menaxhimi i Përdoruesve",
+      label: "Menaxhimi i Klientëve",
+    },
+    {
+      href: "/admin/users",
+      icon: <Shield className="h-4 w-4" />,
+      label: "Menaxhimi i Adminëve",
     },
     {
       href: "/admin/config",
@@ -112,8 +118,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="flex min-h-screen bg-background">
       {/* Mobile sidebar toggle */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-background border-b p-4 flex items-center justify-between">
-        <Link href="/admin/dashboard" className="font-semibold">
-          Admin Dashboard
+        <Link href="/admin/orders" className="font-semibold">
+          Admin Portal
         </Link>
         <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -137,8 +143,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         )}
       >
         <div className="p-6">
-          <Link href="/admin/dashboard" className="flex items-center gap-2 font-semibold">
-            Admin Dashboard
+          <Link href="/admin/orders" className="flex items-center gap-2 font-semibold">
+            Admin Portal
           </Link>
         </div>
         <div className="flex-1 overflow-auto py-2 px-4">

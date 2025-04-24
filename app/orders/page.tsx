@@ -471,9 +471,9 @@ export default function OrdersPage() {
                                   {/* Product price on the right */}
                                   {product.priceEUR && (
                                     <span className="text-xs font-medium text-primary">
-                                      €{((product.priceEUR || 0) * product.quantity).toFixed(2)}
+                                      €{(product.priceEUR || 0).toFixed(2)}
                                       <span className="text-xs text-gray-500 ml-1">
-                                        (€{(product.priceEUR || 0).toFixed(2)} × {product.quantity})
+                                        ({product.quantity} copë)
                                       </span>
                                     </span>
                                   )}
@@ -522,7 +522,7 @@ export default function OrdersPage() {
                               <span>
                                 €
                                 {order.productLinks
-                                  .reduce((sum, p) => sum + (p.priceEUR || 0) * p.quantity, 0)
+                                  .reduce((sum, p) => sum + (p.priceEUR || 0), 0)
                                   .toFixed(2)}
                               </span>
                             </div>
@@ -536,7 +536,7 @@ export default function OrdersPage() {
                           )}
                           {/* Transport fee total - flat fee of €10.00 */}
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Transporti:</span>
+                            <span className="text-gray-500">Menaxhimi dhe Transporti:</span>
                             <span>€{order.totalTransportFee?.toFixed(2) || "10.00"}</span>
                           </div>
                           {/* Grand total */}
