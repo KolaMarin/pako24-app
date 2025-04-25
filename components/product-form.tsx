@@ -114,6 +114,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       updateProductLinkInStore(index, "color", "")
       updateProductLinkInStore(index, "additionalInfo", "")
       updateProductLinkInStore(index, "price", 0)
+      updateProductLinkInStore(index, "title", "")
     }
   }
 
@@ -157,18 +158,29 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       // Get current product link state (safely)
       const currentLink = productLinks[index]
       
-      // Update product details with fetched data only if not already set by user
-      // Using optional chaining (?.) to safely access properties
-      if (data.price && !currentLink?.price) {
+      // Update product details with fetched data only if fields are empty
+      // For price, check if it's strictly undefined, null, or zero
+      if (data.price && (currentLink?.price === undefined || currentLink?.price === null || currentLink?.price === 0)) {
         updateProductLinkInStore(index, 'price', data.price)
       }
       
-      if (data.size && !currentLink?.size) {
+      // For string fields, check if they're empty strings (including after trimming whitespace)
+      if (data.size && (!currentLink?.size || !currentLink.size.trim())) {
         updateProductLinkInStore(index, 'size', data.size)
       }
       
-      if (data.color && !currentLink?.color) {
+      if (data.color && (!currentLink?.color || !currentLink.color.trim())) {
         updateProductLinkInStore(index, 'color', data.color)
+      }
+      
+      // Add check for additionalInfo if the API returns it
+      if (data.additionalInfo && (!currentLink?.additionalInfo || !currentLink.additionalInfo.trim())) {
+        updateProductLinkInStore(index, 'additionalInfo', data.additionalInfo)
+      }
+      
+      // Add title if available
+      if (data.title && (!currentLink?.title || !currentLink.title.trim())) {
+        updateProductLinkInStore(index, 'title', data.title)
       }
       
     } catch (error) {
@@ -360,23 +372,30 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                   onClick={() => toggleProductExpansion(index)}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
+                      <h3 className="text-l font-medium text-gray-1000"> {index + 1}</h3>
                       <ShoppingCart className="h-4 w-4 text-primary" />
-                      <h3 className="text-sm font-medium text-gray-700">Produkti {index + 1}</h3>
-                      {link.quantity > 0 && (
-                        <Badge variant="outline" className="text-xs bg-primary-50 text-primary-700 border-primary-200">
-                          {link.quantity} copë
-                        </Badge>
+                      {link.title && (
+                        <span className="text-sm text-gray-700 truncate max-w-[280px]">
+                          {link.title}
+                        </span>
+                      )}
+                      {link.quantity > 1 && (
+                            <Badge variant="outline" className="text-xs bg-primary-50 text-primary-700 border-primary-200 mt-1">
+                              x{link.quantity}
+                            </Badge>
                       )}
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {link.price > 0 && (
-                          <div className="text-sm font-medium text-primary">
-                            €{(link.price * 1.15 * link.quantity).toFixed(2)}
-                            <span className="text-xs text-gray-500 ml-1">(£{(link.price * link.quantity).toFixed(2)})</span>
-                          </div>
-                        )}
+                        <div className="flex flex-col items-end">
+                          {link.price > 0 && (
+                            <div className="text-sm font-medium text-primary">
+                              €{(link.price * 1.15 * link.quantity).toFixed(2)}
+                              <span className="text-xs text-gray-500 ml-1">(£{(link.price * link.quantity).toFixed(2)})</span>
+                            </div>
+                          )}
+                        </div>
                       <div className="flex items-center">
                         <Button
                           type="button"

@@ -150,36 +150,68 @@ function isLikelyDynamicSite($: cheerio.CheerioAPI, html: string, url: string): 
 }
 
 /**
- * Fetch HTML with retry mechanism
+ * Fetch HTML with retry mechanism and custom redirect handling
  */
 async function fetchWithRetry(url: string): Promise<string> {
   const MAX_RETRIES = 3;
+  const MAX_REDIRECTS = 30; // Increased from default 20
+  
+  // Helper function to handle redirects manually if needed
+  async function fetchWithManualRedirects(url: string, redirectCount = 0): Promise<Response> {
+    // Skip fetch for known problematic sites and return a response that will trigger Playwright
+    const problematicDomains = ['stories.com', 'zara.com', 'uniqlo.com', 'hm.com', 'cos.com'];
+    if (problematicDomains.some(domain => url.includes(domain))) {
+      console.log(`Skipping basic fetch for known problematic domain: ${url}`);
+      return new Response(null, { status: 429 }); // Return a response that will fail and trigger Playwright
+    }
+    
+    if (redirectCount >= MAX_REDIRECTS) {
+      throw new Error('redirect count exceeded');
+    }
+    
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+        'Upgrade-Insecure-Requests': '1'
+      },
+      redirect: 'manual', // Handle redirects manually
+      signal: AbortSignal.timeout(15000)
+    });
+    
+    // Handle redirects manually
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location');
+      if (location) {
+        // Resolve relative URLs
+        const redirectUrl = new URL(location, url).href;
+        console.log(`Following redirect ${redirectCount + 1}/${MAX_REDIRECTS}: ${redirectUrl}`);
+        return fetchWithManualRedirects(redirectUrl, redirectCount + 1);
+      }
+    }
+    
+    return response;
+  }
+  
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache',
-          'Sec-Fetch-Dest': 'document',
-          'Sec-Fetch-Mode': 'navigate',
-          'Sec-Fetch-Site': 'none',
-          'Sec-Fetch-User': '?1',
-          'Upgrade-Insecure-Requests': '1',
-        },
-        redirect: 'follow',
-        signal: AbortSignal.timeout(15000)
-      });
+      // Use our enhanced fetch with manual redirect handling
+      const response = await fetchWithManualRedirects(url);
 
       if (response.ok) {
         return await response.text();
       } else {
-         console.warn(`Fetch attempt ${attempt + 1} failed with status: ${response.status}`);
-         if (response.status >= 400 && response.status < 500) {
-             throw new Error(`Client error fetching URL: ${response.status}`);
-         }
+        console.warn(`Fetch attempt ${attempt + 1} failed with status: ${response.status}`);
+        if (response.status >= 400 && response.status < 500) {
+          throw new Error(`Client error fetching URL: ${response.status}`);
+        }
       }
       if (attempt < MAX_RETRIES - 1) {
         const backoffMs = Math.pow(2, attempt) * 1000;

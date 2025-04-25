@@ -8,6 +8,7 @@ export interface ProductLink {
   color: string
   additionalInfo: string
   price: number
+  title: string
 }
 
 interface ProductFormState {
@@ -27,6 +28,7 @@ export const getEmptyProduct = (): ProductLink => ({
   color: "",
   additionalInfo: "",
   price: 0,
+  title: "",
 })
 
 export const useProductFormStore = create<ProductFormState>()(
