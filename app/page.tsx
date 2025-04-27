@@ -45,16 +45,22 @@ function HomePageContent() {
     }
 
     try {
+      // Import config store to get current rates and fees
+      const { useConfigStore } = await import("@/lib/config-store");
+      const configStore = useConfigStore.getState();
+      const exchangeRate = configStore.getExchangeRate();
+      const customsFeePercentage = configStore.getCustomsFeePercentage();
+      const transportFeePerProduct = configStore.getTransportFee();
+      
       // Transform the product links to match the expected API format
       const transformedData = {
         productLinks: data.productLinks.map(link => {
-          // Calculate fees similar to what's in the form
-          const euroPrice = link.price * 1.15; // Approximate GBP to EUR conversion
+          // Calculate fees using config values
+          const euroPrice = link.price * exchangeRate; // Use exchange rate from config
           const basePriceEUR = euroPrice * link.quantity;
-          const customsFee = basePriceEUR * 0.2; // 20% of price in EUR
-          const shippingFee = link.isHeavy ? 20 : 10; // 10€ if under 1kg, 20€ if over
-          const shippingTotal = shippingFee * link.quantity;
-
+          const customsFee = basePriceEUR * customsFeePercentage; // Use customs fee % from config
+          const transportFee = transportFeePerProduct; // Flat fee per product, NOT multiplied by quantity
+          
           return {
             url: link.url,
             quantity: link.quantity,
@@ -63,7 +69,7 @@ function HomePageContent() {
             priceGBP: link.price * link.quantity,
             priceEUR: basePriceEUR,
             customsFee: customsFee,
-            transportFee: shippingTotal
+            transportFee: transportFee // Fixed flat fee per product type
           };
         })
       };

@@ -14,25 +14,40 @@ const initialCategories = [
 async function main() {
   console.log('Starting to seed shop categories...')
 
-  // For each category in the initial data
-  for (const category of initialCategories) {
-    // Check if the category already exists (by name)
-    const existingCategory = await categoryPrisma.shopCategory.findFirst({
-      where: { name: category.name }
-    })
+  try {
+    // For each category in the initial data
+    for (const category of initialCategories) {
+      try {
+        // Check if the category already exists (by name)
+        const existingCategory = await categoryPrisma.shopCategory.findFirst({
+          where: { name: category.name }
+        })
 
-    if (!existingCategory) {
-      // Create the category if it doesn't exist
-      await categoryPrisma.shopCategory.create({
-        data: category
-      })
-      console.log(`Created category: ${category.name}`)
-    } else {
-      console.log(`Category already exists: ${category.name}`)
+        if (!existingCategory) {
+          // Create the category if it doesn't exist
+          await categoryPrisma.shopCategory.create({
+            data: category
+          })
+          console.log(`Created category: ${category.name}`)
+        } else {
+          console.log(`Category already exists: ${category.name}`)
+        }
+      } catch (e: any) {
+        // If the table doesn't exist yet, just create the category
+        if (e.code === 'P2021') {
+          await categoryPrisma.shopCategory.create({
+            data: category
+          })
+          console.log(`Created category: ${category.name}`)
+        } else {
+          throw e
+        }
+      }
     }
+    console.log('Shop categories seeding completed.')
+  } catch (error) {
+    console.error('Error seeding categories:', error)
   }
-
-  console.log('Shop categories seeding completed.')
 }
 
 main()

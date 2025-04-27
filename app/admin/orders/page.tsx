@@ -136,6 +136,8 @@ export default function AdminOrdersPage() {
 
   const updateProductDetails = async (orderId: string, productId: string, updatedProduct: Partial<ProductLink>) => {
     try {
+      // Ensure transport fee is not accidentally multiplied by quantity when updating
+      // We want to maintain the flat fee per product concept
       const response = await fetch(`/api/admin/orders/${orderId}/products/${productId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -614,7 +616,7 @@ export default function AdminOrdersPage() {
                         <Package className="h-4 w-4" />
                         <span>{order.productLinks.length} produkte</span>
                         <span className="text-muted-foreground">
-                          (€{order.totalPriceEUR.toFixed(2)})
+                          (€{(order.totalPriceEUR + order.totalCustomsFee + order.totalTransportFee).toFixed(2)})
                         </span>
                       </div>
                     </AccordionTrigger>
@@ -898,7 +900,7 @@ export default function AdminOrdersPage() {
                               <div className="pt-2 mt-2 border-t flex justify-between font-medium">
                                 <span>Totali përfundimtar:</span>
                                 <div className="text-right">
-                                  <div>€{order.totalPriceEUR.toFixed(2)}</div>
+                                  <div>€{(order.totalPriceEUR + order.totalCustomsFee + order.totalTransportFee).toFixed(2)}</div>
                                 </div>
                               </div>
                             </div>

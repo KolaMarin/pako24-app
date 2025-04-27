@@ -62,6 +62,7 @@ interface Order {
   totalPriceEUR?: number
   totalCustomsFee?: number
   totalTransportFee?: number
+  totalFinalPriceEUR?: number
   estimatedDelivery?: string
   trackingNumber?: string
 }
@@ -391,9 +392,9 @@ export default function OrdersPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {order.totalPriceEUR && (
+                    {order.totalFinalPriceEUR && (
                         <div className="text-right">
-                          <div className="font-medium text-primary">€{order.totalPriceEUR.toFixed(2)}</div>
+                          <div className="font-medium text-primary">€{order.totalFinalPriceEUR.toFixed(2)}</div>
                           <div className="text-xs text-gray-500">{order.productLinks.length} produkte</div>
                         </div>
                       )}
@@ -511,7 +512,7 @@ export default function OrdersPage() {
                         </div>
                       )}
 
-                      {/* Order summary - simplified to match invoice format */}
+                      {/* Order summary - using database values */}
                       <div className="mt-3 pt-3 border-t border-gray-100">
                         <h4 className="text-sm font-medium mb-2">Përmbledhje e Porosisë</h4>
                         <div className="space-y-1 text-sm bg-gray-50 p-3 rounded-md">
@@ -520,29 +521,26 @@ export default function OrdersPage() {
                             <span className="text-gray-500">Çmimi bazë:</span>
                             <div>
                               <span>
-                                €
-                                {order.productLinks
-                                  .reduce((sum, p) => sum + (p.priceEUR || 0), 0)
-                                  .toFixed(2)}
+                                €{order.totalPriceEUR?.toFixed(2) || "0.00"}
                               </span>
                             </div>
                           </div>
                           {/* Customs fee total */}
-                          {order.totalCustomsFee && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-500">Dogana (20%):</span>
-                              <span>€{order.totalCustomsFee.toFixed(2)}</span>
-                            </div>
-                          )}
-                          {/* Transport fee total - flat fee of €10.00 */}
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">Dogana:</span>
+                            <span>€{order.totalCustomsFee?.toFixed(2) || "0.00"}</span>
+                          </div>
+                          {/* Transport fee total */}
                           <div className="flex justify-between">
                             <span className="text-gray-500">Menaxhimi dhe Transporti:</span>
-                            <span>€{order.totalTransportFee?.toFixed(2) || "10.00"}</span>
+                            <span>€{order.totalTransportFee?.toFixed(2) || "0.00"}</span>
                           </div>
                           {/* Grand total */}
                           <div className="flex justify-between font-medium pt-1 mt-1 border-t border-gray-200">
                             <span>Totali:</span>
-                            <span className="text-primary">€{order.totalPriceEUR?.toFixed(2)}</span>
+                            <span className="text-primary">
+                              €{order.totalFinalPriceEUR?.toFixed(2) || "0.00"}
+                            </span>
                           </div>
                         </div>
                       </div>

@@ -5,6 +5,7 @@ interface AppConfig {
   STANDARD_TRANSPORT_FEE: number
   PRICE_PER_EXCEEDED_KG: number
   EXCHANGE_RATE_GBP_EUR: number
+  CUSTOMS_FEE_PERCENTAGE: number
   COMPANY_NAME: string
   COMPANY_EMAIL: string
   COMPANY_PHONE: string
@@ -18,6 +19,8 @@ interface ConfigStore {
   setConfigs: (configs: Record<string, string>) => void
   setLoaded: (loaded: boolean) => void
   getTransportFee: () => number
+  getCustomsFeePercentage: () => number
+  getExchangeRate: () => number
 }
 
 // Default values (will be replaced when loaded from backend)
@@ -25,8 +28,9 @@ const defaultConfigs: AppConfig = {
   STANDARD_TRANSPORT_FEE: 10,
   PRICE_PER_EXCEEDED_KG: 2.5,
   EXCHANGE_RATE_GBP_EUR: 1.15,
+  CUSTOMS_FEE_PERCENTAGE: 0.2, // 20% default
   COMPANY_NAME: 'Pako24',
-  COMPANY_EMAIL: 'info@pako24.com',
+  COMPANY_EMAIL: 'info.pako24@gmail.com',
   COMPANY_PHONE: '+355 69 123 4567',
   COMPANY_ADDRESS: 'Rruga e Durrësit, Tiranë, Albania',
 }
@@ -54,6 +58,14 @@ export const useConfigStore = create<ConfigStore>()(
       
       getTransportFee: () => {
         return get().configs.STANDARD_TRANSPORT_FEE || 10
+      },
+
+      getCustomsFeePercentage: () => {
+        return get().configs.CUSTOMS_FEE_PERCENTAGE || 0.2
+      },
+
+      getExchangeRate: () => {
+        return get().configs.EXCHANGE_RATE_GBP_EUR || 1.15
       }
     }),
     {

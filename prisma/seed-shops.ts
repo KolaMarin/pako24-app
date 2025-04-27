@@ -13,9 +13,16 @@ interface ShopData {
 const getCategoryForShop = async (shop: ShopData) => {
   // Get category by name
   const getCategory = async (name: string) => {
-    return await shopPrisma.shopCategory.findFirst({
-      where: { name }
-    });
+    try {
+      return await shopPrisma.shopCategory.findFirst({
+        where: { name }
+      });
+    } catch (error: any) {
+      if (error.code === 'P2021') {
+        return null; // Table doesn't exist yet
+      }
+      throw error;
+    }
   };
 
   const website = shop.website.toLowerCase();
@@ -62,50 +69,72 @@ const initialShops = [
 async function main() {
   console.log('Starting to seed shops...')
 
-  // Make sure categories exist first
-  const categoryExists = await shopPrisma.shopCategory.findFirst({});
-  if (!categoryExists) {
-    console.log('No categories found. Please run seed-categories.ts first.');
-    return;
-  }
-
-  // For each shop in the initial data
-  for (const shop of initialShops) {
-    // Check if the shop already exists (by website)
-    const existingShop = await shopPrisma.shop.findFirst({
-      where: { website: shop.website }
-    });
-
-    const category = await getCategoryForShop(shop);
-    
-    if (!category) {
-      console.log(`Warning: Could not find category for ${shop.name}`);
-      continue;
+  try {
+    // Try to check if categories exist
+    try {
+      const categoryExists = await shopPrisma.shopCategory.findFirst({});
+      if (!categoryExists) {
+        console.log('No categories found, but will continue to create shops without categories.');
+      }
+    } catch (error: any) {
+      if (error.code === 'P2021') {
+        console.log('Categories table does not exist yet, but will continue to create shops without categories.');
+      } else {
+        throw error;
+      }
     }
 
-    if (!existingShop) {
-      // Create the shop if it doesn't exist, with category
-      await shopPrisma.shop.create({
-        data: {
+    // For each shop in the initial data
+    for (const shop of initialShops) {
+      try {
+        // Check if the shop already exists (by website)
+        const existingShop = await shopPrisma.shop.findFirst({
+          where: { website: shop.website }
+        });
+
+        let category = null;
+        try {
+          category = await getCategoryForShop(shop);
+        } catch (error) {
+          console.log(`Could not get category for ${shop.name} due to error, will create without category.`);
+        }
+        
+        const shopData = {
           ...shop,
-          categoryId: category.id
-        }
-      })
-      console.log(`Created shop: ${shop.name} in category ${category.name}`)
-    } else {
-      // Update existing shop with category
-      await shopPrisma.shop.update({
-        where: { id: existingShop.id },
-        data: {
-          categoryId: category.id,
-          logoUrl: shop.logoUrl || existingShop.logoUrl
-        }
-      })
-      console.log(`Updated shop: ${shop.name} to category ${category.name}`)
-    }
-  }
+          ...(category ? { categoryId: category.id } : {})
+        };
 
-  console.log('Shops seeding completed.')
+        if (!existingShop) {
+          // Create the shop if it doesn't exist, with category if available
+          await shopPrisma.shop.create({
+            data: shopData
+          });
+          console.log(`Created shop: ${shop.name}${category ? ` in category ${category.name}` : ' without category'}`);
+        } else {
+          // Update existing shop with category if available
+          await shopPrisma.shop.update({
+            where: { id: existingShop.id },
+            data: {
+              ...(category ? { categoryId: category.id } : {}),
+              logoUrl: shop.logoUrl || existingShop.logoUrl
+            }
+          });
+          console.log(`Updated shop: ${shop.name}${category ? ` to category ${category.name}` : ' without category'}`);
+        }
+      } catch (error: any) {
+        // Skip if tables don't exist yet
+        if (error.code === 'P2021') {
+          console.log(`Could not process shop ${shop.name} as required tables don't exist yet.`);
+        } else {
+          console.error(`Error processing shop ${shop.name}:`, error);
+        }
+      }
+    }
+
+    console.log('Shops seeding completed.');
+  } catch (error) {
+    console.error('Error seeding shops:', error);
+  }
 }
 
 main()

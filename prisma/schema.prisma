@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,84 +8,71 @@ datasource db {
 }
 
 model Admin {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String    @id @default(uuid())
+  email     String    @unique
   password  String
   role      AdminRole @default(ADMIN)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@map("admins")
 }
 
-enum AdminRole {
-  ADMIN
-  SUPER_ADMIN
-  MANAGER
-}
-
 model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  phoneNumber String    @unique
+  id          String   @id @default(uuid())
+  email       String   @unique
+  phoneNumber String   @unique
   password    String
   location    String
-  isBlocked   Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  isBlocked   Boolean  @default(false)
+  updatedAt   DateTime @default(now()) @updatedAt
   orders      Order[]
 
   @@map("users")
 }
 
 model Order {
-  id               String        @id @default(uuid())
-  userId           String
-  additionalInfo   String?
-  status           OrderStatus   @default(PENDING)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  totalPriceGBP    Float
-  totalPriceEUR    Float
-  totalCustomsFee  Float
+  id                String        @id @default(uuid())
+  userId            String
+  additionalInfo    String?
+  status            OrderStatus   @default(PENDING)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  totalPriceGBP     Float
+  totalPriceEUR     Float
+  totalCustomsFee   Float
   totalTransportFee Float
-  user             User          @relation(fields: [userId], references: [id])
-  productLinks     ProductLink[]
+  totalFinalPriceEUR Float
+  user              User          @relation(fields: [userId], references: [id])
+  productLinks      ProductLink[]
 
   @@map("orders")
 }
 
 model ProductLink {
-  id            String  @id @default(uuid())
-  url           String
-  quantity      Int
-  size          String
-  color         String
-  priceGBP      Float
-  priceEUR      Float
-  customsFee    Float
-  transportFee  Float
-  orderId       String
-  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id           String @id @default(uuid())
+  url          String
+  quantity     Int
+  size         String
+  color        String
+  priceGBP     Float
+  priceEUR     Float
+  customsFee   Float
+  transportFee Float
+  orderId      String
+  order        Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("product_links")
-}
-
-enum OrderStatus {
-  PENDING
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
 }
 
 model ShopCategory {
   id          String   @id @default(uuid())
   name        String   @unique
-  description String?
-  shops       Shop[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  description String?
+  shops       Shop[]
 
   @@map("shop_categories")
 }
@@ -100,21 +84,35 @@ model Shop {
   logoUrl     String?
   website     String?
   active      Boolean       @default(true)
-  categoryId  String?
-  category    ShopCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  categoryId  String?
+  category    ShopCategory? @relation(fields: [categoryId], references: [id])
 
   @@map("shops")
 }
 
 model AppConfig {
-  id                String   @id @default(uuid())
-  key               String   @unique
-  value             String
-  description       String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("app_configs")
+}
+
+enum AdminRole {
+  ADMIN
+  SUPER_ADMIN
+  MANAGER
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }

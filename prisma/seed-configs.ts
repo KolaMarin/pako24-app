@@ -41,6 +41,11 @@ async function main() {
       value: '2.5',
       description: 'Price per exceeded kg in EUR',
     },
+    {
+      key: 'CUSTOMS_FEE_PERCENTAGE',
+      value: '0.2',
+      description: 'Customs fee percentage (e.g., 0.2 for 20%)',
+    },
   ]
 
   console.log('Seeding default configuration values...')

@@ -35,19 +35,21 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
   const router = useRouter()
   const currentDate = new Date().toLocaleDateString()
   const transportFeePerProduct = useConfigStore(state => state.getTransportFee())
+  const customsFeePercentage = useConfigStore(state => state.getCustomsFeePercentage())
+  const exchangeRate = useConfigStore(state => state.getExchangeRate())
 
   const calculateFees = (price: number, quantity: number) => {
-    const euroPrice = price * 1.15 // Approximate GBP to EUR conversion
+    const euroPrice = price * exchangeRate // GBP to EUR conversion from config
     const basePriceEUR = euroPrice * quantity
-    const customsFee = basePriceEUR * 0.2 // 20% of price in EUR
-    const shippingFee = transportFeePerProduct // Base shipping fee per product
+    const customsFee = basePriceEUR * customsFeePercentage // Customs fee percentage from config
+    const shippingFee = transportFeePerProduct // Base shipping fee per product type (flat fee, not multiplied by quantity)
     
     return {
       basePriceGBP: price * quantity,
       basePriceEUR,
       customsFee,
-      shippingFee: shippingFee, // Flat fee, not multiplied by quantity
-      totalEUR: basePriceEUR + customsFee + shippingFee,
+      shippingFee, 
+      totalEUR: basePriceEUR + customsFee + shippingFee, // Total in EUR
     }
   }
 
@@ -60,6 +62,12 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
     totalEUR: number;
   }
 
+  // Count unique product types (not considering quantities)
+  const uniqueProductTypes = productLinks.length;
+  
+  // Calculate transport fee as flat fee multiplied by number of product types
+  const totalTransportFee = transportFeePerProduct * uniqueProductTypes;
+
   // Calculate totals for all products
   const orderTotals = productLinks.reduce<OrderTotals>(
     (totals, link) => {
@@ -69,13 +77,13 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
           basePriceGBP: totals.basePriceGBP + fees.basePriceGBP,
           basePriceEUR: totals.basePriceEUR + fees.basePriceEUR,
           customsFee: totals.customsFee + fees.customsFee,
-          shippingFee: totals.shippingFee, // Keep the flat fee
+          shippingFee: totalTransportFee, // Keep the total transport fee
           totalEUR: totals.totalEUR + fees.basePriceEUR + fees.customsFee,
         }
       }
       return totals
     },
-    { basePriceGBP: 0, basePriceEUR: 0, customsFee: 0, shippingFee: transportFeePerProduct * productLinks.length, totalEUR: 0 }
+    { basePriceGBP: 0, basePriceEUR: 0, customsFee: 0, shippingFee: totalTransportFee, totalEUR: 0 }
   )
   
   // Add shipping fee to total
@@ -84,19 +92,15 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
-      // Calculate transport fee based on the number of products
-      const totalTransportFee = transportFeePerProduct * productLinks.length;
-      
       // Transform product links to include calculated fees
       const enrichedProductLinks = productLinks.map((link, index) => {
         const fees = link.price > 0 ? calculateFees(link.price, link.quantity) : null
         return {
           ...link,
-          priceGBP: link.price * link.quantity,  // Price already includes quantity
-          priceEUR: link.price * 1.15 * link.quantity,  // Price already includes quantity
+          priceGBP: link.price * link.quantity,
+          priceEUR: link.price * exchangeRate * link.quantity,  // Use exchange rate from config
           customsFee: fees?.customsFee || 0,
-          // Use flat fee per product from configuration
-          transportFee: transportFeePerProduct
+          transportFee: transportFeePerProduct // Fixed flat fee per product type, NOT to be multiplied by quantity
         }
       })
       
@@ -122,13 +126,13 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white p-6">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white p-4">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-800">FATURË</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-gray-800">FATURË</DialogTitle>
         </DialogHeader>
         
         {/* PDF-like header */}
-        <div className="mb-6 pb-4 border-b border-gray-200">
+        <div className="mb-4 pb-2 border-b border-gray-200">
           <div className="flex justify-between items-start">
             <div>
               <div className="flex items-center mt-2 text-sm text-gray-600">
@@ -145,19 +149,17 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
         </div>
         
         {/* Product table */}
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-3">Produktet</h2>
+        <div className="mb-4">
+          <h2 className="text-base font-semibold mb-2">Produktet</h2>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse text-xs">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="py-2 px-3 text-center text-sm font-medium text-gray-700 border-b" style={{ width: '60px' }}>Nr.</th>
-                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-700 border-b">Produkti</th>
-                  <th className="py-2 px-3 text-center text-sm font-medium text-gray-700 border-b">Madhësia</th>
-                  <th className="py-2 px-3 text-center text-sm font-medium text-gray-700 border-b">Ngjyra</th>
-                  <th className="py-2 px-3 text-center text-sm font-medium text-gray-700 border-b">Sasia</th>
-                  <th className="py-2 px-3 text-right text-sm font-medium text-gray-700 border-b">Çmimi Njësi</th>
-                  <th className="py-2 px-3 text-right text-sm font-medium text-gray-700 border-b">Totali</th>
+                  <th className="py-1 px-2 text-center font-medium text-gray-700 border-b" style={{ width: '30px' }}>Nr.</th>
+                  <th className="py-1 px-2 text-left font-medium text-gray-700 border-b">Produkti</th>
+                  <th className="py-1 px-2 text-right font-medium text-gray-700 border-b" style={{ width: '80px' }}>Çmimi</th>
+                  <th className="py-1 px-2 text-center font-medium text-gray-700 border-b" style={{ width: '50px' }}>Sasia</th>
+                  <th className="py-1 px-2 text-right font-medium text-gray-700 border-b" style={{ width: '80px' }}>Totali</th>
                 </tr>
               </thead>
               <tbody>
@@ -165,37 +167,37 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
                   const fees = link.price > 0 ? calculateFees(link.price, link.quantity) : null
                   return (
                     <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                      <td className="py-2 px-3 text-sm text-center font-medium text-gray-800 border-b">{index + 1}</td>
-                      <td className="py-2 px-3 text-sm text-gray-800 border-b">
+                      <td className="py-1 px-2 text-center font-medium text-gray-800 border-b">{index + 1}</td>
+                      <td className="py-1 px-2 text-gray-800 border-b break-words">
                         <a 
                           href={link.url} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="text-primary hover:underline flex items-center"
                         >
-                          {link.url.length > 40 ? `${link.url.substring(0, 40)}...` : link.url}
+                          {link.url}
                           <ExternalLink className="h-3 w-3 ml-1 inline" />
                         </a>
+                        <div className="flex gap-2 mt-1">
+                          {link.size && <span className="text-xs text-gray-500">Size: {link.size}</span>}
+                          {link.color && <span className="text-xs text-gray-500">Color: {link.color}</span>}
+                        </div>
                         {link.additionalInfo && (
                           <div className="text-xs text-gray-500 mt-1">{link.additionalInfo}</div>
                         )}
                       </td>
-                      <td className="py-2 px-3 text-sm text-center text-gray-800 border-b">{link.size || "-"}</td>
-                      <td className="py-2 px-3 text-sm text-center text-gray-800 border-b">{link.color || "-"}</td>
-                      <td className="py-2 px-3 text-sm text-center text-gray-800 border-b">{link.quantity}</td>
-                      <td className="py-2 px-3 text-sm text-right font-medium text-gray-800 border-b">
+                      <td className="py-1 px-2 text-right font-medium text-gray-800 border-b">
                         {link.price > 0 ? (
                           <>
-                            €{(link.price * 1.15).toFixed(2)}
-                            <span className="text-xs text-gray-500 ml-1">(£{link.price.toFixed(2)})</span>
+                            €{(link.price * exchangeRate).toFixed(2)}
+                            <span className="block text-xs text-gray-500">£{link.price.toFixed(2)}</span>
                           </>
                         ) : "-"}
                       </td>
-                      <td className="py-2 px-3 text-sm text-right font-medium text-gray-800 border-b">
+                      <td className="py-1 px-2 text-center text-gray-800 border-b">{link.quantity}</td>
+                      <td className="py-1 px-2 text-right font-medium text-gray-800 border-b">
                         {link.price > 0 ? (
-                          <>
-                            <span className="font-bold">€{(link.price * 1.15 * link.quantity).toFixed(2)}</span>
-                          </>
+                          <span className="font-bold">€{(link.price * exchangeRate * link.quantity).toFixed(2)}</span>
                         ) : "-"}
                       </td>
                     </tr>
@@ -207,8 +209,8 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
         </div>
         
         {/* Totals section */}
-        <div className="mb-6">
-          <div className="bg-gray-50 p-4 rounded-md">
+        <div className="mb-4">
+          <div className="bg-gray-50 p-3 rounded-md">
             <div className="flex justify-between mb-2">
               <span className="text-sm text-gray-600">Çmimi bazë:</span>
               <div className="text-right">
@@ -216,7 +218,7 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
               </div>
             </div>
             <div className="flex justify-between mb-2">
-              <span className="text-sm text-gray-600">Dogana (20%):</span>
+              <span className="text-sm text-gray-600">Dogana ({(customsFeePercentage * 100).toFixed(0)}%):</span>
               <span className="text-sm font-medium">€{orderTotals.customsFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between mb-2">
@@ -232,8 +234,8 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
         </div>
         
         {/* Disclaimer */}
-        <div className="mb-6">
-          <div className="bg-amber-50 border border-amber-100 rounded-md p-3 text-sm">
+        <div className="mb-4">
+          <div className="bg-amber-50 border border-amber-100 rounded-md p-2 text-xs">
             <div className="flex gap-2">
               <Info className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
               <div>
@@ -245,7 +247,7 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
           </div>
         </div>
 
-        <DialogFooter className="flex justify-between sm:justify-between gap-2 pt-2 border-t border-gray-200">
+        <DialogFooter className="flex justify-between sm:justify-between gap-1 pt-1 border-t border-gray-200">
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)}

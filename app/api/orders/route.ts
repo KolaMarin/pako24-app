@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     
     return NextResponse.json(orders)
   } catch (error) {
-    console.error("Failed to fetch orders:", error)
+    console.error("Failed to fetch orders:", error instanceof Error ? error.message : "Unknown error")
     return NextResponse.json({ success: false, error: "Marrja e porosive dështoi" }, { status: 500 })
   }
 }

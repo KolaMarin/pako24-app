@@ -1,4 +1,5 @@
 import { prisma } from "./prisma"
+import { loadAppConfigs, useConfigStore } from "./config-store"
 
 /**
  * Recalculates and updates the total prices for an order
@@ -6,6 +7,12 @@ import { prisma } from "./prisma"
  * @returns The updated order with recalculated totals (focused on EUR)
  */
 export async function recalculateOrderTotals(orderId: string) {
+  // Load app configurations to get the latest settings
+  await loadAppConfigs();
+  const configStore = useConfigStore.getState();
+  const transportFeePerProduct = configStore.getTransportFee();
+  const customsFeePercentage = configStore.getCustomsFeePercentage();
+  
   // Get all products for the order
   const productLinks = await prisma.productLink.findMany({
     where: { orderId }
@@ -13,21 +20,23 @@ export async function recalculateOrderTotals(orderId: string) {
 
   let totalProductsEUR = 0;     // Total price of products in EUR
   let totalCustomsFeeEUR = 0;   // Total customs fee
-  let totalTransportFeeEUR = 0; // Total transport fee
+  
+  // Calculate the number of unique product types (not considering quantities)
+  const uniqueProductTypes = productLinks.length;
+  
+  // Calculate total transport fee (flat fee * number of product types)
+  const totalTransportFeeEUR = transportFeePerProduct * uniqueProductTypes;
 
   // Calculate totals from individual products
   for (const product of productLinks) {
     // Calculate product price based on quantity
-    const productPriceEUR = product.priceEUR * product.quantity;
+    const productPriceEUR = product.priceEUR;
     
     // Add to total products price
     totalProductsEUR += productPriceEUR;
     
-    // Add customs fee (adjusted for quantity)
-    totalCustomsFeeEUR += product.customsFee * product.quantity;
-    
-    // Add transport fee from each product (may or may not need quantity adjustment depending on business rules)
-    totalTransportFeeEUR += product.transportFee;
+    // Add customs fee directly (already includes quantity from OrderInvoiceModal)
+    totalCustomsFeeEUR += product.customsFee;
   }
 
   // Calculate final total (price + customs + transport)
@@ -38,9 +47,10 @@ export async function recalculateOrderTotals(orderId: string) {
     where: { id: orderId },
     data: {
       totalPriceGBP: 0, // Set GBP to 0 as it's not needed but required by schema
-      totalPriceEUR: finalTotalPriceEUR, // Total EUR amount
+      totalPriceEUR: totalProductsEUR, // Base product price total
       totalCustomsFee: totalCustomsFeeEUR, // Store total customs fee in EUR
-      totalTransportFee: totalTransportFeeEUR // Store total transport fee in EUR
+      totalTransportFee: totalTransportFeeEUR, // Store total transport fee in EUR
+      totalFinalPriceEUR: finalTotalPriceEUR // Store the final total (sum of all components)
     },
     include: { 
       productLinks: true,

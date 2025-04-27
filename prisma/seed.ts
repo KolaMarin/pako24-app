@@ -11,13 +11,18 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('Starting seed...')
 
-  // Clean the database
-  await prisma.productLink.deleteMany()
-  await prisma.order.deleteMany()
-  await prisma.user.deleteMany()
-  await prisma.admin.deleteMany()
-  await prisma.shop.deleteMany()
-  await prisma.shopCategory.deleteMany()
+  // Clean the database - wrapped in try/catch to handle case where tables don't exist yet
+  try {
+    await prisma.productLink.deleteMany()
+    await prisma.order.deleteMany()
+    await prisma.user.deleteMany()
+    await prisma.admin.deleteMany()
+    await prisma.shop.deleteMany()
+    await prisma.shopCategory.deleteMany()
+    console.log('Cleaned existing database tables')
+  } catch (error) {
+    console.log('Some tables do not exist yet, continuing with seed...')
+  }
   
   // Create admin user
   const adminUser = await prisma.admin.create({
@@ -51,6 +56,7 @@ async function main() {
       updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
       totalPriceGBP: 0, // Will be calculated
       totalPriceEUR: 0, // Will be calculated
+      totalFinalPriceEUR: 0, // Will be calculated
       totalCustomsFee: 0, // Will be calculated
       totalTransportFee: 0, // Will be calculated
       productLinks: {
@@ -118,6 +124,7 @@ async function main() {
       updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 12),
       totalPriceGBP: 0,
       totalPriceEUR: 0,
+      totalFinalPriceEUR: 0,
       totalCustomsFee: 0,
       totalTransportFee: 0,
       productLinks: {
@@ -175,6 +182,7 @@ async function main() {
       updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
       totalPriceGBP: 0,
       totalPriceEUR: 0,
+      totalFinalPriceEUR: 0,
       totalCustomsFee: 0,
       totalTransportFee: 0,
       productLinks: {
@@ -257,8 +265,9 @@ async function main() {
     await prisma.order.update({
       where: { id: order.id },
       data: {
-        totalPriceGBP: totalPriceGBP + totalCustomsFee + totalTransportFee,
-        totalPriceEUR: totalPriceEUR + (totalCustomsFee + totalTransportFee) * 1.15, // Assuming 1 GBP = 1.15 EUR
+        totalPriceGBP: totalPriceGBP, // Product prices only
+        totalPriceEUR: totalPriceEUR, // Product prices only
+        totalFinalPriceEUR: totalPriceEUR + totalCustomsFee + totalTransportFee, // Products + fees
         totalCustomsFee,
         totalTransportFee,
       },

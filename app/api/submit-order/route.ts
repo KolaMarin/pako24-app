@@ -42,17 +42,21 @@ export async function POST(request: Request) {
         totalPriceEUR: 0,
         totalCustomsFee: 0,
         totalTransportFee: 0,
+        totalFinalPriceEUR: 0, // Add the missing required field
         productLinks: {
-          create: productLinks.map((link: ProductLink) => ({
-            url: link.url,
-            quantity: link.quantity,
-            size: link.size,
-            color: link.color,
-            priceGBP: link.priceGBP,
-            priceEUR: link.priceEUR,
-            customsFee: link.customsFee,
-            transportFee: link.transportFee
-          }))
+          create: productLinks.map((link: ProductLink) => {
+
+            return {
+              url: link.url,
+              quantity: link.quantity,
+              size: link.size,
+              color: link.color,
+              priceGBP: link.priceGBP,
+              priceEUR: link.priceEUR,
+              customsFee: link.customsFee,
+              transportFee: link.transportFee
+            };
+          })
         }
       },
       include: {
@@ -65,7 +69,9 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ success: true, order: updatedOrder })
   } catch (error) {
-    console.error("Failed to submit order:", error)
+    // Ensure error is properly formatted before logging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error("Failed to submit order:", { message: errorMessage })
     return NextResponse.json({ success: false, error: "Dërgimi i porosisë dështoi" }, { status: 500 })
   }
 }

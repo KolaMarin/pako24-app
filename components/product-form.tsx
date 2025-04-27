@@ -158,28 +158,29 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       // Get current product link state (safely)
       const currentLink = productLinks[index]
       
-      // Update product details with fetched data only if fields are empty
-      // For price, check if it's strictly undefined, null, or zero
-      if (data.price && (currentLink?.price === undefined || currentLink?.price === null || currentLink?.price === 0)) {
+      // FIXED: Only update fields if they are completely empty (not filled by user)
+      // Only update price if it's exactly 0, not if user entered any value
+      if (data.price && currentLink?.price === 0) {
         updateProductLinkInStore(index, 'price', data.price)
       }
       
-      // For string fields, check if they're empty strings (including after trimming whitespace)
-      if (data.size && (!currentLink?.size || !currentLink.size.trim())) {
+      // Only update size if it's an empty string, not if user entered any value
+      if (data.size && currentLink?.size === '') {
         updateProductLinkInStore(index, 'size', data.size)
       }
       
-      if (data.color && (!currentLink?.color || !currentLink.color.trim())) {
+      // Only update color if it's an empty string, not if user entered any value
+      if (data.color && currentLink?.color === '') {
         updateProductLinkInStore(index, 'color', data.color)
       }
       
-      // Add check for additionalInfo if the API returns it
-      if (data.additionalInfo && (!currentLink?.additionalInfo || !currentLink.additionalInfo.trim())) {
+      // Only update additionalInfo if it's an empty string
+      if (data.additionalInfo && currentLink?.additionalInfo === '') {
         updateProductLinkInStore(index, 'additionalInfo', data.additionalInfo)
       }
       
-      // Add title if available
-      if (data.title && (!currentLink?.title || !currentLink.title.trim())) {
+      // Only update title if it's an empty string
+      if (data.title && currentLink?.title === '') {
         updateProductLinkInStore(index, 'title', data.title)
       }
       
@@ -207,9 +208,20 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       setValidationErrors(newErrors)
     }
     
-    // If URL field is updated, fetch product details
+    // If URL field is updated, fetch product details ONLY if other fields have default values
     if (field === 'url' && typeof value === 'string' && value.startsWith('http')) {
-      debouncedFetchProductDetails(value, index)
+      // Get current product to check if fields are at default values
+      const currentLink = productLinks[index]
+      
+      // Only fetch if most fields are still at default/empty values
+      // This prevents overwriting user data when they paste a URL after filling other fields
+      if (currentLink && 
+          (currentLink.title === '' || 
+           currentLink.price === 0 || 
+           currentLink.size === '' || 
+           currentLink.color === '')) {
+        debouncedFetchProductDetails(value, index)
+      }
     }
   }
 
