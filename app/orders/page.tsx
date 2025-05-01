@@ -49,6 +49,7 @@ interface ProductLink {
   transportFee?: number
   imageUrl?: string
   isHeavy?: boolean
+  title?: string // Add optional title field
 }
 
 interface Order {
@@ -459,15 +460,34 @@ export default function OrdersPage() {
                               {/* Product details - more compact layout */}
                               <div className="flex-1 min-w-0">
                                 <div className="flex flex-wrap justify-between items-start gap-1">
-                                  <a
-                                    href={product.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs font-medium text-primary hover:text-primary/80 hover:underline truncate max-w-[200px]"
-                                  >
-                                    {product.url}
-                                    <ExternalLink className="inline h-3 w-3 ml-1" />
-                                  </a>
+                                  {/* Display Title if available, otherwise URL */}
+                                  {product.title ? (
+                                    <span className="text-xs font-medium text-gray-800 truncate max-w-[200px] block">
+                                      {product.title}
+                                    </span>
+                                  ) : (
+                                    <a
+                                      href={product.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs font-medium text-primary hover:text-primary/80 hover:underline truncate max-w-[200px]"
+                                    >
+                                      {product.url}
+                                      <ExternalLink className="inline h-3 w-3 ml-1" />
+                                    </a>
+                                  )}
+                                  {/* Show URL below title if title exists */}
+                                  {product.title && (
+                                     <a
+                                      href={product.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs text-gray-500 hover:text-primary/80 hover:underline truncate max-w-[200px] block mt-0.5"
+                                    >
+                                      {product.url}
+                                      <ExternalLink className="inline h-3 w-3 ml-1" />
+                                    </a>
+                                  )}
 
                                   {/* Product price on the right */}
                                   {product.priceEUR && (

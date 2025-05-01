@@ -60,6 +60,7 @@ model ProductLink {
   priceEUR     Float
   customsFee   Float
   transportFee Float
+  title        String? // Add optional title field
   orderId      String
   order        Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 

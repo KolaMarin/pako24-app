@@ -104,7 +104,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   // Modifica la sezione dell'aside per rimuovere l'header con il logo e spostare il logout in basso
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    // Change min-h-screen to h-screen and add overflow-hidden
+    <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
       <TopBar onToggleSidebar={toggleSidebar} />
       <div className="flex flex-1 overflow-hidden">
         {user && !isMobile && (
@@ -159,4 +160,3 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-

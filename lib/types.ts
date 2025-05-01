@@ -8,6 +8,7 @@ interface ProductLink {
   priceEUR: number
   customsFee: number
   transportFee: number
+  title?: string // Add optional title field
 }
 
 interface Order {

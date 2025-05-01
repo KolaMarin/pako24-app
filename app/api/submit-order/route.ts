@@ -54,7 +54,8 @@ export async function POST(request: Request) {
               priceGBP: link.priceGBP,
               priceEUR: link.priceEUR,
               customsFee: link.customsFee,
-              transportFee: link.transportFee
+              transportFee: link.transportFee,
+              title: link.title // Add title here
             };
           })
         }
