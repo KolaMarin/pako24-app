@@ -2,11 +2,12 @@ import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 // Import shop and category seed functions
-// Using require since the module exports are CommonJS style
-const seedCategories = require('./seed-categories')
-const seedShops = require('./seed-shops')
+// Using require for CommonJS modules and import for ES modules
+const seedCategories = require('./seed-categories');
+const seedShops = require('./seed-shops');
+import { seedConfigs } from './seed-configs'; // Import the new function
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
   console.log('Starting seed...')
@@ -278,10 +279,14 @@ async function main() {
   console.log('Seeding shop categories...')
   await seedCategories()
   
-  console.log('Seeding shops with categories...')
-  await seedShops()
-  
-  console.log('Seed completed successfully')
+  console.log('Seeding shops with categories...');
+  await seedShops();
+
+  // Seed configurations
+  console.log('Seeding configurations...');
+  await seedConfigs();
+
+  console.log('Seed completed successfully');
 }
 
 main()

@@ -1,9 +1,10 @@
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-async function main() {
+// Export the seeding logic as a function
+export async function seedConfigs() {
   // Default configuration values
   const defaultConfigs = [
     {
@@ -89,14 +90,15 @@ async function main() {
     console.log('Super admin already exists')
   }
 
-  console.log('Seeding completed!')
+  console.log('Configuration seeding completed!');
 }
 
-main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+// Remove the direct execution part
+// main()
+//   .catch((e) => {
+//     console.error(e);
+//     process.exit(1);
+//   })
+//   .finally(async () => {
+//     await prisma.$disconnect();
+//   });
