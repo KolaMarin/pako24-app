@@ -25,16 +25,7 @@ async function main() {
     console.log('Some tables do not exist yet, continuing with seed...')
   }
   
-  // Create admin user
-  const adminUser = await prisma.admin.create({
-    data: {
-      email: 'admin@pako24.com',
-      password: bcrypt.hashSync('secureAdminPass123!', 10),
-      role: 'ADMIN',
-    },
-  })
-  
-  console.log('Created admin user:', adminUser.id)
+  // Admin user creation is now handled in seed-configs.ts to avoid conflicts
 
   // Create default user
   const defaultUser = await prisma.user.create({
