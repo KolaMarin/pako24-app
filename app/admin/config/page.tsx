@@ -24,16 +24,18 @@ export default function AdminConfigPage() {
   const [configs, setConfigs] = useState<AppConfig[]>([])
   
   // App Information
+  const [companyName, setCompanyName] = useState("")
   const [appEmail, setAppEmail] = useState("")
   const [appPhone, setAppPhone] = useState("")
   const [appAddress, setAppAddress] = useState("")
   
   // Exchange Rates
-  const [poundToEuroRate, setPoundToEuroRate] = useState("1.15")
+  const [poundToEuroRate, setPoundToEuroRate] = useState("")
   
   // Shipping Costs
-  const [standardShippingCost, setStandardShippingCost] = useState("10")
-  const [extraKgCost, setExtraKgCost] = useState("2.5")
+  const [standardShippingCost, setStandardShippingCost] = useState("")
+  const [extraKgCost, setExtraKgCost] = useState("")
+  const [customsFeePercentage, setCustomsFeePercentage] = useState("")
 
   useEffect(() => {
     fetchConfigs()
@@ -50,23 +52,29 @@ export default function AdminConfigPage() {
         // Set values from fetched configs
         data.forEach((config: AppConfig) => {
           switch (config.key) {
-            case "app.email":
+            case "COMPANY_NAME":
+              setCompanyName(config.value)
+              break
+            case "COMPANY_EMAIL":
               setAppEmail(config.value)
               break
-            case "app.phone":
+            case "COMPANY_PHONE":
               setAppPhone(config.value)
               break
-            case "app.address":
+            case "COMPANY_ADDRESS":
               setAppAddress(config.value)
               break
-            case "exchange.gbp_to_eur":
+            case "EXCHANGE_RATE_GBP_EUR":
               setPoundToEuroRate(config.value)
               break
-            case "shipping.standard_cost":
+            case "STANDARD_TRANSPORT_FEE":
               setStandardShippingCost(config.value)
               break
-            case "shipping.extra_kg_cost":
+            case "PRICE_PER_EXCEEDED_KG":
               setExtraKgCost(config.value)
+              break
+            case "CUSTOMS_FEE_PERCENTAGE":
+              setCustomsFeePercentage(config.value)
               break
           }
         })
@@ -129,9 +137,10 @@ export default function AdminConfigPage() {
       setSaving(true)
       
       await Promise.all([
-        saveConfig("app.email", appEmail, "Application email address"),
-        saveConfig("app.phone", appPhone, "Application phone number"),
-        saveConfig("app.address", appAddress, "Application physical address"),
+        saveConfig("COMPANY_NAME", companyName, "Company name used in emails and documents"),
+        saveConfig("COMPANY_EMAIL", appEmail, "Primary contact email for the company"),
+        saveConfig("COMPANY_PHONE", appPhone, "Primary contact phone number for the company"),
+        saveConfig("COMPANY_ADDRESS", appAddress, "Physical address of the company"),
       ])
       
       toast({
@@ -154,7 +163,7 @@ export default function AdminConfigPage() {
       setSaving(true)
       
       await saveConfig(
-        "exchange.gbp_to_eur", 
+        "EXCHANGE_RATE_GBP_EUR", 
         poundToEuroRate, 
         "Exchange rate from GBP to EUR"
       )
@@ -180,14 +189,19 @@ export default function AdminConfigPage() {
       
       await Promise.all([
         saveConfig(
-          "shipping.standard_cost", 
+          "STANDARD_TRANSPORT_FEE", 
           standardShippingCost, 
           "Standard shipping cost in EUR"
         ),
         saveConfig(
-          "shipping.extra_kg_cost", 
+          "PRICE_PER_EXCEEDED_KG", 
           extraKgCost, 
           "Cost per extra kg in EUR"
+        ),
+        saveConfig(
+          "CUSTOMS_FEE_PERCENTAGE", 
+          customsFeePercentage, 
+          "Customs fee percentage (e.g., 0.2 for 20%)"
         ),
       ])
       
@@ -244,6 +258,18 @@ export default function AdminConfigPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="company-name">Emri i Kompanisë</Label>
+                  <div className="relative">
+                    <Input
+                      id="company-name"
+                      type="text"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="Pako24"
+                    />
+                  </div>
+                </div>
                 <div className="grid gap-2">
                   <Label htmlFor="app-email">Email</Label>
                   <div className="relative">
@@ -377,6 +403,24 @@ export default function AdminConfigPage() {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Kosto shtesë për çdo kilogram mbi peshën standarde
+                  </p>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="customs-fee">Përqindja e Doganës (%)</Label>
+                  <div className="relative">
+                    <Input
+                      id="customs-fee"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="1"
+                      value={customsFeePercentage}
+                      onChange={(e) => setCustomsFeePercentage(e.target.value)}
+                    />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Fut vlerën si fraksion (p.sh. 0.2 për 20%)
                   </p>
                 </div>
               </CardContent>

@@ -5,7 +5,7 @@ import { verifyAdminAuth } from "@/lib/admin-auth"
 // GET /api/admin/configs/[configId] - Get a specific configuration
 export async function GET(
   request: NextRequest,
-  { params }: { params: { configId: string } }
+  { params }: { params: Promise<{ configId: string }> | { configId: string } }
 ) {
   try {
     // Verify admin authentication
@@ -14,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { configId } = params
+    const { configId } = 'then' in params ? await params : params
 
     // Get configuration
     const config = await prisma.appConfig.findUnique({
@@ -40,7 +40,7 @@ export async function GET(
 // PATCH /api/admin/configs/[configId] - Update a configuration
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { configId: string } }
+  { params }: { params: Promise<{ configId: string }> | { configId: string } }
 ) {
   try {
     // Verify admin authentication
@@ -57,7 +57,7 @@ export async function PATCH(
       )
     }
 
-    const { configId } = params
+    const { configId } = 'then' in params ? await params : params
     const body = await request.json()
     const { value, description } = body
 
@@ -96,7 +96,7 @@ export async function PATCH(
 // DELETE /api/admin/configs/[configId] - Delete a configuration
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { configId: string } }
+  { params }: { params: Promise<{ configId: string }> | { configId: string } }
 ) {
   try {
     // Verify admin authentication
@@ -113,7 +113,7 @@ export async function DELETE(
       )
     }
 
-    const { configId } = params
+    const { configId } = 'then' in params ? await params : params
 
     // Check if configuration exists
     const existingConfig = await prisma.appConfig.findUnique({

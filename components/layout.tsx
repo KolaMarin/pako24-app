@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { Home, ShoppingBag, Settings, LogOut, Menu, Store } from "lucide-react"
+import { Home, ShoppingBag, Settings, LogOut, Menu, Store, ShoppingCart, User } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { TopBar } from "./top-bar"
+import { BasketIcon } from "@/components/basket-icon"
+import { BasketInvoiceModal } from "@/components/basket-invoice-modal"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { MobileNavbar } from "@/components/mobile-navbar"
@@ -48,7 +50,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false) // Default to expanded
   const [isMounted, setIsMounted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [showBasketModal, setShowBasketModal] = useState(false)
+  const [showUserDropdown, setShowUserDropdown] = useState(false)
   const pathname = usePathname()
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setIsMounted(true)
@@ -64,6 +69,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       window.removeEventListener("resize", checkMobile)
     }
   }, [])
+
+  // Close user dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowUserDropdown(false)
+      }
+    }
+
+    // Close dropdown on page navigation
+    setShowUserDropdown(false)
+    
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [pathname])
 
   const handleLogout = () => {
     logout()
@@ -87,14 +109,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       >
         Porositë e Mia
       </NavLink>
-      <NavLink
-        href="/settings"
-        icon={Settings}
-        isActive={pathname === "/settings" || pathname?.startsWith("/settings/")}
-        isSidebarCollapsed={isSidebarCollapsed}
-      >
-        Cilësimet
-      </NavLink>
     </nav>
   )
 
@@ -102,11 +116,43 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return null
   }
 
+  const handleSubmitOrder = async (data: { productLinks: any[] }) => {
+    try {
+      const response = await fetch('/api/submit-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit order')
+      }
+      
+      return await response.json()
+    } catch (error) {
+      console.error('Error submitting order:', error)
+      throw error
+    }
+  }
+
   // Modifica la sezione dell'aside per rimuovere l'header con il logo e spostare il logout in basso
   return (
     // Change min-h-screen to h-screen and add overflow-hidden
     <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
-      <TopBar onToggleSidebar={toggleSidebar} />
+      <TopBar 
+        onToggleSidebar={toggleSidebar} 
+        showBasketIcon={true} 
+        setShowBasketModal={setShowBasketModal} 
+      />
+      
+      {/* Basket Modal */}
+      <BasketInvoiceModal 
+        open={showBasketModal} 
+        onOpenChange={setShowBasketModal} 
+        onSubmit={handleSubmitOrder} 
+      />
       <div className="flex flex-1 overflow-hidden">
         {user && !isMobile && (
           <aside
@@ -123,14 +169,37 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
             <div className="flex-1 px-2 py-2">{renderSidebarContent()}</div>
             <div className="p-4 mt-auto">
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2 text-red-500 hover:bg-red-50 hover:text-red-600"
-              >
-                <LogOut className="h-4 w-4" />
-                {!isSidebarCollapsed && <span>Dil</span>}
-              </Button>
+              {/* User profile button with dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2 hover:bg-gray-100"
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                >
+                  <User className="h-5 w-5 text-primary" />
+                  {!isSidebarCollapsed && <span className="font-medium">Profili</span>}
+                </Button>
+                
+                {showUserDropdown && (
+                  <div className="absolute bottom-full left-0 w-full bg-white border rounded-md shadow-lg mb-2 overflow-hidden z-50">
+                    <Link 
+                      href="/settings"
+                      className="flex items-center gap-2 p-3 hover:bg-gray-100 text-gray-700 transition-colors"
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>Cilësimet</span>
+                    </Link>
+                    <div className="border-t border-gray-200"></div>
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 p-3 hover:bg-red-50 text-red-500 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Dil</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </aside>
         )}
@@ -151,7 +220,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           onTabChange={() => {}}
           items={[
             { id: "home", label: "Kryefaqja", icon: Home, path: "/" },
-            { id: "shops", label: "Dyqanet", icon: Store, path: "/shops" },
+            { id: "basket", label: "Shporta", icon: ShoppingCart, action: () => setShowBasketModal(true) },
             { id: "orders", label: "Porositë", icon: ShoppingBag, path: "/orders" },
             { id: "settings", label: "Cilësimet", icon: Settings, path: "/settings" },
           ]}

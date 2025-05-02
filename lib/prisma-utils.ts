@@ -21,11 +21,7 @@ export async function recalculateOrderTotals(orderId: string) {
   let totalProductsEUR = 0;     // Total price of products in EUR
   let totalCustomsFeeEUR = 0;   // Total customs fee
   
-  // Calculate the number of unique product types (not considering quantities)
-  const uniqueProductTypes = productLinks.length;
-  
-  // Calculate total transport fee (flat fee * number of product types)
-  const totalTransportFeeEUR = transportFeePerProduct * uniqueProductTypes;
+  let totalTransportFeeEUR = 0;   // Total transport fee
 
   // Calculate totals from individual products
   for (const product of productLinks) {
@@ -37,6 +33,9 @@ export async function recalculateOrderTotals(orderId: string) {
     
     // Add customs fee directly (already includes quantity from OrderInvoiceModal)
     totalCustomsFeeEUR += product.customsFee;
+    
+    // Add transport fee directly from each product
+    totalTransportFeeEUR += product.transportFee;
   }
 
   // Calculate final total (price + customs + transport)

@@ -18,7 +18,7 @@ type UserWithOrdersAndCount = Prisma.UserGetPayload<{
         id: true;
         status: true;
         createdAt: true;
-        totalPriceGBP: true;
+        totalFinalPriceEUR: true;
       };
       orderBy: {
         createdAt: "desc";
@@ -36,7 +36,7 @@ type UserWithOrdersAndCount = Prisma.UserGetPayload<{
 // GET /api/admin/customers/[customerId] - Get customer details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { customerId: string } }
+  { params }: { params: { customerId: string | Promise<string> } }
 ) {
   try {
     // Verify admin authentication
@@ -45,7 +45,10 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { customerId } = params
+    // First ensure params is properly awaited before accessing its properties
+    const awaitedParams = await Promise.resolve(params);
+    // Explicitly cast to string to satisfy TypeScript
+    const customerId = String(awaitedParams.customerId);
 
     // Get customer details including order statistics
     const customer = await prisma.user.findUnique({
@@ -65,7 +68,7 @@ export async function GET(
             id: true,
             status: true,
             createdAt: true,
-            totalPriceGBP: true,
+            totalFinalPriceEUR: true,
           },
           orderBy: {
             createdAt: "desc",
@@ -87,46 +90,52 @@ export async function GET(
       )
     }
 
-    // Calculate order statistics
-    const orderStatistics = await prisma.order.groupBy({
+    // Get all orders for this customer, grouped by status
+    const orders = await prisma.order.findMany({
       where: {
         userId: customerId,
       },
-      by: ["status"],
-      _count: {
-        _all: true,
-      },
-    })
+      select: {
+        status: true,
+        totalFinalPriceEUR: true,
+      }
+    });
 
-    // Calculate total spent
+    // Calculate total spent across all orders
     const totalSpent = await prisma.order.aggregate({
       where: {
         userId: customerId,
-        status: {
-          in: ["DELIVERED", "SHIPPED"],
-        },
       },
       _sum: {
-        totalPriceGBP: true,
+        totalFinalPriceEUR: true,
       },
-    })
+    });
 
-    type OrderStatusesLower = Record<Lowercase<OrderStatus>, number>;
+    // Initialize order status data with counts and value per status
+    type OrderStatusData = {
+      count: number;
+      totalValue: number;
+    };
+    
+    type OrderStatusesData = Record<Lowercase<OrderStatus>, OrderStatusData>;
 
-    // Initialize the order status counters
-    const ordersByStatus: OrderStatusesLower = {
-      pending: 0,
-      processing: 0,
-      shipped: 0,
-      delivered: 0,
-      cancelled: 0,
-    }
+    // Initialize the order status data
+    const ordersByStatus: OrderStatusesData = {
+      pending: { count: 0, totalValue: 0 },
+      processing: { count: 0, totalValue: 0 },
+      shipped: { count: 0, totalValue: 0 },
+      delivered: { count: 0, totalValue: 0 },
+      cancelled: { count: 0, totalValue: 0 },
+    };
 
-    // Update with the actual counts
-    orderStatistics.forEach(stat => {
-      const statusLower = stat.status.toLowerCase() as keyof OrderStatusesLower;
+    // Calculate counts and total values per status
+    orders.forEach(order => {
+      const statusLower = order.status.toLowerCase() as keyof OrderStatusesData;
       if (statusLower in ordersByStatus) {
-        ordersByStatus[statusLower] = stat._count._all;
+        ordersByStatus[statusLower].count++;
+        // Ensure totalFinalPriceEUR is a number and not null/undefined
+        const orderValue = typeof order.totalFinalPriceEUR === 'number' ? order.totalFinalPriceEUR : 0;
+        ordersByStatus[statusLower].totalValue += orderValue;
       }
     });
 
@@ -134,7 +143,7 @@ export async function GET(
       ...customer,
       statistics: {
         totalOrders: customer._count.orders,
-        totalSpent: totalSpent._sum.totalPriceGBP || 0,
+        totalSpent: totalSpent._sum.totalFinalPriceEUR || 0,
         ordersByStatus,
       },
       _count: undefined,
@@ -151,7 +160,7 @@ export async function GET(
 // PATCH /api/admin/customers/[customerId] - Update customer details
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { customerId: string } }
+  { params }: { params: { customerId: string | Promise<string> } }
 ) {
   try {
     // Verify admin authentication
@@ -160,7 +169,10 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { customerId } = params
+    // First ensure params is properly awaited before accessing its properties
+    const awaitedParams = await Promise.resolve(params);
+    // Explicitly cast to string to satisfy TypeScript
+    const customerId = String(awaitedParams.customerId);
     const body = await request.json()
     const { isBlocked, password } = body
 

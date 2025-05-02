@@ -34,6 +34,7 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
   const currentDate = new Date().toLocaleDateString()
+  const configs = useConfigStore(state => state.configs)
   const transportFeePerProduct = useConfigStore(state => state.getTransportFee())
   const customsFeePercentage = useConfigStore(state => state.getCustomsFeePercentage())
   const exchangeRate = useConfigStore(state => state.getExchangeRate())
@@ -141,9 +142,10 @@ export function OrderInvoiceModal({ open, onOpenChange, onSubmit }: OrderInvoice
               </div>
             </div>
             <div className="text-right">
-              <div className="text-lg font-semibold text-gray-800">Pako24</div>
-              <div className="text-sm text-gray-600">info@pako24.com</div>
-              <div className="text-sm text-gray-600">+355 69 123 4567</div>
+              <div className="text-lg font-semibold text-gray-800">{configs.COMPANY_NAME}</div>
+              <div className="text-sm text-gray-600">{configs.COMPANY_EMAIL}</div>
+              <div className="text-sm text-gray-600">{configs.COMPANY_PHONE}</div>
+              <div className="text-sm text-gray-600">{configs.COMPANY_ADDRESS}</div>
             </div>
           </div>
         </div>

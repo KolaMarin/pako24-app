@@ -11,6 +11,7 @@ interface MobileNavbarItem {
   label: string
   icon: React.ElementType
   path?: string
+  action?: () => void
 }
 
 interface MobileNavbarProps {
@@ -26,15 +27,21 @@ export function MobileNavbar({ activeTab: initialActiveTab, onTabChange, items }
 
   useEffect(() => {
     // Update active tab based on current path
-    if (pathname === "/") setActiveTab("order")
+    if (pathname === "/") setActiveTab("home")
     else if (pathname === "/shops") setActiveTab("shops")
     else if (pathname === "/orders") setActiveTab("orders")
     else if (pathname === "/settings") setActiveTab("settings")
   }, [pathname])
 
-  const handleTabChange = (tab: string, path?: string) => {
+  const handleTabChange = (tab: string, path?: string, action?: () => void) => {
     setActiveTab(tab)
     onTabChange(tab)
+
+    // If action is provided, execute it
+    if (action) {
+      action()
+      return
+    }
 
     // If path is provided and we're not already on that page, navigate to it
     if (path && pathname !== path && tab !== "shops") {
@@ -58,7 +65,7 @@ export function MobileNavbar({ activeTab: initialActiveTab, onTabChange, items }
                 "flex flex-col items-center justify-center gap-1 transition-colors",
                 isActive ? "text-primary" : "text-gray-500 hover:text-gray-900",
               )}
-              onClick={() => handleTabChange(item.id, item.path)}
+              onClick={() => handleTabChange(item.id, item.path, item.action)}
             >
               <div className="relative">
                 <Icon className="h-5 w-5" />
@@ -74,4 +81,3 @@ export function MobileNavbar({ activeTab: initialActiveTab, onTabChange, items }
     </div>
   )
 }
-

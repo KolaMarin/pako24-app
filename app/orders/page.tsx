@@ -552,7 +552,7 @@ export default function OrdersPage() {
                           </div>
                           {/* Transport fee total */}
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Menaxhimi dhe Transporti:</span>
+                            <span className="text-gray-500">Menaxhimi dhe Transporti (x{order.productLinks.length}):</span>
                             <span>€{order.totalTransportFee?.toFixed(2) || "0.00"}</span>
                           </div>
                           {/* Grand total */}

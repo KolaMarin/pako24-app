@@ -22,14 +22,15 @@ export async function GET(request: Request) {
       where: { id: sessionId }
     })
     
-    if (user) {
-      // Return user data (excluding password)
+    if (user && !user.isBlocked) {
+      // Return user data (excluding password) only if user is not blocked
       return NextResponse.json({
         email: user.email,
         phoneNumber: user.phoneNumber,
         location: user.location
       })
     } else {
+      // Return null if user doesn't exist or is blocked
       return NextResponse.json(null)
     }
   } catch (error) {

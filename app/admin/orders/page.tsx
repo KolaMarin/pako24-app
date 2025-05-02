@@ -47,6 +47,7 @@ interface Order {
   totalPriceEUR: number
   totalCustomsFee: number
   totalTransportFee: number
+  totalFinalPriceEUR?: number // Add the new property with optional marker
 }
 
 const statusColors = {
@@ -74,6 +75,116 @@ export default function AdminOrdersPage() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const router = useRouter()
+  
+  // ProductEditor component to handle editing with proper state management
+  const ProductEditor = ({ 
+    product, 
+    orderId, 
+    onSave, 
+    onCancel 
+  }: { 
+    product: ProductLink; 
+    orderId: string; 
+    onSave: (orderId: string, productId: string, updatedProduct: Partial<ProductLink>) => Promise<void>;
+    onCancel: () => void;
+  }) => {
+    // Create a copy of the product for editing to avoid modifying the original until save
+    const [editedProduct, setEditedProduct] = useState<ProductLink>({...product})
+    
+    // Handle number input validation and formatting
+    const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof ProductLink) => {
+      const value = e.target.value === '' ? 0 : Number(e.target.value)
+      setEditedProduct({ ...editedProduct, [field]: value })
+    }
+    
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium">URL e Produktit</label>
+            <Input
+              value={editedProduct.url}
+              onChange={(e) => setEditedProduct({ ...editedProduct, url: e.target.value })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Sasia</label>
+            <Input
+              type="number"
+              min="1"
+              value={editedProduct.quantity}
+              onChange={(e) => handleNumberChange(e, 'quantity')}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Madhësia</label>
+            <Input
+              value={editedProduct.size}
+              onChange={(e) => setEditedProduct({ ...editedProduct, size: e.target.value })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Ngjyra</label>
+            <Input
+              value={editedProduct.color}
+              onChange={(e) => setEditedProduct({ ...editedProduct, color: e.target.value })}
+              className="mt-1"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="text-sm font-medium">Çmimi (EUR)</label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              value={editedProduct.priceEUR}
+              onChange={(e) => handleNumberChange(e, 'priceEUR')}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Dogana</label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              value={editedProduct.customsFee}
+              onChange={(e) => handleNumberChange(e, 'customsFee')}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Transporti</label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              value={editedProduct.transportFee}
+              onChange={(e) => handleNumberChange(e, 'transportFee')}
+              className="mt-1"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-2">
+          <Button variant="outline" onClick={onCancel}>
+            <X className="w-4 h-4 mr-2" />
+            Anulo
+          </Button>
+          <Button onClick={() => onSave(orderId, product.id, editedProduct)}>
+            <Save className="w-4 h-4 mr-2" />
+            Ruaj
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   useEffect(() => {
     fetchOrders()
@@ -156,7 +267,8 @@ export default function AdminOrdersPage() {
               totalPriceGBP: updatedOrder.totalPriceGBP,
               totalPriceEUR: updatedOrder.totalPriceEUR,
               totalCustomsFee: updatedOrder.totalCustomsFee,
-              totalTransportFee: updatedOrder.totalTransportFee
+              totalTransportFee: updatedOrder.totalTransportFee,
+              totalFinalPriceEUR: updatedOrder.totalFinalPriceEUR
             }
           }
           return order
@@ -171,7 +283,8 @@ export default function AdminOrdersPage() {
               totalPriceGBP: updatedOrder.totalPriceGBP,
               totalPriceEUR: updatedOrder.totalPriceEUR,
               totalCustomsFee: updatedOrder.totalCustomsFee,
-              totalTransportFee: updatedOrder.totalTransportFee
+              totalTransportFee: updatedOrder.totalTransportFee,
+              totalFinalPriceEUR: updatedOrder.totalFinalPriceEUR
             }
           }
           return order
@@ -616,7 +729,7 @@ export default function AdminOrdersPage() {
                         <Package className="h-4 w-4" />
                         <span>{order.productLinks.length} produkte</span>
                         <span className="text-muted-foreground">
-                          (€{(order.totalPriceEUR + order.totalCustomsFee + order.totalTransportFee).toFixed(2)})
+                          (€{order.totalFinalPriceEUR?.toFixed(2) || (order.totalPriceEUR + order.totalCustomsFee + order.totalTransportFee).toFixed(2)})
                         </span>
                       </div>
                     </AccordionTrigger>
@@ -637,174 +750,13 @@ export default function AdminOrdersPage() {
                             {order.productLinks.map((product, index) => (
                                 <div key={product.id} className="p-4 rounded-lg border bg-card">
                                   {editingProduct === product.id ? (
-                                    // Editing form for the product
-                                    <div className="space-y-4">
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                          <label className="text-sm font-medium">URL e Produktit</label>
-                                          <Input
-                                            value={product.url}
-                                            onChange={(e) => {
-                                              // Create a temporary updated product
-                                              const updatedProducts = [...order.productLinks];
-                                              const productIndex = updatedProducts.findIndex(p => p.id === product.id);
-                                              updatedProducts[productIndex] = {
-                                                ...updatedProducts[productIndex],
-                                                url: e.target.value
-                                              };
-                                              // Update the order's productLinks in the local state
-                                              setOrders(orders.map(o => 
-                                                o.id === order.id ? {...o, productLinks: updatedProducts} : o
-                                              ));
-                                            }}
-                                            className="mt-1"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="text-sm font-medium">Sasia</label>
-                                          <Input
-                                            type="number"
-                                            min="1"
-                                            value={product.quantity}
-                                            onChange={(e) => {
-                                              const value = e.target.value === '' ? 0 : Number(e.target.value);
-                                              const updatedProducts = [...order.productLinks];
-                                              const productIndex = updatedProducts.findIndex(p => p.id === product.id);
-                                              updatedProducts[productIndex] = {
-                                                ...updatedProducts[productIndex],
-                                                quantity: value
-                                              };
-                                              setOrders(orders.map(o => 
-                                                o.id === order.id ? {...o, productLinks: updatedProducts} : o
-                                              ));
-                                            }}
-                                            className="mt-1"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="text-sm font-medium">Madhësia</label>
-                                          <Input
-                                            value={product.size}
-                                            onChange={(e) => {
-                                              const updatedProducts = [...order.productLinks];
-                                              const productIndex = updatedProducts.findIndex(p => p.id === product.id);
-                                              updatedProducts[productIndex] = {
-                                                ...updatedProducts[productIndex],
-                                                size: e.target.value
-                                              };
-                                              setOrders(orders.map(o => 
-                                                o.id === order.id ? {...o, productLinks: updatedProducts} : o
-                                              ));
-                                            }}
-                                            className="mt-1"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="text-sm font-medium">Ngjyra</label>
-                                          <Input
-                                            value={product.color}
-                                            onChange={(e) => {
-                                              const updatedProducts = [...order.productLinks];
-                                              const productIndex = updatedProducts.findIndex(p => p.id === product.id);
-                                              updatedProducts[productIndex] = {
-                                                ...updatedProducts[productIndex],
-                                                color: e.target.value
-                                              };
-                                              setOrders(orders.map(o => 
-                                                o.id === order.id ? {...o, productLinks: updatedProducts} : o
-                                              ));
-                                            }}
-                                            className="mt-1"
-                                          />
-                                        </div>
-                                      </div>
-
-                                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div>
-                                          <label className="text-sm font-medium">Çmimi (EUR)</label>
-                                          <Input
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            value={product.priceEUR}
-                                            onChange={(e) => {
-                                              const value = e.target.value === '' ? 0 : Number(e.target.value);
-                                              const updatedProducts = [...order.productLinks];
-                                              const productIndex = updatedProducts.findIndex(p => p.id === product.id);
-                                              updatedProducts[productIndex] = {
-                                                ...updatedProducts[productIndex],
-                                                priceEUR: value
-                                              };
-                                              setOrders(orders.map(o => 
-                                                o.id === order.id ? {...o, productLinks: updatedProducts} : o
-                                              ));
-                                            }}
-                                            className="mt-1"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="text-sm font-medium">Dogana</label>
-                                          <Input
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            value={product.customsFee}
-                                            onChange={(e) => {
-                                              const value = e.target.value === '' ? 0 : Number(e.target.value);
-                                              const updatedProducts = [...order.productLinks];
-                                              const productIndex = updatedProducts.findIndex(p => p.id === product.id);
-                                              updatedProducts[productIndex] = {
-                                                ...updatedProducts[productIndex],
-                                                customsFee: value
-                                              };
-                                              setOrders(orders.map(o => 
-                                                o.id === order.id ? {...o, productLinks: updatedProducts} : o
-                                              ));
-                                            }}
-                                            className="mt-1"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="text-sm font-medium">Transporti</label>
-                                          <Input
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            value={product.transportFee}
-                                            onChange={(e) => {
-                                              const value = e.target.value === '' ? 0 : Number(e.target.value);
-                                              const updatedProducts = [...order.productLinks];
-                                              const productIndex = updatedProducts.findIndex(p => p.id === product.id);
-                                              updatedProducts[productIndex] = {
-                                                ...updatedProducts[productIndex],
-                                                transportFee: value
-                                              };
-                                              setOrders(orders.map(o => 
-                                                o.id === order.id ? {...o, productLinks: updatedProducts} : o
-                                              ));
-                                            }}
-                                            className="mt-1"
-                                          />
-                                        </div>
-                                      </div>
-
-                                      <div className="flex justify-end space-x-2">
-                                        <Button variant="outline" onClick={() => setEditingProduct(null)}>
-                                          <X className="w-4 h-4 mr-2" />
-                                          Anulo
-                                        </Button>
-                                        <Button onClick={() => {
-                                          // Get the updated product data from the local state
-                                          const updatedProduct = order.productLinks.find(p => p.id === product.id);
-                                          if (updatedProduct) {
-                                            updateProductDetails(order.id, product.id, updatedProduct);
-                                          }
-                                        }}>
-                                          <Save className="w-4 h-4 mr-2" />
-                                          Ruaj
-                                        </Button>
-                                      </div>
-                                    </div>
+                                    // Editing form for the product with proper state management
+                                    <ProductEditor 
+                                      product={product} 
+                                      orderId={order.id} 
+                                      onSave={updateProductDetails}
+                                      onCancel={() => setEditingProduct(null)}
+                                    />
                                   ) : (
                                     // Read-only view of the product
                                     <div className="flex justify-between items-start gap-4">
@@ -900,7 +852,7 @@ export default function AdminOrdersPage() {
                               <div className="pt-2 mt-2 border-t flex justify-between font-medium">
                                 <span>Totali përfundimtar:</span>
                                 <div className="text-right">
-                                  <div>€{(order.totalPriceEUR + order.totalCustomsFee + order.totalTransportFee).toFixed(2)}</div>
+                                  <div>€{order.totalFinalPriceEUR?.toFixed(2) || (order.totalPriceEUR + order.totalCustomsFee + order.totalTransportFee).toFixed(2)}</div>
                                 </div>
                               </div>
                             </div>

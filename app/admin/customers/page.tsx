@@ -65,6 +65,7 @@ import {
   AlertTriangle,
   ChevronRight,
   BarChart4,
+  Trash,
 } from "lucide-react"
 import { format } from "date-fns"
 
@@ -84,18 +85,18 @@ interface CustomerDetails extends Customer {
     totalOrders: number
     totalSpent: number
     ordersByStatus: {
-      pending: number
-      processing: number
-      shipped: number
-      delivered: number
-      cancelled: number
+      pending: { count: number, totalValue: number }
+      processing: { count: number, totalValue: number }
+      shipped: { count: number, totalValue: number }
+      delivered: { count: number, totalValue: number }
+      cancelled: { count: number, totalValue: number }
     }
   }
   orders: Array<{
     id: string
     status: string
     createdAt: string
-    totalPriceGBP: number
+    totalFinalPriceEUR: number
   }>
 }
 
@@ -510,214 +511,117 @@ export default function CustomersPage() {
       
       {/* Customer Details Modal */}
       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Customer Details</DialogTitle>
+          </DialogHeader>
           {selectedCustomer && !customerDetailLoading ? (
             <>
-              <DialogHeader>
-                <DialogTitle>Customer Details</DialogTitle>
-                <DialogDescription>
-                  Detailed information about this customer
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-4">
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium">Contact Information</h3>
-                    <div className="mt-3 space-y-3">
-                      <div className="flex items-start gap-2">
-                        <User className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">Email</div>
-                          <div className="text-sm text-muted-foreground">{selectedCustomer.email}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start gap-2">
-                        <Phone className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">Phone Number</div>
-                          <div className="text-sm text-muted-foreground">{selectedCustomer.phoneNumber}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">Location</div>
-                          <div className="text-sm text-muted-foreground">{selectedCustomer.location}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start gap-2">
-                        <Calendar className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">Customer Since</div>
-                          <div className="text-sm text-muted-foreground">
-                            {format(new Date(selectedCustomer.createdAt), "MMMM d, yyyy")}
+              <div className="space-y-6 py-4">
+                {/* Customer Statistics Cards */}
+                <div>
+                  <h3 className="text-lg font-medium mb-3">Customer Statistics</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Total Orders</p>
+                            <p className="text-2xl font-bold">{selectedCustomer.statistics.totalOrders}</p>
                           </div>
+                          <ShoppingBag className="h-8 w-8 text-muted-foreground/30" />
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-medium">Account Status</h3>
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {selectedCustomer.isBlocked ? (
-                          <XCircle className="h-4 w-4 text-destructive" />
-                        ) : (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        )}
-                        <span>
-                          {selectedCustomer.isBlocked ? "Blocked" : "Active"}
-                        </span>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openPasswordModal(selectedCustomer.id)}
-                        >
-                          <Lock className="h-4 w-4 mr-2" />
-                          Change Password
-                        </Button>
-                        
-                        <Button
-                          variant={selectedCustomer.isBlocked ? "default" : "destructive"}
-                          size="sm"
-                          onClick={() => handleToggleBlock(selectedCustomer.id, selectedCustomer.isBlocked)}
-                        >
-                          {selectedCustomer.isBlocked ? (
-                            <>
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Unblock
-                            </>
-                          ) : (
-                            <>
-                              <XCircle className="h-4 w-4 mr-2" />
-                              Block
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-medium">Recent Orders</h3>
-                    {selectedCustomer.orders.length > 0 ? (
-                      <div className="mt-3 border rounded-md">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Order ID</TableHead>
-                              <TableHead>Date</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead className="text-right">Amount</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {selectedCustomer.orders.map((order) => (
-                              <TableRow key={order.id}>
-                                <TableCell className="font-medium">{order.id.slice(0, 8)}</TableCell>
-                                <TableCell>{format(new Date(order.createdAt), "dd/MM/yyyy")}</TableCell>
-                                <TableCell>
-                                  <Badge
-                                    variant={
-                                      order.status === "DELIVERED" ? "default" :
-                                      order.status === "PROCESSING" ? "secondary" :
-                                      order.status === "SHIPPED" ? "outline" :
-                                      order.status === "CANCELLED" ? "destructive" : "default"
-                                    }
-                                  >
-                                    {order.status.charAt(0) + order.status.slice(1).toLowerCase()}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell className="text-right">£{order.totalPriceGBP.toFixed(2)}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    ) : (
-                      <div className="text-center py-4 text-sm text-muted-foreground">
-                        No orders found
-                      </div>
-                    )}
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Total Spent</p>
+                            <p className="text-2xl font-bold">€{selectedCustomer.statistics.totalSpent.toFixed(2)}</p>
+                          </div>
+                          <BarChart4 className="h-8 w-8 text-muted-foreground/30" />
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 </div>
                 
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium">Customer Statistics</h3>
-                    <div className="mt-3 grid grid-cols-2 gap-4">
-                      <Card>
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-muted-foreground">Total Orders</p>
-                              <p className="text-2xl font-bold">{selectedCustomer.statistics.totalOrders}</p>
-                            </div>
-                            <ShoppingBag className="h-8 w-8 text-muted-foreground/30" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card>
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-muted-foreground">Total Spent</p>
-                              <p className="text-2xl font-bold">£{selectedCustomer.statistics.totalSpent.toFixed(2)}</p>
-                            </div>
-                            <BarChart4 className="h-8 w-8 text-muted-foreground/30" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-medium">Orders by Status</h3>
-                    <div className="mt-3 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <div className="flex gap-2 items-center">
-                          <Badge variant="outline">Pending</Badge>
-                        </div>
-                        <span>{selectedCustomer.statistics.ordersByStatus.pending}</span>
-                      </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <div className="flex gap-2 items-center">
-                          <Badge variant="secondary">Processing</Badge>
-                        </div>
-                        <span>{selectedCustomer.statistics.ordersByStatus.processing}</span>
-                      </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <div className="flex gap-2 items-center">
-                          <Badge variant="outline">Shipped</Badge>
-                        </div>
-                        <span>{selectedCustomer.statistics.ordersByStatus.shipped}</span>
-                      </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <div className="flex gap-2 items-center">
-                          <Badge variant="default">Delivered</Badge>
-                        </div>
-                        <span>{selectedCustomer.statistics.ordersByStatus.delivered}</span>
-                      </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <div className="flex gap-2 items-center">
-                          <Badge variant="destructive">Cancelled</Badge>
-                        </div>
-                        <span>{selectedCustomer.statistics.ordersByStatus.cancelled}</span>
-                      </div>
-                    </div>
+                {/* Orders by Status */}
+                <div>
+                  <h3 className="text-lg font-medium mb-3">Orders by Status</h3>
+                  <div className="border rounded-md">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-center">Quantity</TableHead>
+                          <TableHead className="text-right pr-4">Total Value</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>
+                            <Badge className="bg-yellow-500">Pending</Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {selectedCustomer.statistics.ordersByStatus.pending.count}
+                          </TableCell>
+                          <TableCell className="text-right pr-4">
+                            €{selectedCustomer.statistics.ordersByStatus.pending.totalValue.toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                        
+                        <TableRow>
+                          <TableCell>
+                            <Badge className="bg-blue-500">Processing</Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {selectedCustomer.statistics.ordersByStatus.processing.count}
+                          </TableCell>
+                          <TableCell className="text-right pr-4">
+                            €{selectedCustomer.statistics.ordersByStatus.processing.totalValue.toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                        
+                        <TableRow>
+                          <TableCell>
+                            <Badge className="bg-purple-500">Shipped</Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {selectedCustomer.statistics.ordersByStatus.shipped.count}
+                          </TableCell>
+                          <TableCell className="text-right pr-4">
+                            €{selectedCustomer.statistics.ordersByStatus.shipped.totalValue.toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                        
+                        <TableRow>
+                          <TableCell>
+                            <Badge className="bg-green-500">Delivered</Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {selectedCustomer.statistics.ordersByStatus.delivered.count}
+                          </TableCell>
+                          <TableCell className="text-right pr-4">
+                            €{selectedCustomer.statistics.ordersByStatus.delivered.totalValue.toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                        
+                        <TableRow>
+                          <TableCell>
+                            <Badge className="bg-red-500">Cancelled</Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {selectedCustomer.statistics.ordersByStatus.cancelled.count}
+                          </TableCell>
+                          <TableCell className="text-right pr-4">
+                            €{selectedCustomer.statistics.ordersByStatus.cancelled.totalValue.toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
                   </div>
                 </div>
               </div>

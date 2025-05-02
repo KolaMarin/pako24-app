@@ -18,6 +18,14 @@ export async function POST(request: Request) {
         { status: 401 }
       )
     }
+    
+    // Check if user is blocked
+    if (user.isBlocked) {
+      return NextResponse.json(
+        { success: false, error: "Llogaria juaj është bllokuar. Ju lutemi kontaktoni administratorin." },
+        { status: 403 }
+      )
+    }
 
     // Create response with user data
     const response = NextResponse.json({

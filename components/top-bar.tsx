@@ -6,12 +6,15 @@ import Link from "next/link"
 import { LogIn, LogOut, Package, Menu } from "lucide-react"
 import { useState } from "react"
 import { LoginModal } from "@/components/login-modal"
+import { BasketIcon } from "@/components/basket-icon"
 
 interface TopBarProps {
   onToggleSidebar?: () => void
+  showBasketIcon?: boolean
+  setShowBasketModal?: (show: boolean) => void
 }
 
-export function TopBar({ onToggleSidebar }: TopBarProps) {
+export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal }: TopBarProps) {
   const { user, logout } = useAuth()
   const [showLoginModal, setShowLoginModal] = useState(false)
 
@@ -35,7 +38,17 @@ export function TopBar({ onToggleSidebar }: TopBarProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          {!user ? (
+          {showBasketIcon && setShowBasketModal && (
+            <div className="mr-2">
+              <BasketIcon 
+                onClick={() => setShowBasketModal(true)} 
+                variant="ghost"
+                size="sm"
+              />
+            </div>
+          )}
+          
+          {!user && (
             <Button
               variant="outline"
               className="border-2 hover:bg-primary hover:text-white transition-all duration-300"
@@ -43,15 +56,6 @@ export function TopBar({ onToggleSidebar }: TopBarProps) {
             >
               <LogIn size={18} className="mr-2" />
               Hyr
-            </Button>
-          ) : (
-            <Button
-              onClick={logout}
-              variant="outline"
-              className="border-2 hover:bg-primary hover:text-white transition-all duration-300"
-            >
-              <LogOut size={18} className="mr-2" />
-              Dil
             </Button>
           )}
         </div>
@@ -61,4 +65,3 @@ export function TopBar({ onToggleSidebar }: TopBarProps) {
     </>
   )
 }
-

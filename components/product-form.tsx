@@ -5,8 +5,9 @@ import type React from "react"
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { debounce } from "lodash"
-import { OrderInvoiceModal } from "@/components/order-invoice-modal"
+import { BasketInvoiceModal } from "@/components/basket-invoice-modal"
 import { LoginModal } from "@/components/login-modal"
+import { useBasketStore } from "@/lib/basket-store"
 import { useProductFormStore, type ProductLink, getEmptyProduct } from "@/lib/product-form-store"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -38,6 +39,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
+import { Toaster } from "@/components/ui/toaster"
 
 // ProductLink type is now imported from product-form-store.ts
 
@@ -54,7 +56,8 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
     removeProductLink: removeProductLinkFromStore,
     clearForm: clearFormInStore
   } = useProductFormStore()
-  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const { addItem } = useBasketStore()
+  const [showBasketModal, setShowBasketModal] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [urlsLoading, setUrlsLoading] = useState<{[key: number]: boolean}>({})
   const router = useRouter()
@@ -69,6 +72,20 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         description: "Të gjitha të dhënat e formularit u fshinë.",
       })
     }
+  }
+  
+  // Function to reset form fields without clearing the form itself
+  const resetFormFields = () => {
+    updateProductLinkInStore(0, "url", "")
+    updateProductLinkInStore(0, "quantity", 1)
+    updateProductLinkInStore(0, "size", "")
+    updateProductLinkInStore(0, "color", "")
+    updateProductLinkInStore(0, "additionalInfo", "")
+    updateProductLinkInStore(0, "price", 0)
+    updateProductLinkInStore(0, "title", "")
+    
+    // Reset validation errors
+    setValidationErrors({})
   }
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({})
@@ -133,69 +150,10 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
     }
   }
 
-  // Function to fetch product details from URL
-  const fetchProductDetails = async (url: string, index: number) => {
-    if (!url || !url.startsWith('http')) return
-
-    setUrlsLoading(prev => ({ ...prev, [index]: true }))
-    
-    try {
-      const response = await fetch('/api/scrape-product', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url }),
-      })
-
-      if (!response.ok) {
-        console.error('Error fetching product details:', await response.text())
-        return
-      }
-
-      const data = await response.json()
-      
-      // Get current product link state (safely)
-      const currentLink = productLinks[index]
-      
-      // FIXED: Only update fields if they are completely empty (not filled by user)
-      // Only update price if it's exactly 0, not if user entered any value
-      if (data.price && currentLink?.price === 0) {
-        updateProductLinkInStore(index, 'price', data.price)
-      }
-      
-      // Only update size if it's an empty string, not if user entered any value
-      if (data.size && currentLink?.size === '') {
-        updateProductLinkInStore(index, 'size', data.size)
-      }
-      
-      // Only update color if it's an empty string, not if user entered any value
-      if (data.color && currentLink?.color === '') {
-        updateProductLinkInStore(index, 'color', data.color)
-      }
-      
-      // Only update additionalInfo if it's an empty string
-      if (data.additionalInfo && currentLink?.additionalInfo === '') {
-        updateProductLinkInStore(index, 'additionalInfo', data.additionalInfo)
-      }
-      
-      // Only update title if it's an empty string
-      if (data.title && currentLink?.title === '') {
-        updateProductLinkInStore(index, 'title', data.title)
-      }
-      
-    } catch (error) {
-      console.error('Error fetching product details:', error)
-    } finally {
-      setUrlsLoading(prev => ({ ...prev, [index]: false }))
-    }
+  // Empty placeholder function for URL loading indicator
+  const setUrlLoadingState = (index: number, isLoading: boolean) => {
+    setUrlsLoading(prev => ({ ...prev, [index]: isLoading }))
   }
-
-  // Debounced version of fetchProductDetails to avoid too many requests
-  const debouncedFetchProductDetails = useCallback(
-    debounce((url: string, index: number) => fetchProductDetails(url, index), 800),
-    []
-  )
 
   const updateProductLink = (index: number, field: keyof ProductLink, value: string | number | boolean) => {
     // Use the store's function to update a product
@@ -208,21 +166,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       setValidationErrors(newErrors)
     }
     
-    // If URL field is updated, fetch product details ONLY if other fields have default values
-    if (field === 'url' && typeof value === 'string' && value.startsWith('http')) {
-      // Get current product to check if fields are at default values
-      const currentLink = productLinks[index]
-      
-      // Only fetch if most fields are still at default/empty values
-      // This prevents overwriting user data when they paste a URL after filling other fields
-      if (currentLink && 
-          (currentLink.title === '' || 
-           currentLink.price === 0 || 
-           currentLink.size === '' || 
-           currentLink.color === '')) {
-        debouncedFetchProductDetails(value, index)
-      }
-    }
+    // No automatic data extraction - all fields must be manually entered
   }
 
   const validateForm = () => {
@@ -262,14 +206,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
     return Object.keys(errors).length === 0
   }
 
-  // Save order to localStorage for later retrieval after login
-  const savePendingOrder = () => {
-    localStorage.setItem("pendingOrder", JSON.stringify({ productLinks }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  const handleAddToBasket = () => {
     if (!validateForm()) {
       toast({
         title: "Gabim",
@@ -279,30 +216,40 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       return
     }
 
-    // Check if user is authenticated
-    if (!user) {
-      // Save the current order to localStorage
-      savePendingOrder()
+    try {
+      // Create a copy of the product to add to basket
+      const productToAdd = { ...productLinks[0] };
       
-      // Show login modal
-      setShowLoginModal(true)
+      // Add the product to the basket
+      addItem(productToAdd);
       
+      // Show success message with visual feedback
       toast({
-        title: "Identifikim i nevojshëm",
-        description: "Ju duhet të identifikoheni ose të regjistroheni për të vazhduar me porosinë.",
+        title: "Sukses!",
+        description: (
+          <div className="flex items-center">
+            <Check className="h-5 w-5 text-green-500 mr-2" />
+            <span>Produkti u shtua në shportë me sukses.</span>
+          </div>
+        ),
+        duration: 3000,
       })
-      return
+      
+      // Reset form fields without clearing the form itself
+      resetFormFields()
+    } catch (error) {
+      console.error("Error adding item to basket:", error);
+      toast({
+        title: "Gabim",
+        description: "Ndodhi një problem gjatë shtimit të produktit në shportë.",
+        variant: "destructive",
+      })
     }
-
-    // User is authenticated, show invoice modal
-    setShowInvoiceModal(true)
   }
-
+  
   const handleFinalSubmit = async (data: { productLinks: ProductLink[] }) => {
     try {
       await onSubmit(data)
-      // Clear the form using the store's function
-      clearFormInStore()
       toast({
         title: "Sukses",
         description: "Porosia juaj u dërgua me sukses.",
@@ -327,10 +274,10 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
-      {/* Invoice Modal */}
-      <OrderInvoiceModal 
-        open={showInvoiceModal} 
-        onOpenChange={setShowInvoiceModal} 
+      {/* Basket/Invoice Modal */}
+      <BasketInvoiceModal 
+        open={showBasketModal} 
+        onOpenChange={setShowBasketModal} 
         onSubmit={handleFinalSubmit} 
       />
       
@@ -340,344 +287,221 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         onOpenChange={setShowLoginModal}
       />
       
-      {/* Instructions */}
-      <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
-        <div className="flex gap-3">
-          <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-blue-800 mb-1">Si të bëni një porosi</h3>
-            <p className="text-sm text-blue-700">
-              Shtoni linqet e produkteve që dëshironi të blini. Për çdo produkt, specifikoni sasinë, madhësinë dhe
-              ngjyrën. Mund të shtoni sa produkte të dëshironi duke klikuar butonin "Shto Produkt Tjetër".
-            </p>
-          </div>
+      {/* Compact Instructions */}
+      <div className="bg-blue-50 border border-blue-100 rounded-lg p-2 mb-4 text-xs">
+        <div className="flex gap-2">
+          <Info className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
+          <p className="text-blue-700">
+            Vendosni URL e produktit, sasinë, madhësinë dhe ngjyrën. Klikoni <span className="font-medium">Shto në Shportë</span> dhe 
+            vazhdoni me ikonën e shportës <ShoppingCart className="h-3.5 w-3.5 text-primary inline mx-0.5" /> në krye të faqes.
+          </p>
         </div>
       </div>
 
-      <AnimatePresence initial={false}>
-        {productLinks.map((link, index) => {
-          const fees = link.price > 0 ? calculateFees(link.price, link.quantity) : null
-
-          return (
-            <motion.div
-              key={index}
-              id={`product-${index}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-              transition={{ duration: 0.3 }}
-              className="relative"
-            >
-              <div className="absolute -left-1 top-0 h-full w-1 bg-primary rounded-r-md" />
-              <div
-                className={cn(
-                  "bg-white rounded-lg border shadow-sm overflow-hidden transition-all duration-200",
-                  expandedProductIndex === index ? "border-primary-300 shadow-md" : "border-gray-200",
+      {/* Single product form, always open */}
+      <div className="relative">
+        <div className="absolute -left-1 top-0 h-full w-1 bg-primary rounded-r-md" />
+        <div className="bg-white rounded-lg border shadow-md overflow-hidden border-primary-300">
+          <div className="py-2 px-3 bg-primary-50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4 text-primary" />
+                <h3 className="text-base font-medium text-gray-800">Detajet e Produktit</h3>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                {productLinks[0].price > 0 && (
+                  <div className="text-sm font-medium text-primary">
+                    €{(productLinks[0].price * 1.15 * productLinks[0].quantity).toFixed(2)}
+                    <span className="text-xs text-gray-500 ml-1">(£{(productLinks[0].price * productLinks[0].quantity).toFixed(2)})</span>
+                  </div>
                 )}
-              >
-                {/* Product header - always visible */}
-                <div
-                  className={cn(
-                    "p-4 cursor-pointer transition-colors",
-                    expandedProductIndex === index ? "bg-primary-50" : "bg-gray-50/50 hover:bg-gray-50",
-                  )}
-                  onClick={() => toggleProductExpansion(index)}
+                <Button
+                  onClick={handleAddToBasket}
+                  disabled={isSubmitting}
+                  className="h-8 bg-primary hover:bg-primary/90 text-white"
+                  size="sm"
                 >
-                  <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                      <h3 className="text-l font-medium text-gray-1000"> {index + 1}</h3>
-                      <ShoppingCart className="h-4 w-4 text-primary" />
-                      {link.title && (
-                        <span className="text-sm text-gray-700 truncate max-w-[280px]">
-                          {link.title}
-                        </span>
-                      )}
-                      {link.quantity > 1 && (
-                            <Badge variant="outline" className="text-xs bg-primary-50 text-primary-700 border-primary-200 mt-1">
-                              x{link.quantity}
-                            </Badge>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <div className="flex flex-col items-end">
-                          {link.price > 0 && (
-                            <div className="text-sm font-medium text-primary">
-                              €{(link.price * 1.15 * link.quantity).toFixed(2)}
-                              <span className="text-xs text-gray-500 ml-1">(£{(link.price * link.quantity).toFixed(2)})</span>
-                            </div>
-                          )}
-                        </div>
-                      <div className="flex items-center">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => removeProductLink(index, e)}
-                          className="h-8 w-8 p-0 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">Fshi produktin</span>
-                        </Button>
-                        {expandedProductIndex === index ? (
-                          <ChevronUp className="h-5 w-5 text-primary" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-500" />
+                  {isSubmitting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <span className="flex items-center">
+                      Shto në Shportë
+                      <ShoppingCart className="ml-2 h-3.5 w-3.5" />
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
+            
+            {/* URL and quantity information removed from header */}
+          </div>
+          
+          <div className="p-3 bg-white space-y-3">
+            <div className="space-y-3">
+              {/* URL and Quantity */}
+              <div className="flex flex-wrap gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center mb-1">
+                    <LinkIcon className="h-3.5 w-3.5 text-primary mr-1" />
+                    <Label className="text-xs font-medium text-gray-700">
+                      URL e Produktit <span className="text-red-500">*</span>
+                    </Label>
+                  </div>
+                  <div className="relative">
+                    <div className="relative">
+                      <Input
+                        value={productLinks[0].url}
+                        onChange={(e) => updateProductLink(0, "url", e.target.value)}
+                        required
+                        placeholder="https://www.example.com/product"
+                        className={cn(
+                          "h-9 pl-2 pr-8 text-sm focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0",
+                          validationErrors["0-url"] ? "border-red-500 focus-visible:ring-red-500" : "",
                         )}
-                      </div>
+                      />
+                      {urlsLoading[0] && (
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      )}
                     </div>
-                  </div>
-
-                  <div className="mt-1 truncate text-sm text-gray-500 max-w-[300px]">
-                    {link.url || "Kliko për të shtuar URL e produktit"}
-                  </div>
-
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {link.size && (
-                      <Badge variant="outline" className="text-xs bg-primary-50 text-primary-700 border-primary-200">
-                        {link.size}
-                      </Badge>
-                    )}
-                    {link.color && (
-                      <Badge variant="outline" className="text-xs bg-primary-50 text-primary-700 border-primary-200">
-                        {link.color}
-                      </Badge>
+                    {validationErrors["0-url"] && (
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500">
+                        <AlertCircle className="h-4 w-4" />
+                      </div>
                     )}
                   </div>
+                  {validationErrors["0-url"] && (
+                    <p className="mt-1.5 text-xs text-red-500 flex items-center">
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      {validationErrors["0-url"]}
+                    </p>
+                  )}
                 </div>
 
-                {/* Expandable edit form */}
-                <AnimatePresence>
-                  {expandedProductIndex === index && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="overflow-hidden"
+                <div className="w-24">
+                  <div className="flex items-center mb-1">
+                    <Label className="text-xs font-medium text-gray-700">
+                      Sasia <span className="text-red-500">*</span>
+                    </Label>
+                  </div>
+                  <div className="flex items-center border rounded-md overflow-hidden">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-7 rounded-none border-r border-gray-200 hover:bg-gray-50"
+                      onClick={() => {
+                        if (productLinks[0].quantity > 1) {
+                          updateProductLink(0, "quantity", Math.max(1, productLinks[0].quantity - 1))
+                        }
+                      }}
                     >
-                      <div className="border-t border-primary-100 p-4 bg-white space-y-4">
-                        <div className="space-y-4">
-                          {/* URL and Quantity */}
-                          <div className="flex flex-wrap gap-3">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center mb-1.5">
-                                <LinkIcon className="h-4 w-4 text-primary mr-1.5" />
-                                <Label className="text-sm font-medium text-gray-700">
-                                  URL e Produktit <span className="text-red-500">*</span>
-                                </Label>
-                              </div>
-                              <div className="relative">
-                                <div className="relative">
-                                  <Input
-                                    value={link.url}
-                                    onChange={(e) => updateProductLink(index, "url", e.target.value)}
-                                    required
-                                    placeholder="https://www.example.com/product"
-                                    className={cn(
-                                      "h-10 pl-3 pr-10 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0",
-                                      validationErrors[`${index}-url`] ? "border-red-500 focus-visible:ring-red-500" : "",
-                                    )}
-                                  />
-                                  {urlsLoading[index] && (
-                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                    </div>
-                                  )}
-                                </div>
-                                {validationErrors[`${index}-url`] && (
-                                  <div className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500">
-                                    <AlertCircle className="h-4 w-4" />
-                                  </div>
-                                )}
-                              </div>
-                              {validationErrors[`${index}-url`] && (
-                                <p className="mt-1.5 text-xs text-red-500 flex items-center">
-                                  <AlertCircle className="h-3 w-3 mr-1" />
-                                  {validationErrors[`${index}-url`]}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="w-24">
-                              <div className="flex items-center mb-1.5">
-                                <Label className="text-sm font-medium text-gray-700">
-                                  Sasia <span className="text-red-500">*</span>
-                                </Label>
-                              </div>
-                              <div className="flex items-center border rounded-md overflow-hidden">
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-10 w-8 rounded-none border-r border-gray-200 hover:bg-gray-50"
-                                  onClick={() => {
-                                    if (link.quantity > 1) {
-                                      updateProductLink(index, "quantity", Math.max(1, link.quantity - 1))
-                                    }
-                                  }}
-                                >
-                                  <Minus className="h-3 w-3" />
-                                </Button>
-                                <Input
-                                  type="number"
-                                  inputMode="numeric"
-                                  value={link.quantity}
-                                  onChange={(e) => {
-                                    const value = Number.parseInt(e.target.value)
-                                    if (!isNaN(value) && value >= 1) {
-                                      updateProductLink(index, "quantity", value)
-                                    }
-                                  }}
-                                  min="1"
-                                  step="1"
-                                  required
-                                  className={cn(
-                                    "h-10 text-center text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0 border-0 rounded-none",
-                                    validationErrors[`${index}-quantity`]
-                                      ? "border-red-500 focus-visible:ring-red-500"
-                                      : "",
-                                    "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
-                                  )}
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-10 w-8 rounded-none border-l border-gray-200 hover:bg-gray-50"
-                                  onClick={() => updateProductLink(index, "quantity", link.quantity + 1)}
-                                >
-                                  <Plus className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Size, Color, Price */}
-                          <div className="grid grid-cols-3 gap-3">
-                            <div>
-                              <div className="flex items-center mb-1.5">
-                                <Ruler className="h-4 w-4 text-primary mr-1.5" />
-                                <Label className="text-sm font-medium text-gray-700">Madhësia</Label>
-                              </div>
-                              <Input
-                                value={link.size}
-                                onChange={(e) => updateProductLink(index, "size", e.target.value)}
-                                placeholder="S/M/L/XL/42/..."
-                                className="h-10 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0"
-                              />
-                            </div>
-
-                            <div>
-                              <div className="flex items-center mb-1.5">
-                                <Palette className="h-4 w-4 text-primary mr-1.5" />
-                                <Label className="text-sm font-medium text-gray-700">Ngjyra</Label>
-                              </div>
-                              <Input
-                                value={link.color}
-                                onChange={(e) => updateProductLink(index, "color", e.target.value)}
-                                placeholder="E zezë, e bardhë, etj."
-                                className="h-10 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0"
-                              />
-                            </div>
-
-                            <div>
-                              <div className="flex items-center mb-1.5">
-                                <PoundSterling className="h-4 w-4 text-primary mr-1.5" />
-                                <Label className="text-sm font-medium text-gray-700">Çmimi (£)</Label>
-                              </div>
-                              <Input
-                                type="number"
-                                inputMode="decimal"
-                                value={link.price || ""}
-                                onChange={(e) => {
-                                  const value = Number.parseFloat(e.target.value)
-                                  updateProductLink(index, "price", isNaN(value) ? 0 : value)
-                                }}
-                                step="0.01"
-                                placeholder="0.00"
-                                className="h-10 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                              />
-                            </div>
-                          </div>
-
-
-                          {/* Additional info */}
-                          <div>
-                            <div className="flex items-center mb-1.5">
-                              <Info className="h-4 w-4 text-primary mr-1.5" />
-                              <Label className="text-sm font-medium text-gray-700">Informacion shtesë</Label>
-                            </div>
-                            <Textarea
-                              value={link.additionalInfo}
-                              onChange={(e) => updateProductLink(index, "additionalInfo", e.target.value)}
-                              placeholder="Detaje shtesë për këtë produkt..."
-                              className="min-h-0 h-16 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0 resize-y"
-                              rows={2}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex justify-end">
-                          <Button
-                            onClick={() => setExpandedProductIndex(null)}
-                            className="bg-primary hover:bg-primary/90 text-white"
-                          >
-                            <Check className="h-4 w-4 mr-2" />
-                            Konfirmo
-                          </Button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      value={productLinks[0].quantity}
+                      onChange={(e) => {
+                        const value = Number.parseInt(e.target.value)
+                        if (!isNaN(value) && value >= 1) {
+                          updateProductLink(0, "quantity", value)
+                        }
+                      }}
+                      min="1"
+                      step="1"
+                      required
+                      className={cn(
+                        "h-9 text-center text-sm focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0 border-0 rounded-none",
+                        validationErrors["0-quantity"]
+                          ? "border-red-500 focus-visible:ring-red-500"
+                          : "",
+                        "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-7 rounded-none border-l border-gray-200 hover:bg-gray-50"
+                      onClick={() => updateProductLink(0, "quantity", productLinks[0].quantity + 1)}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </motion.div>
-          )
-        })}
-      </AnimatePresence>
 
-      <Button
-        type="button"
-        onClick={addProductLink}
-        variant="outline"
-        className="w-full border-dashed border-2 py-6 hover:border-primary hover:text-primary transition-colors duration-200 text-base"
-      >
-        <Plus className="mr-2 h-5 w-5" /> Shto Produkt Tjetër
-      </Button>
+              {/* Size, Color, Price */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <div className="flex items-center mb-1">
+                    <Ruler className="h-3.5 w-3.5 text-primary mr-1" />
+                    <Label className="text-xs font-medium text-gray-700">Madhësia</Label>
+                  </div>
+                  <Input
+                    value={productLinks[0].size}
+                    onChange={(e) => updateProductLink(0, "size", e.target.value)}
+                    placeholder="S/M/L/XL/42/..."
+                    className="h-9 text-sm focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
+                  />
+                </div>
 
-      <Separator className="my-8" />
+                <div>
+                  <div className="flex items-center mb-1">
+                    <Palette className="h-3.5 w-3.5 text-primary mr-1" />
+                    <Label className="text-xs font-medium text-gray-700">Ngjyra</Label>
+                  </div>
+                  <Input
+                    value={productLinks[0].color}
+                    onChange={(e) => updateProductLink(0, "color", e.target.value)}
+                    placeholder="E zezë, e bardhë, etj."
+                    className="h-9 text-sm focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
+                  />
+                </div>
 
-        <Button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="w-full py-6 bg-primary hover:bg-primary/90 text-white font-medium text-lg shadow-md hover:shadow-lg transition-all duration-200"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Duke dërguar porosinë...
-            </>
-          ) : (
-            <>
-              Dërgo Porosinë
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </>
-          )}
-        </Button>
+                <div>
+                  <div className="flex items-center mb-1">
+                    <PoundSterling className="h-3.5 w-3.5 text-primary mr-1" />
+                    <Label className="text-xs font-medium text-gray-700">Çmimi (£)</Label>
+                  </div>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    value={productLinks[0].price || ""}
+                    onChange={(e) => {
+                      const value = Number.parseFloat(e.target.value)
+                      updateProductLink(0, "price", isNaN(value) ? 0 : value)
+                    }}
+                    step="0.01"
+                    placeholder="0.00"
+                    className="h-9 text-sm focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+              </div>
 
-        <div className="space-y-4">
-        <div className="bg-primary-50 border border-primary-100 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm text-primary-700">
-                Pasi të dërgoni porosinë, ekipi ynë do t'ju kontaktojë për të konfirmuar detajet.
-              </p>
+              {/* Additional info */}
+              <div>
+                <div className="flex items-center mb-1">
+                  <Info className="h-3.5 w-3.5 text-primary mr-1" />
+                  <Label className="text-xs font-medium text-gray-700">Informacion shtesë</Label>
+                </div>
+                <Textarea
+                  value={productLinks[0].additionalInfo}
+                  onChange={(e) => updateProductLink(0, "additionalInfo", e.target.value)}
+                  placeholder="Detaje shtesë për këtë produkt..."
+                  className="min-h-0 h-14 text-sm focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0 resize-none"
+                  rows={2}
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+
     </div>
   )
 }
