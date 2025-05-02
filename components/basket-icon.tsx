@@ -26,10 +26,13 @@ export function BasketIcon({
   // Common content for both button and div versions
   const content = (
     <>
-      <ShoppingCart className={cn("text-primary", size === "sm" ? "h-4 w-4" : "h-5 w-5")} />
+      <ShoppingCart className={cn(
+        "text-primary", 
+        size === "sm" ? "h-4 w-4" : size === "lg" ? "h-6 w-6" : "h-5 w-5"
+      )} />
       {uniqueProductCount > 0 && (
         <Badge 
-          className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-primary text-white text-xs rounded-full"
+          className="absolute top-1/2 -translate-y-1/2 -left-2 h-5 w-5 p-0 flex items-center justify-center bg-primary text-white text-xs rounded-full"
         >
           {uniqueProductCount}
         </Badge>
@@ -62,9 +65,10 @@ export function BasketIcon({
       size={size}
       onClick={onClick}
       className={cn(
-        "relative",
-        variant === "ghost" ? "hover:bg-gray-100" : "",
-        size === "sm" ? "h-8 px-2" : "h-10"
+          "relative",
+          variant === "ghost" ? "hover:bg-gray-100" : "",
+          variant === "outline" ? "border-2 hover:bg-primary/10 hover:border-primary" : "",
+          size === "sm" ? "h-8 px-2" : size === "lg" ? "h-12 px-4" : "h-10 px-3"
       )}
     >
       {content}

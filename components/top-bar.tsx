@@ -30,8 +30,8 @@ export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal }: 
               <Menu className="h-5 w-5" />
             </Button>
           )}
-          <Link href="/" className="text-xl font-bold flex items-center">
-            <Package className="h-6 w-6 mr-2 text-secondary" />
+          <Link href="/" className="text-2xl font-bold flex items-center">
+            <Package className="h-8 w-8 mr-3 text-secondary" />
             <span className="text-primary font-extrabold">PAKO</span>
             <span className="text-secondary font-extrabold">24</span>
           </Link>
@@ -39,11 +39,12 @@ export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal }: 
 
         <div className="flex items-center gap-2">
           {showBasketIcon && setShowBasketModal && (
-            <div className="mr-2">
+            <div className="mr-3">
               <BasketIcon 
                 onClick={() => setShowBasketModal(true)} 
-                variant="ghost"
-                size="sm"
+                variant="outline"
+                size="lg"
+                showLabel={true}
               />
             </div>
           )}

@@ -6,7 +6,7 @@ import Layout from "@/components/layout"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth"
-import { useConfigStore } from "@/lib/config-store"
+import { useConfigStore } from "@/lib/config-store" // Already imported, no change needed here, but good to confirm
 import { toast } from "@/components/ui/use-toast"
 import {
   AlertDialog,
@@ -83,6 +83,7 @@ export default function OrdersPage() {
   const [isMobile, setIsMobile] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { configs } = useConfigStore() // Get configs from the store
 
   useEffect(() => {
     // Check if we're on mobile (for styling purposes only)
@@ -838,7 +839,9 @@ export default function OrdersPage() {
                           </div>
                           {/* Customs fee total */}
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Dogana:</span>
+                            <span className="text-gray-500">
+                              Dogana ({configs.CUSTOMS_FEE_PERCENTAGE ? `${(configs.CUSTOMS_FEE_PERCENTAGE * 100).toFixed(0)}%` : 'N/A'}):
+                            </span>
                             <span>€{order.totalCustomsFee?.toFixed(2) || "0.00"}</span>
                           </div>
                           {/* Transport fee total */}

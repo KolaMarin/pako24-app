@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { Home, ShoppingBag, Settings, LogOut, Menu, Store, ShoppingCart, User } from "lucide-react"
+import { Home, ShoppingBag, Settings, LogOut, Menu, Store, ShoppingCart, User, PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { TopBar } from "./top-bar"
 import { BasketIcon } from "@/components/basket-icon"
@@ -39,7 +39,9 @@ const NavLink = ({
         isSidebarCollapsed ? "justify-center" : "justify-start gap-3",
       )}
     >
-      <Icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-gray-500")} />
+      <div className="flex items-center justify-center w-6 h-6">
+        <Icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-gray-500")} />
+      </div>
       {!isSidebarCollapsed && <span className="text-base font-medium">{children}</span>}
     </Link>
   )
@@ -162,9 +164,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               isSidebarCollapsed ? "w-16" : "w-64",
             )}
           >
-            <div className="p-2 flex justify-end">
-              <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-8 w-8">
-                <Menu className="h-5 w-5" />
+            <div className={cn(
+              "p-2",
+              isSidebarCollapsed ? "flex justify-center" : "flex justify-end"
+            )}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleSidebar} 
+                className="h-10 w-10 hover:bg-gray-100"
+                title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                <div className="flex items-center justify-center w-6 h-6">
+                  {isSidebarCollapsed ? (
+                    <PanelLeftOpen className="h-6 w-6 text-primary" />
+                  ) : (
+                    <PanelLeftClose className="h-6 w-6 text-primary" />
+                  )}
+                </div>
               </Button>
             </div>
             <div className="flex-1 px-2 py-2">{renderSidebarContent()}</div>
@@ -173,15 +190,30 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <div className="relative" ref={dropdownRef}>
                 <Button
                   variant="outline"
-                  className="w-full flex items-center justify-center gap-2 hover:bg-gray-100"
+                  className={cn(
+                    "flex items-center hover:bg-gray-100 border",
+                    isSidebarCollapsed 
+                      ? "h-10 w-10 justify-center" 
+                      : "w-full justify-center gap-2"
+                  )}
                   onClick={() => setShowUserDropdown(!showUserDropdown)}
                 >
-                  <User className="h-5 w-5 text-primary" />
+                  <div className="flex items-center justify-center w-6 h-6">
+                    <User className={cn(
+                      "text-primary",
+                      isSidebarCollapsed ? "h-6 w-6" : "h-5 w-5"
+                    )} />
+                  </div>
                   {!isSidebarCollapsed && <span className="font-medium">Profili</span>}
                 </Button>
                 
                 {showUserDropdown && (
-                  <div className="absolute bottom-full left-0 w-full bg-white border rounded-md shadow-lg mb-2 overflow-hidden z-50">
+                  <div className={cn(
+                    "absolute bg-white border rounded-md shadow-lg overflow-hidden z-50",
+                    isSidebarCollapsed 
+                      ? "bottom-full left-0 mb-2 w-48" 
+                      : "bottom-full left-0 mb-2 w-full"
+                  )}>
                     <Link 
                       href="/settings"
                       className="flex items-center gap-2 p-3 hover:bg-gray-100 text-gray-700 transition-colors"
