@@ -99,6 +99,12 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Prevent horizontal overflow in cards and accordions */
+  .card, [data-state="open"].accordion-content {
+    overflow-x: hidden;
+    max-width: 100%;
+    word-break: break-word;
+  }
 }
 
 .text-gradient {

@@ -1,10 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import Layout from "@/components/layout"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth"
+import { useConfigStore } from "@/lib/config-store"
 import { toast } from "@/components/ui/use-toast"
 import {
   AlertDialog,
@@ -80,6 +82,7 @@ export default function OrdersPage() {
   const [sortOrder] = useState<"newest">("newest")
   const [isMobile, setIsMobile] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     // Check if we're on mobile (for styling purposes only)
@@ -211,6 +214,276 @@ export default function OrdersPage() {
     }
   }
 
+  // Function to generate and download the order invoice
+  const generateOrderInvoice = (order: Order) => {
+    try {
+      // Open a new window for the invoice
+      const invoiceWindow = window.open("", "_blank")
+      if (!invoiceWindow) {
+        toast({
+          title: "Gabim",
+          description: "Nuk mund të hapet dritarja e faturës. Ju lutemi kontrolloni bllokuesin e pop-up.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Current date formatted
+      const currentDate = new Date().toLocaleDateString()
+      
+      // Get the configurations from the store
+      const configs = useConfigStore.getState().configs
+      
+      // Write the invoice HTML
+      invoiceWindow.document.write(`
+        <html>
+        <head>
+          <title>Faturë - Porosi #${order.id.slice(0, 8)}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 20px;
+              color: #333;
+            }
+            .invoice-header {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 30px;
+              padding-bottom: 20px;
+              border-bottom: 1px solid #eee;
+            }
+            .company-details {
+              text-align: right;
+            }
+            .company-logo {
+              display: flex;
+              align-items: center;
+              margin-bottom: 5px;
+            }
+            .company-name-primary {
+              color: #2563eb;
+              font-weight: 800;
+              font-size: 20px;
+            }
+            .company-name-secondary {
+              color: #64748b;
+              font-weight: 800;
+              font-size: 20px;
+            }
+            .invoice-title {
+              font-size: 24px;
+              font-weight: bold;
+              margin-bottom: 5px;
+              color: #2563eb;
+            }
+            .order-details {
+              margin-bottom: 20px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 30px;
+            }
+            th, td {
+              padding: 10px;
+              text-align: left;
+              border-bottom: 1px solid #eee;
+            }
+            th {
+              background-color: #f9fafb;
+              font-weight: 600;
+            }
+            .text-right {
+              text-align: right;
+            }
+            .totals {
+              width: 300px;
+              margin-left: auto;
+              margin-bottom: 40px;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 8px 0;
+              border-bottom: 1px solid #eee;
+            }
+            .final-total {
+              font-weight: bold;
+              border-top: 2px solid #ddd;
+              padding-top: 10px;
+              font-size: 18px;
+              color: #2563eb;
+            }
+            .footer {
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 1px solid #eee;
+              text-align: center;
+              font-size: 12px;
+              color: #666;
+            }
+            .product-url {
+              color: #2563eb;
+              text-decoration: none;
+              word-break: break-all;
+            }
+            .status-badge {
+              display: inline-block;
+              padding: 4px 8px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: 600;
+              color: white;
+            }
+            .package-icon {
+              display: inline-block;
+              width: 24px;
+              height: 24px;
+              margin-right: 8px;
+              color: #64748b;
+            }
+            .status-PROCESSING { background-color: #3b82f6; }
+            .status-SHIPPED { background-color: #8b5cf6; }
+            .status-DELIVERED { background-color: #22c55e; }
+            .status-CANCELLED { background-color: #ef4444; }
+            @media print {
+              body {
+                padding: 0;
+                margin: 0;
+              }
+              button {
+                display: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-container">
+            <div class="invoice-header">
+              <div>
+                <div class="invoice-title">FATURË</div>
+                <div>Datë: ${currentDate}</div>
+                <div>Porosi ID: #${order.id.slice(0, 8)}</div>
+                <div style="margin-top: 10px;">
+                  Statusi: <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span>
+                </div>
+              </div>
+              <div class="company-details">
+                <div style="display: flex; justify-content: flex-end;">
+                  <div class="company-logo">
+                    <svg class="package-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                      <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                      <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    <span class="company-name-primary">PAKO</span><span class="company-name-secondary">24</span>
+                  </div>
+                </div>
+                <div>${configs.COMPANY_EMAIL}</div>
+                <div>${configs.COMPANY_PHONE}</div>
+                <div>${configs.COMPANY_ADDRESS}</div>
+              </div>
+            </div>
+
+            <div class="order-details">
+              <div><strong>Data e porosisë:</strong> ${new Date(order.createdAt).toLocaleDateString()}</div>
+            </div>
+
+            <h3>Produktet</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nr.</th>
+                  <th>Produkti</th>
+                  <th>Sasia</th>
+                  <th>Çmimi</th>
+                  <th class="text-right">Totali</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.productLinks.map((product, index) => `
+                  <tr>
+                    <td>${index + 1}</td>
+                    <td>
+                      <a href="${product.url}" class="product-url" target="_blank">${product.title || product.url}</a>
+                      ${product.size || product.color ? 
+                        `<div style="margin-top: 5px; font-size: 12px; color: #666;">
+                          ${product.size ? `Madhësia: ${product.size}` : ''}
+                          ${product.size && product.color ? ' • ' : ''}
+                          ${product.color ? `Ngjyra: ${product.color}` : ''}
+                        </div>` : ''
+                      }
+                    </td>
+                    <td>${product.quantity}</td>
+                    <td>
+                      €${(product.priceEUR || 0).toFixed(2)}
+                      ${product.priceGBP ? `<span style="display: block; font-size: 11px; color: #777;">£${product.priceGBP.toFixed(2)}</span>` : ''}
+                    </td>
+                    <td class="text-right">€${((product.priceEUR || 0) * product.quantity).toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div class="totals">
+              <div class="total-row">
+                <span>Çmimi bazë:</span>
+                <span>€${order.totalPriceEUR?.toFixed(2) || "0.00"}</span>
+              </div>
+              <div class="total-row">
+                <span>Dogana (${(configs.CUSTOMS_FEE_PERCENTAGE * 100).toFixed(0)}%):</span>
+                <span>€${order.totalCustomsFee?.toFixed(2) || "0.00"}</span>
+              </div>
+              <div class="total-row">
+                <span>Menaxhimi dhe Transporti (x${order.productLinks.length}):</span>
+                <span>€${order.totalTransportFee?.toFixed(2) || "0.00"}</span>
+              </div>
+              <div class="total-row final-total">
+                <span>TOTALI:</span>
+                <span>€${order.totalFinalPriceEUR?.toFixed(2) || (
+                  (order.totalPriceEUR || 0) + 
+                  (order.totalCustomsFee || 0) + 
+                  (order.totalTransportFee || 0)
+                ).toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div style="margin: 30px 0;">
+              <button onclick="window.print()" style="padding: 10px 20px; background-color: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Printo Faturën
+              </button>
+            </div>
+
+            <div class="footer">
+              <p>Faleminderit për porosinë tuaj!</p>
+              <p>Për çdo pyetje ose nevojë, ju lutemi na kontaktoni në ${configs.COMPANY_EMAIL} ose ${configs.COMPANY_PHONE}</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `)
+      
+      invoiceWindow.document.close()
+      
+      // After a slight delay, trigger print dialog
+      setTimeout(() => {
+        invoiceWindow.print()
+        toast({
+          title: "Sukses",
+          description: "Fatura u gjenerua me sukses.",
+        })
+      }, 500)
+    } catch (error) {
+      console.error("Error generating invoice:", error)
+      toast({
+        title: "Gabim",
+        description: "Gjenerimi i faturës dështoi. Ju lutemi provoni përsëri.",
+        variant: "destructive",
+      })
+    }
+  }
+
   // Filter orders based on search term and status
   const filteredOrders = orders.filter((order) => {
     // Filter by search term
@@ -228,6 +501,24 @@ export default function OrdersPage() {
   const sortedOrders = [...filteredOrders].sort((a, b) => {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   })
+
+  // Check for newOrder parameter to automatically expand the first (most recent) order
+  // but only do it once on initial load
+  useEffect(() => {
+    const hasNewOrder = searchParams.get('newOrder') === 'true'
+    if (hasNewOrder && sortedOrders.length > 0 && !isLoading) {
+      // Expand the first order in the list (most recent order)
+      setExpandedOrder(sortedOrders[0]?.id || null)
+      
+      // Remove the query parameter to prevent auto-reopening
+      // when the user manually collapses the order
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        url.searchParams.delete('newOrder')
+        window.history.replaceState({}, '', url.toString())
+      }
+    }
+  }, [searchParams, sortedOrders, isLoading]);
 
   // If user is not logged in, don't render anything (redirect happens in useEffect)
   if (!user) {
@@ -462,7 +753,7 @@ export default function OrdersPage() {
                                 <div className="flex flex-wrap justify-between items-start gap-1">
                                   {/* Display Title if available, otherwise URL */}
                                   {product.title ? (
-                                    <span className="text-xs font-medium text-gray-800 truncate max-w-[200px] block">
+                                    <span className="text-xs font-medium text-gray-800 truncate max-w-[300px] block">
                                       {product.title}
                                     </span>
                                   ) : (
@@ -470,7 +761,7 @@ export default function OrdersPage() {
                                       href={product.url}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-xs font-medium text-primary hover:text-primary/80 hover:underline truncate max-w-[200px]"
+                                      className="text-xs font-medium text-primary hover:text-primary/80 hover:underline truncate max-w-[300px]"
                                     >
                                       {product.url}
                                       <ExternalLink className="inline h-3 w-3 ml-1" />
@@ -604,16 +895,14 @@ export default function OrdersPage() {
                       </Button>
                     )}
 
+                    {/* Allow invoice download for all orders regardless of status */}
                     <Button
                       variant="outline"
                       size="sm"
                       className="text-xs h-8"
                       onClick={() => {
-                        // Handle download invoice functionality
-                        toast({
-                          title: "Fatura",
-                          description: "Fatura u shkarkua me sukses.",
-                        })
+                        // Generate and download the invoice
+                        generateOrderInvoice(order)
                       }}
                     >
                       <Download className="h-3 w-3 mr-1" />

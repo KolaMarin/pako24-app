@@ -140,7 +140,8 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
         }
       })
       
-      await onSubmit({ productLinks: enrichedProductLinks })
+      // Submit the order and get the response with the order ID
+      const orderResponse = await onSubmit({ productLinks: enrichedProductLinks })
       toast({
         title: "Sukses",
         description: "Porosia juaj u dërgua me sukses.",
@@ -149,8 +150,8 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
       // Clear the basket after successful order
       clearBasket()
       
-      // Redirect to orders page
-      router.push("/orders")
+      // Redirect to orders page with a parameter to auto-expand this order
+      router.push("/orders?newOrder=true")
     } catch (error) {
       toast({
         title: "Gabim",

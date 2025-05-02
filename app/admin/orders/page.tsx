@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useConfigStore } from "@/lib/config-store"
 import { toast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { Edit2, Save, X, Trash2, Package, Send, Download, Search, Clock, RefreshCw, Truck, CheckCircle, XCircle } from "lucide-react"
@@ -462,7 +463,17 @@ export default function AdminOrdersPage() {
             <div>
               <div className="flex justify-between items-start mb-4">
                 <div className="space-y-1">
-                  <h4 className="font-medium text-sm truncate max-w-[300px]">{product.url}</h4>
+                  <h4 className="font-medium text-sm max-w-full overflow-hidden">
+                    <a 
+                      href={product.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-blue-600 hover:underline truncate inline-block max-w-full overflow-hidden"
+                      title={product.url}
+                    >
+                      {product.url.length > 60 ? `${product.url.substring(0, 60)}...` : product.url}
+                    </a>
+                  </h4>
                   <p className="text-sm text-muted-foreground">
                     Sasia: {product.quantity}, Madhësia: {product.size}, Ngjyra: {product.color}
                   </p>
@@ -521,30 +532,267 @@ export default function AdminOrdersPage() {
   }
 
   const generatePDF = (order: Order) => {
-    const printWindow = window.open("", "_blank")
-    if (printWindow) {
-      printWindow.document.write("<html><head><title>Order Details</title>")
-      printWindow.document.write("<style>body { font-family: Arial, sans-serif; }</style>")
-      printWindow.document.write("</head><body>")
-      printWindow.document.write("<h1>Order Details</h1>")
-      printWindow.document.write(`<p>Order ID: ${order.id}</p>`)
-      printWindow.document.write(`<p>Status: ${order.status}</p>`)
-      printWindow.document.write(`<p>Created: ${new Date(order.createdAt).toLocaleString()}</p>`)
-      printWindow.document.write(`<p>Customer: ${order.userEmail}</p>`)
-      printWindow.document.write("<h2>Products</h2>")
-      order.productLinks.forEach((product) => {
-        printWindow.document.write(`<p>${product.quantity}x ${product.url} - £${product.priceGBP.toFixed(2)}</p>`)
-      })
-      printWindow.document.write(
-        `<p>Total: £${order.totalPriceGBP.toFixed(2)} / €${order.totalPriceEUR.toFixed(2)}</p>`,
-      )
-      printWindow.document.write("</body></html>")
+    try {
+      // Open a new window for the invoice
+      const printWindow = window.open("", "_blank")
+      if (!printWindow) {
+        toast({
+          title: "Gabim",
+          description: "Nuk mund të hapet dritarja e faturës. Ju lutemi kontrolloni bllokuesin e pop-up.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Current date formatted
+      const currentDate = new Date().toLocaleDateString()
+      
+      // Get the configurations from the store
+      const configs = useConfigStore.getState().configs
+      
+      // Write the invoice HTML
+      printWindow.document.write(`
+        <html>
+        <head>
+          <title>Faturë - Porosi #${order.id.slice(0, 8)}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 20px;
+              color: #333;
+            }
+            .invoice-header {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 30px;
+              padding-bottom: 20px;
+              border-bottom: 1px solid #eee;
+            }
+            .company-details {
+              text-align: right;
+            }
+            .company-logo {
+              display: flex;
+              align-items: center;
+              margin-bottom: 5px;
+            }
+            .company-name-primary {
+              color: #2563eb;
+              font-weight: 800;
+              font-size: 20px;
+            }
+            .company-name-secondary {
+              color: #64748b;
+              font-weight: 800;
+              font-size: 20px;
+            }
+            .invoice-title {
+              font-size: 24px;
+              font-weight: bold;
+              margin-bottom: 5px;
+              color: #2563eb;
+            }
+            .order-details {
+              margin-bottom: 20px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 30px;
+            }
+            th, td {
+              padding: 10px;
+              text-align: left;
+              border-bottom: 1px solid #eee;
+            }
+            th {
+              background-color: #f9fafb;
+              font-weight: 600;
+            }
+            .text-right {
+              text-align: right;
+            }
+            .totals {
+              width: 300px;
+              margin-left: auto;
+              margin-bottom: 40px;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 8px 0;
+              border-bottom: 1px solid #eee;
+            }
+            .final-total {
+              font-weight: bold;
+              border-top: 2px solid #ddd;
+              padding-top: 10px;
+              font-size: 18px;
+              color: #2563eb;
+            }
+            .footer {
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 1px solid #eee;
+              text-align: center;
+              font-size: 12px;
+              color: #666;
+            }
+            .product-url {
+              color: #2563eb;
+              text-decoration: none;
+              word-break: break-all;
+            }
+            .status-badge {
+              display: inline-block;
+              padding: 4px 8px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: 600;
+              color: white;
+            }
+            .package-icon {
+              display: inline-block;
+              width: 24px;
+              height: 24px;
+              margin-right: 8px;
+              color: #64748b;
+            }
+            .status-PROCESSING { background-color: #3b82f6; }
+            .status-SHIPPED { background-color: #8b5cf6; }
+            .status-DELIVERED { background-color: #22c55e; }
+            .status-CANCELLED { background-color: #ef4444; }
+            @media print {
+              body {
+                padding: 0;
+                margin: 0;
+              }
+              button {
+                display: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-container">
+            <div class="invoice-header">
+              <div>
+                <div class="invoice-title">FATURË</div>
+                <div>Datë: ${currentDate}</div>
+                <div>Porosi ID: #${order.id.slice(0, 8)}</div>
+                <div style="margin-top: 10px;">
+                  Statusi: <span class="status-badge status-${order.status}">${statusLabels[order.status]}</span>
+                </div>
+              </div>
+              <div class="company-details">
+                <div style="display: flex; justify-content: flex-end;">
+                  <div class="company-logo">
+                    <svg class="package-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                      <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                      <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    <span class="company-name-primary">PAKO</span><span class="company-name-secondary">24</span>
+                  </div>
+                </div>
+                <div>${configs.COMPANY_EMAIL}</div>
+                <div>${configs.COMPANY_PHONE}</div>
+                <div>${configs.COMPANY_ADDRESS}</div>
+              </div>
+            </div>
+
+            <div class="order-details">
+              <div><strong>Data e porosisë:</strong> ${new Date(order.createdAt).toLocaleDateString()}</div>
+              <div><strong>Klienti:</strong> ${order.userEmail}</div>
+              <div><strong>Telefoni:</strong> ${order.userPhoneNumber || 'N/A'}</div>
+            </div>
+
+            <h3>Produktet</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nr.</th>
+                  <th>Produkti</th>
+                  <th>Sasia</th>
+                  <th>Çmimi</th>
+                  <th class="text-right">Totali</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.productLinks.map((product, index) => `
+                  <tr>
+                    <td>${index + 1}</td>
+                    <td>
+                      <a href="${product.url}" class="product-url" target="_blank">${product.url}</a>
+                      ${product.size || product.color ? 
+                        `<div style="margin-top: 5px; font-size: 12px; color: #666;">
+                          ${product.size ? `Madhësia: ${product.size}` : ''}
+                          ${product.size && product.color ? ' • ' : ''}
+                          ${product.color ? `Ngjyra: ${product.color}` : ''}
+                        </div>` : ''
+                      }
+                    </td>
+                    <td>${product.quantity}</td>
+                    <td>
+                      €${product.priceEUR.toFixed(2)}
+                      ${product.priceGBP ? `<span style="display: block; font-size: 11px; color: #777;">£${product.priceGBP.toFixed(2)}</span>` : ''}
+                    </td>
+                    <td class="text-right">€${(product.priceEUR * product.quantity).toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div class="totals">
+              <div class="total-row">
+                <span>Çmimi bazë:</span>
+                <span>€${order.totalPriceEUR.toFixed(2)}</span>
+              </div>
+              <div class="total-row">
+                <span>Dogana (${(configs.CUSTOMS_FEE_PERCENTAGE * 100).toFixed(0)}%):</span>
+                <span>€${order.totalCustomsFee.toFixed(2)}</span>
+              </div>
+              <div class="total-row">
+                <span>Menaxhimi dhe Transporti (x${order.productLinks.length}):</span>
+                <span>€${order.totalTransportFee.toFixed(2)}</span>
+              </div>
+              <div class="total-row final-total">
+                <span>TOTALI:</span>
+                <span>€${order.totalFinalPriceEUR?.toFixed(2) || (
+                  order.totalPriceEUR + 
+                  order.totalCustomsFee + 
+                  order.totalTransportFee
+                ).toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div style="margin: 30px 0;">
+              <button onclick="window.print()" style="padding: 10px 20px; background-color: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Printo Faturën
+              </button>
+            </div>
+
+            <div class="footer">
+              <p>Faleminderit për porosinë tuaj!</p>
+              <p>Për çdo pyetje ose nevojë, ju lutemi na kontaktoni në ${configs.COMPANY_EMAIL} ose ${configs.COMPANY_PHONE}</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `)
+      
       printWindow.document.close()
-      printWindow.print()
-    } else {
+      
+      // After a slight delay, trigger print dialog
+      setTimeout(() => {
+        printWindow.print()
+      }, 500)
+    } catch (error) {
+      console.error("Error generating invoice:", error)
       toast({
         title: "Gabim",
-        description: "Nuk mund të hapet dritarja e printimit. Ju lutemi kontrolloni bllokuesin e pop-up.",
+        description: "Gjenerimi i faturës dështoi. Ju lutemi provoni përsëri.",
         variant: "destructive",
       })
     }
@@ -719,7 +967,7 @@ export default function AdminOrdersPage() {
                 <Accordion 
                   type="single" 
                   collapsible 
-                  className="w-full"
+                  className="w-full overflow-x-hidden"
                   value={expandedOrder === order.id ? "details" : undefined}
                   onValueChange={(value) => setExpandedOrder(value === "details" ? order.id : null)}
                 >
@@ -761,7 +1009,17 @@ export default function AdminOrdersPage() {
                                     // Read-only view of the product
                                     <div className="flex justify-between items-start gap-4">
                                       <div className="flex-1 min-w-0">
-                                        <p className="font-medium truncate">{product.url}</p>
+                                        <p className="font-medium max-w-full overflow-hidden">
+                                          <a 
+                                            href={product.url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            className="text-blue-600 hover:underline truncate inline-block max-w-full overflow-hidden"
+                                            title={product.url}
+                                          >
+                                            {product.url.length > 60 ? `${product.url.substring(0, 60)}...` : product.url}
+                                          </a>
+                                        </p>
                                         <div className="mt-1 flex flex-wrap gap-2 text-sm text-muted-foreground">
                                           <span>Sasia: {product.quantity}</span>
                                           <span>•</span>
