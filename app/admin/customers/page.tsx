@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import AdminLayout from "@/components/admin-layout"
+import { SearchParamsProvider } from "@/components/client-search-params"
 import {
   Card,
   CardHeader,
@@ -112,8 +113,19 @@ interface CustomerResponse {
   pagination: PaginationData
 }
 
-export default function CustomersPage() {
+// Customer Table component type definition
+interface CustomerTableProps {
+  customers: Customer[]
+  onViewDetails: (id: string) => void
+  onChangePassword: (id: string) => void
+  onToggleBlock: (id: string, isBlocked: boolean) => void
+  loading: boolean
+}
+
+// Component that uses searchParams, to be wrapped in SearchParamsProvider
+function CustomersPageContent(): JSX.Element {
   const router = useRouter()
+  // This is now safely wrapped in a Suspense boundary through SearchParamsProvider
   const searchParams = useSearchParams()
   
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -357,11 +369,9 @@ export default function CustomersPage() {
 
   if (loading && customers.length === 0) {
     return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-[300px]">
-          <p className="text-muted-foreground">Loading customers...</p>
-        </div>
-      </AdminLayout>
+      <div className="flex items-center justify-center min-h-[300px]">
+        <p className="text-muted-foreground">Loading customers...</p>
+      </div>
     )
   }
 
@@ -690,20 +700,25 @@ export default function CustomersPage() {
   )
 }
 
-// Customer Table Component
+// Main export component that wraps the content with SearchParamsProvider
+export default function CustomersPage() {
+  return (
+    <AdminLayout>
+      <SearchParamsProvider>
+        <CustomersPageContent />
+      </SearchParamsProvider>
+    </AdminLayout>
+  )
+}
+
+// Customer Table Component implementation
 function CustomerTable({
   customers,
   onViewDetails,
   onChangePassword,
   onToggleBlock,
   loading,
-}: {
-  customers: Customer[]
-  onViewDetails: (id: string) => void
-  onChangePassword: (id: string) => void
-  onToggleBlock: (id: string, isBlocked: boolean) => void
-  loading: boolean
-}) {
+}: CustomerTableProps): JSX.Element {
   return (
     <div className="rounded-md border">
       <Table>
