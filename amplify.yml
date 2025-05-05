@@ -4,7 +4,7 @@ frontend:
     preBuild:
       commands:
         - npm ci
-        - npm run prisma:generate
+        - npx prisma generate
     build:
       commands:
         - npm run build
@@ -16,3 +16,8 @@ frontend:
     paths:
       - node_modules/**/*
       - .next/cache/**/*
+  customHeaders:
+    - pattern: '**/*'
+      headers:
+        - key: 'Cache-Control'
+          value: 'public, max-age=0, must-revalidate'

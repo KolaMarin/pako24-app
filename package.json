@@ -12,7 +12,9 @@
     "prisma:studio": "prisma studio",
     "db:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
     "db:seed-configs": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed-configs.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "predev": "prisma generate",
+    "prebuild": "prisma generate"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
