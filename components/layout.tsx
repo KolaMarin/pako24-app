@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { Home, ShoppingBag, Settings, LogOut, Menu, Store, ShoppingCart, User, PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { Home, ShoppingBag, Settings, LogOut, Menu, Store, ShoppingCart, User, PanelLeftClose, PanelLeftOpen, PlusCircle } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { TopBar } from "./top-bar"
 import { BasketIcon } from "@/components/basket-icon"
@@ -139,9 +139,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Modifica la sezione dell'aside per rimuovere l'header con il logo e spostare il logout in basso
   return (
-    // Change min-h-screen to h-screen and add overflow-hidden
     <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
       <TopBar 
         onToggleSidebar={toggleSidebar} 
@@ -248,13 +246,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
       {isMobile && (
         <MobileNavbar
-          activeTab="home"
+          activeTab={pathname === "/" ? "order" : 
+                   pathname === "/shops" ? "shops" : 
+                   pathname === "/orders" ? "orders" : 
+                   pathname === "/settings" ? "settings" : "order"}
           onTabChange={() => {}}
           items={[
-            { id: "home", label: "Kryefaqja", icon: Home, path: "/" },
-            { id: "basket", label: "Shporta", icon: ShoppingCart, action: () => setShowBasketModal(true) },
-            { id: "orders", label: "Porositë", icon: ShoppingBag, path: "/orders" },
-            { id: "settings", label: "Cilësimet", icon: Settings, path: "/settings" },
+            { id: "order", label: "Shto", icon: PlusCircle, path: "/" },
+            { id: "shops", label: "Dyqanet", icon: Store, path: "/shops" },
+            { id: "orders", label: "Porosite", icon: ShoppingBag, path: "/orders" },
+            { id: "settings", label: "Cilesimet", icon: Settings, path: "/settings" },
           ]}
         />
       )}

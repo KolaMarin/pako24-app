@@ -25,11 +25,7 @@ export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal }: 
         style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
       >
         <div className="flex items-center">
-          {user && onToggleSidebar && (
-            <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="mr-2 md:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
-          )}
+          {/* Removed sidebar toggle button for mobile */}
           <Link href="/" className="text-2xl font-bold flex items-center">
             <Package className="h-8 w-8 mr-3 text-secondary" />
             <span className="text-primary font-extrabold">PAKO</span>
@@ -44,7 +40,7 @@ export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal }: 
                 onClick={() => setShowBasketModal(true)} 
                 variant="outline"
                 size="lg"
-                showLabel={true}
+                showLabel={false}
               />
             </div>
           )}

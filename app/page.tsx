@@ -8,11 +8,12 @@ import { toast } from "@/components/ui/use-toast"
 import { useAuth } from "@/lib/auth"
 import { ProductForm } from "@/components/product-form"
 import { ShopList } from "@/components/shop-list"
-import { Home, ShoppingBag, Store, Settings, Eye, EyeOff } from "lucide-react"
+import { Home, ShoppingBag, Store, Settings, Eye, EyeOff, PlusCircle, LogOut } from "lucide-react"
 import { MobileNavbar } from "@/components/mobile-navbar"
 import { MobileHeader } from "@/components/mobile-header"
 import { LoginModal } from "@/components/login-modal"
 import { RegistrationModal } from "@/components/registration-modal"
+import { BasketInvoiceModal } from "@/components/basket-invoice-modal"
 import { motion, AnimatePresence } from "framer-motion"
 import Layout from "@/components/layout"
 import { useRouter } from "next/navigation"
@@ -30,10 +31,11 @@ export default function HomePage() {
 }
 
 function HomePageContent() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [activeTab, setActiveTab] = useState("order")
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showRegistrationModal, setShowRegistrationModal] = useState(false)
+  const [showBasketModal, setShowBasketModal] = useState(false)
   const router = useRouter()
 
   const handleSubmitOrder = async (data: { productLinks: any[] }) => {
@@ -187,9 +189,13 @@ function HomePageContent() {
   // Default to mobile layout for server-side rendering and mobile clients
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <MobileHeader user={user} onLoginClick={() => setShowLoginModal(true)} />
+      <MobileHeader 
+        user={user} 
+        onLoginClick={() => setShowLoginModal(true)} 
+        setShowBasketModal={setShowBasketModal} 
+      />
 
-      <main className="flex-1 pb-20">
+      <main className="flex-1 pb-20 mt-16">
         <AnimatePresence mode="wait">
           {activeTab === "order" && (
             <motion.div
@@ -200,7 +206,6 @@ function HomePageContent() {
               transition={{ duration: 0.2 }}
               className="p-4"
             >
-              <h1 className="text-2xl font-bold mb-4 text-primary">Dërgo Porosi</h1>
               <Card className="bg-white shadow-sm border-0 overflow-hidden">
                 <CardContent className="p-0">
                   <ProductForm onSubmit={handleSubmitOrder} />
@@ -218,7 +223,6 @@ function HomePageContent() {
               transition={{ duration: 0.2 }}
               className="p-4"
             >
-              <h1 className="text-2xl font-bold mb-4 text-primary">Shfleto Dyqanet</h1>
               <Card className="bg-white shadow-sm border-0 overflow-hidden">
                 <CardContent className="p-4">
                   <ShopList />
@@ -236,7 +240,6 @@ function HomePageContent() {
               transition={{ duration: 0.2 }}
               className="p-4"
             >
-              <h1 className="text-2xl font-bold mb-4 text-primary">Porositë e Mia</h1>
               {!user ? (
                 <Card className="bg-white shadow-sm p-6 text-center">
                   <p className="text-gray-500 mb-4">Ju duhet të identifikoheni për të parë porositë tuaja</p>
@@ -262,9 +265,8 @@ function HomePageContent() {
               transition={{ duration: 0.2 }}
               className="p-4"
             >
-              <h1 className="text-2xl font-bold mb-4 text-primary">Cilësimet</h1>
               {user ? (
-                <SettingsContent user={user} />
+                <SettingsContent user={user} logout={logout} />
               ) : (
                 <Card className="bg-white shadow-sm p-6 text-center">
                   <p className="text-gray-500 mb-4">Ju duhet të identifikoheni për të parë cilësimet tuaja</p>
@@ -285,15 +287,16 @@ function HomePageContent() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         items={[
-          { id: "order", label: "Porosi", icon: ShoppingBag },
-          { id: "shops", label: "Dyqanet", icon: Store },
-          { id: "orders", label: "Porositë", icon: Home },
-          { id: "settings", label: "Cilësimet", icon: Settings },
+          { id: "order", label: "Shto", icon: PlusCircle, path: "/" },
+          { id: "shops", label: "Dyqanet", icon: Store, path: "/shops" },
+          { id: "orders", label: "Porosite", icon: ShoppingBag, path: "/orders" },
+          { id: "settings", label: "Cilesimet", icon: Settings, path: "/settings" },
         ]}
       />
 
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
       <RegistrationModal open={showRegistrationModal} onOpenChange={setShowRegistrationModal} />
+      <BasketInvoiceModal open={showBasketModal} onOpenChange={setShowBasketModal} onSubmit={handleSubmitOrder} />
     </div>
   )
 }
@@ -314,8 +317,8 @@ function RedirectToOrders() {
   )
 }
 
-// Replace the UserProfile component with SettingsContent
-function SettingsContent({ user }: { user: any }) {
+// Updated SettingsContent component to include logout button
+function SettingsContent({ user, logout }: { user: any, logout: () => void }) {
   const { updateUser, updatePassword } = useAuth()
   const [email, setEmail] = useState(user?.email || "")
   const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || "")
@@ -375,94 +378,111 @@ function SettingsContent({ user }: { user: any }) {
   }
 
   return (
-    <Card className="bg-white shadow-sm">
-      <CardContent className="p-4">
-        <h2 className="text-xl font-semibold mb-4 text-secondary">Të Dhënat e Përdoruesit</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </div>
-          <div>
-            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
-              Numri i WhatsApp
-            </label>
-            <Input
-              id="phoneNumber"
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-              Vendndodhja
-            </label>
-            <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} required />
-          </div>
-          <div>
-            <label htmlFor="oldPassword" className="block text-sm font-medium text-gray-700">
-              Fjalëkalimi i Vjetër
-            </label>
-            <div className="relative">
-              <Input
-                id="oldPassword"
-                type={showOldPassword ? "text" : "password"}
-                value={oldPassword}
-                onChange={(e) => {
-                  // Only update if the user is actually typing a new password
-                  if (e.target.value !== "********") {
-                    setOldPassword(e.target.value)
-                  }
-                }}
-                onFocus={() => {
-                  if (oldPassword === "********") {
-                    setOldPassword("")
-                  }
-                }}
-                onBlur={() => {
-                  if (oldPassword === "") {
-                    setOldPassword("********")
-                  }
-                }}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2"
-                onClick={() => setShowOldPassword(!showOldPassword)}
-              >
-                {showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
+    <div className="space-y-4">
+      <Card className="bg-white shadow-sm">
+        <CardContent className="p-4">
+          <h2 className="text-xl font-semibold mb-4 text-secondary">Të Dhënat e Përdoruesit</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
-          </div>
-          <div>
-            <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
-              Fjalëkalimi i Ri
-            </label>
-            <Input
-              id="newPassword"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-          </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-white">
-            {isSubmitting ? (
-              "Duke ruajtur..."
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Ruaj Ndryshimet
-              </>
-            )}
+            <div>
+              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
+                Numri i WhatsApp
+              </label>
+              <Input
+                id="phoneNumber"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                Vendndodhja
+              </label>
+              <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} required />
+            </div>
+            <div>
+              <label htmlFor="oldPassword" className="block text-sm font-medium text-gray-700">
+                Fjalëkalimi i Vjetër
+              </label>
+              <div className="relative">
+                <Input
+                  id="oldPassword"
+                  type={showOldPassword ? "text" : "password"}
+                  value={oldPassword}
+                  onChange={(e) => {
+                    // Only update if the user is actually typing a new password
+                    if (e.target.value !== "********") {
+                      setOldPassword(e.target.value)
+                    }
+                  }}
+                  onFocus={() => {
+                    if (oldPassword === "********") {
+                      setOldPassword("")
+                    }
+                  }}
+                  onBlur={() => {
+                    if (oldPassword === "") {
+                      setOldPassword("********")
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                  onClick={() => setShowOldPassword(!showOldPassword)}
+                >
+                  {showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+            <div>
+              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+                Fjalëkalimi i Ri
+              </label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </div>
+            <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-white">
+              {isSubmitting ? (
+                "Duke ruajtur..."
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Ruaj Ndryshimet
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+      
+      {/* Logout card */}
+      <Card className="bg-white shadow-sm">
+        <CardContent className="p-4">
+          <h2 className="text-xl font-semibold mb-4 text-secondary">Opsionet e Përdoruesit</h2>
+          <Button 
+            onClick={logout} 
+            variant="outline" 
+            className="w-full border hover:bg-red-50 hover:text-red-700 text-red-600"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Dil nga llogaria
           </Button>
-        </form>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

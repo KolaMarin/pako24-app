@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
-import { Eye, EyeOff, Save, Lock } from "lucide-react"
+import { Eye, EyeOff, Save, Lock, LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function SettingsPage() {
-  const { user, updateUser, updatePassword } = useAuth()
+  const { user, updateUser, updatePassword, logout } = useAuth()
   const router = useRouter()
   
   // User info form state
@@ -174,7 +174,7 @@ export default function SettingsPage() {
         </Card>
         
         {/* Section 2: Password Change */}
-        <Card className="bg-white shadow-lg border-0">
+        <Card className="bg-white shadow-lg border-0 mb-6">
           <CardContent className="p-6">
             <h2 className="text-xl font-semibold mb-6 text-primary">Ndryshimi i Fjalëkalimit</h2>
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
@@ -267,6 +267,23 @@ export default function SettingsPage() {
                 )}
               </Button>
             </form>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* Section 3: Logout Button for Mobile Users */}
+      <div className="max-w-2xl mx-auto px-4 pb-20">
+        <Card className="bg-white shadow-lg border-0">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-semibold mb-6 text-primary">Opsionet e Përdoruesit</h2>
+            <Button 
+              onClick={() => logout()}
+              variant="outline" 
+              className="w-full border-2 hover:bg-red-50 hover:text-red-700 text-red-600"
+            >
+              <LogOut className="mr-2 h-5 w-5" />
+              Dil nga llogaria
+            </Button>
           </CardContent>
         </Card>
       </div>

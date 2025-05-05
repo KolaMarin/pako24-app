@@ -529,7 +529,7 @@ export default function OrdersPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-4xl mx-auto px-4 pb-20">
           <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-primary">Porositë e Mia</h1>
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
@@ -560,9 +560,7 @@ export default function OrdersPage() {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-primary">Porositë e Mia</h1>
-
+        <div className="max-w-4xl mx-auto px-4 pb-20">
         {/* Mobile-optimized filters */}
         <Card className="mb-6 bg-white shadow-md">
           <CardContent className="p-3">

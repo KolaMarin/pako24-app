@@ -32,7 +32,7 @@ export function BasketIcon({
       )} />
       {uniqueProductCount > 0 && (
         <Badge 
-          className="absolute top-1/2 -translate-y-1/2 -left-2 h-5 w-5 p-0 flex items-center justify-center bg-primary text-white text-xs rounded-full"
+          className="absolute top-1/2 -translate-y-1/2 -left-1 h-5 w-5 p-0 flex items-center justify-center bg-primary text-white text-xs rounded-full"
         >
           {uniqueProductCount}
         </Badge>
