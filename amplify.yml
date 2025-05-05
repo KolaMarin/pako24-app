@@ -3,15 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Explicitly set DATABASE_URL for the Prisma generate step
-        - export DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
-        - echo "DATABASE_URL is set for build time"
         - npm ci
         - npx prisma generate
     build:
       commands:
-        - export DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
-        - echo "DATABASE_URL is set for runtime"
         - npm run build
   artifacts:
     baseDirectory: .next
