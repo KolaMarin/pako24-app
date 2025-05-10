@@ -27,19 +27,43 @@ function getDatabaseUrl() {
   return process.env.DATABASE_URL || "";
 }
 
-// Set DATABASE_URL if it's not set but component parts are available
-if (!process.env.DATABASE_URL && process.env.DB_USER) {
-  process.env.DATABASE_URL = getDatabaseUrl();
+// PrismaClient wrapper with better connection handling
+function createPrismaClient() {
+  // Always ensure DATABASE_URL is set with the latest values
+  const connectionString = getDatabaseUrl();
+  
+  // For debugging - log the connection string (with password hidden)
+  console.log(`Using connection string: ${connectionString.replace(/:[^:]*@/, ':***@')}`);
+  
+  // Set the environment variable for Prisma to use
+  process.env.DATABASE_URL = connectionString;
+  
+  return new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  });
 }
 
 // PrismaClient is attached to the `global` object in development to prevent
 // exhausting your database connection limit.
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
-export const prisma = globalForPrisma.prisma || new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-})
+export const prisma = globalForPrisma.prisma || createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-export default prisma
+// Add a helper function for connection testing
+export async function testDatabaseConnection() {
+  try {
+    // Test the connection
+    await prisma.$queryRaw`SELECT 1`;
+    return { success: true };
+  } catch (error) {
+    console.error("Database connection test failed:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
+export default prisma;
