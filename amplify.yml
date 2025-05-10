@@ -3,44 +3,17 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "Deployment timestamp: $(date)"
-        - echo "Node version: $(node -v)"
-        - echo "Clearing node_modules (for clean environment)"
-        - rm -rf node_modules
-        - echo "Installing dependencies..."
         - npm ci
-        - echo "Generating Prisma client..."
-        - npm run prisma:generate
+        - npx prisma generate
     build:
       commands:
-        - echo "Starting build..."
         - npm run build
-        - echo "Build completed"
   artifacts:
     baseDirectory: .next
     files:
       - '**/*'
-  cache:
-    paths:
-      # Comment these out temporarily to force a completely clean build
-      # Uncomment for faster builds after fixing environment issues
-      # - node_modules/**/*
-      # - .next/cache/**/*
   customHeaders:
     - pattern: '**/*'
       headers:
         - key: 'Cache-Control'
           value: 'public, max-age=0, must-revalidate'
-    - pattern: '_next/static/**/*'
-      headers:
-        - key: 'Cache-Control'
-          value: 'public, max-age=31536000, immutable'
-    - pattern: '/api/**/*'
-      headers:
-        - key: 'Cache-Control'
-          value: 'no-store, no-cache'
-  environment:
-    variables:
-      # Add a cache-busting timestamp to force environment refresh
-      # Change this value with each deployment when troubleshooting
-      DEPLOYMENT_ID: 'v1-2025-05-10-001'
