@@ -3,15 +3,34 @@ frontend:
   phases:
     preBuild:
       commands:
+        # Install dependencies
         - npm ci
-        - npx prisma generate
+        # Debug environment
+        - echo "NODE_ENV=$NODE_ENV"
+        - echo "DATABASE_URL exists:" $(if [ -z "$DATABASE_URL" ]; then echo "NO"; else echo "YES"; fi)
+        - echo "DATABASE_URL length:" ${#DATABASE_URL}
+        # Clear any existing Prisma client
+        - rm -rf node_modules/.prisma
+        - rm -rf node_modules/@prisma/client
+        # Generate Prisma client with proper binary targets
+        - npx prisma generate --schema=./prisma/schema.prisma
+        # Verify Prisma client was generated
+        - ls -la node_modules/.prisma/client/
     build:
       commands:
+        # CRITICAL: Write DATABASE_URL to .env.production for runtime access
+        - echo "DATABASE_URL=$DATABASE_URL" >> .env.production
+        - echo "NODE_ENV=production" >> .env.production
+        # Verify the file was created
+        - echo "Contents of .env.production:"
+        - cat .env.production | sed 's/=.*/=***/' # Show keys but hide values
+        # Build the Next.js app
         - npm run build
   artifacts:
     baseDirectory: .next
     files:
       - '**/*'
+      - '.env.production'  # Include the env file in artifacts
   cache:
     paths:
       - node_modules/**/*
