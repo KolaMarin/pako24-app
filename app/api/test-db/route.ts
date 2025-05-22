@@ -13,6 +13,9 @@ export async function GET() {
     // Parse connection details safely
     let databaseType = 'unknown';
     let host = 'unknown';
+    let port = 'unknown';
+    let database = 'unknown';
+    let hasSSL = false;
     
     try {
       if (dbUrl) {
@@ -24,7 +27,22 @@ export async function GET() {
         if (dbUrl.includes('@')) {
           const hostPart = dbUrl.split('@')[1];
           if (hostPart) {
-            host = hostPart.split(':')[0] || 'unknown';
+            // Handle port and database path
+            const hostPortParts = hostPart.split(':');
+            host = hostPortParts[0] || 'unknown';
+            
+            if (hostPortParts.length > 1) {
+              // Extract port and database
+              const portDbParts = hostPortParts[1].split('/');
+              port = portDbParts[0] || 'unknown';
+              
+              if (portDbParts.length > 1) {
+                // Extract database name and params
+                const dbParams = portDbParts[1].split('?');
+                database = dbParams[0] || 'unknown';
+                hasSSL = dbParams.length > 1 && dbParams[1].includes('sslmode=require');
+              }
+            }
           }
         }
       }
@@ -36,11 +54,18 @@ export async function GET() {
     const connectionDetails = {
       databaseType,
       host,
+      port,
+      database,
+      hasSSL,
+      environment: process.env.NODE_ENV,
       usedEnvVars: {
         directUrl: !!process.env.DATABASE_URL,
         components: {
           DB_USER: !!process.env.DB_USER,
-          DB_PASSWORD: process.env.DB_PASSWORD ? "true" : "false" 
+          DB_PASSWORD: !!process.env.DB_PASSWORD,
+          DB_HOST: !!process.env.DB_HOST,
+          DB_PORT: !!process.env.DB_PORT,
+          DB_NAME: !!process.env.DB_NAME
         }
       }
     };

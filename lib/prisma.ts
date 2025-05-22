@@ -3,13 +3,34 @@ import { PrismaClient } from '@prisma/client'
 // Function to ensure DATABASE_URL is available in all environments
 function getDatabaseUrl() {
   try {
-    // Prioritize using DATABASE_URL directly if it's available and valid
+    console.log("Environment: ", process.env.NODE_ENV);
+    
+    // In production, explicitly construct the URL from components as primary method
+    // This is more reliable in Amplify environment
+    if (process.env.NODE_ENV === 'production') {
+      const dbUser = process.env.DB_USER;
+      const dbPassword = process.env.DB_PASSWORD;
+      const dbHost = process.env.DB_HOST;
+      const dbPort = process.env.DB_PORT;
+      const dbName = process.env.DB_NAME;
+      
+      if (dbUser && dbPassword && dbHost && dbPort && dbName) {
+        // Need to properly encode characters like ? in the password
+        const encodedPassword = encodeURIComponent(dbPassword);
+        // Add sslmode=require for AWS RDS
+        const constructedUrl = `postgresql://${dbUser}:${encodedPassword}@${dbHost}:${dbPort}/${dbName}?sslmode=require`;
+        console.log("Using constructed URL in production");
+        return constructedUrl;
+      }
+    }
+    
+    // For non-production or fallback: use DATABASE_URL directly if it's properly formatted
     if (process.env.DATABASE_URL && process.env.DATABASE_URL.includes('@')) {
       console.log("Using direct DATABASE_URL environment variable");
       return process.env.DATABASE_URL;
     }
     
-    // Fall back to constructing from individual components if needed
+    // Secondary fallback to constructing from individual components
     const dbUser = process.env.DB_USER;
     const dbPassword = process.env.DB_PASSWORD;
     const dbHost = process.env.DB_HOST;
@@ -19,8 +40,10 @@ function getDatabaseUrl() {
     if (dbUser && dbPassword && dbHost && dbPort && dbName) {
       // Need to properly encode characters like ? in the password
       const encodedPassword = encodeURIComponent(dbPassword);
-      const constructedUrl = `postgresql://${dbUser}:${encodedPassword}@${dbHost}:${dbPort}/${dbName}`;
-      console.log("Using constructed database URL from environment variables");
+      // Add sslmode=require for AWS RDS if in production
+      const sslMode = process.env.NODE_ENV === 'production' ? '?sslmode=require' : '';
+      const constructedUrl = `postgresql://${dbUser}:${encodedPassword}@${dbHost}:${dbPort}/${dbName}${sslMode}`;
+      console.log("Using constructed database URL from individual components");
       return constructedUrl;
     }
     
