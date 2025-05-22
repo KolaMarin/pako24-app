@@ -36,12 +36,16 @@ frontend:
             console.log('Attempting to connect to database...');
             const { PrismaClient } = require('@prisma/client');
             const prisma = new PrismaClient();
-            prisma.$queryRaw\`SELECT 1\`.then(() => {
+            
+            // Use $connect() instead which doesn't require template literals
+            prisma.$connect().then(() => {
               console.log('Database connection successful!');
+              return prisma.$disconnect();
             }).catch(err => {
               console.error('Database connection failed:', err);
               // Don't exit with error, just log the issue
-            }).finally(() => prisma.$disconnect());
+              return prisma.$disconnect();
+            });
           } catch (error) {
             console.error('Error testing connection:', error);
             // Don't exit with error, just log the issue
