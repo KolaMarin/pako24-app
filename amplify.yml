@@ -6,8 +6,11 @@ frontend:
         - npm ci --ignore-scripts
         - npx prisma generate
         - |
+          # Properly escape special characters in the database password
+          ENCODED_PASSWORD=$(echo -n "${DB_PASSWORD}" | node -e "console.log(encodeURIComponent(require('fs').readFileSync(0, 'utf-8')))")
+          
           cat << EOF > .env
-          DATABASE_URL=${DATABASE_URL}
+          DATABASE_URL="postgresql://${DB_USER}:${ENCODED_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
           DB_USER=${DB_USER}
           DB_PASSWORD=${DB_PASSWORD}
           DB_HOST=${DB_HOST}
@@ -17,9 +20,31 @@ frontend:
           PORT=${PORT}
           NODE_ENV=${NODE_ENV}
           EOF
+          
+          # Print debug info (hiding password)
+          echo "DATABASE_URL configured with host: ${DB_HOST}, user: ${DB_USER}, db: ${DB_NAME}"
+          
+          # Test database connection
+          node -e "
+          const { testDatabaseConnection } = require('./lib/prisma');
+          (async () => {
+            console.log('Testing database connection...');
+            const result = await testDatabaseConnection();
+            if (!result.success) {
+              console.error('Database connection test failed:', result.error);
+              process.exit(1);
+            } else {
+              console.log('Database connection successful!');
+            }
+          })().catch(err => {
+            console.error('Connection test error:', err);
+            process.exit(1);
+          });
+          "
     build:
       commands:
         - npm run build
+        - echo "Build completed at $(date)"
 
     postBuild:
       commands:
@@ -38,3 +63,12 @@ frontend:
       headers:
         - key: 'Cache-Control'
           value: 'public, max-age=0, must-revalidate'
+
+# Configure AWS Amplify logging
+amplify:
+  logging:
+    level: debug # Options: debug, info, warn, error
+    cloudwatch: true
+    accessLogging: true
+    applicationLogLevel: debug
+    frameworkLogLevel: debug
