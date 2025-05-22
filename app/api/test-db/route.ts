@@ -10,18 +10,37 @@ export async function GET() {
     const dbUrl = process.env.DATABASE_URL || '';
     const maskedDbUrl = dbUrl.replace(/:[^:]*@/, ':***@');
     
+    // Parse connection details safely
+    let databaseType = 'unknown';
+    let host = 'unknown';
+    
+    try {
+      if (dbUrl) {
+        // Extract database type (postgresql, mysql, etc.)
+        const parts = dbUrl.split(':');
+        databaseType = parts[0] || 'unknown';
+        
+        // Extract host safely - handle different URL formats
+        if (dbUrl.includes('@')) {
+          const hostPart = dbUrl.split('@')[1];
+          if (hostPart) {
+            host = hostPart.split(':')[0] || 'unknown';
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error parsing database URL:", error);
+    }
+    
     // Get details about the connection
     const connectionDetails = {
-      databaseType: dbUrl.split(':')[0],
-      host: dbUrl.includes('@') ? dbUrl.split('@')[1]?.split(':')[0] || 'unknown' : 'unknown',
+      databaseType,
+      host,
       usedEnvVars: {
         directUrl: !!process.env.DATABASE_URL,
         components: {
           DB_USER: !!process.env.DB_USER,
-          DB_PASSWORD: !!process.env.DB_PASSWORD?.substring(0, 1) + '***',
-          DB_HOST: process.env.DB_HOST,
-          DB_PORT: process.env.DB_PORT,
-          DB_NAME: process.env.DB_NAME
+          DB_PASSWORD: process.env.DB_PASSWORD ? "true" : "false" 
         }
       }
     };
