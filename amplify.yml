@@ -3,55 +3,11 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci --ignore-scripts
+        - npm ci
         - npx prisma generate
-        - |
-          # Create .env file without trying to test connection yet
-          cat << EOF > .env
-          DATABASE_URL=${DATABASE_URL}
-          DB_USER=${DB_USER}
-          DB_PASSWORD=${DB_PASSWORD}
-          DB_HOST=${DB_HOST}
-          DB_PORT=${DB_PORT}
-          DB_NAME=${DB_NAME}
-          APP_URL=${APP_URL}
-          NODE_ENV=production
-          EOF
-          
-          # Log basic info for debugging
-          echo "Environment prepared with DATABASE_URL for host: ${DB_HOST}"
     build:
       commands:
         - npm run build
-        - echo "Build completed at $(date)"
-
-    postBuild:
-      commands:
-        - echo "Build completed successfully!"
-        # Optional database connection test that won't fail the build
-        - |
-          echo "Testing database connection after build..."
-          node -e "
-          try {
-            console.log('Attempting to connect to database...');
-            const { PrismaClient } = require('@prisma/client');
-            const prisma = new PrismaClient();
-            
-            // Use $connect() instead which doesn't require template literals
-            prisma.$connect().then(() => {
-              console.log('Database connection successful!');
-              return prisma.$disconnect();
-            }).catch(err => {
-              console.error('Database connection failed:', err);
-              // Don't exit with error, just log the issue
-              return prisma.$disconnect();
-            });
-          } catch (error) {
-            console.error('Error testing connection:', error);
-            // Don't exit with error, just log the issue
-          }
-          "
-
   artifacts:
     baseDirectory: .next
     files:
@@ -60,14 +16,3 @@ frontend:
     paths:
       - node_modules/**/*
       - .next/cache/**/*
-  customHeaders:
-    - pattern: '**/*'
-      headers:
-        - key: 'Cache-Control'
-          value: 'public, max-age=0, must-revalidate'
-
-# Configure AWS Amplify logging
-amplify:
-  logging:
-    level: debug
-    accessLogging: true
