@@ -6,11 +6,8 @@ frontend:
         - npm ci --ignore-scripts
         - npx prisma generate
         - |
-          # Properly escape special characters in the database password
-          ENCODED_PASSWORD=$(echo -n "${DB_PASSWORD}" | node -e "console.log(encodeURIComponent(require('fs').readFileSync(0, 'utf-8')))")
-          
           cat << EOF > .env
-          DATABASE_URL="postgresql://${DB_USER}:${ENCODED_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+          DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
           DB_USER=${DB_USER}
           DB_PASSWORD=${DB_PASSWORD}
           DB_HOST=${DB_HOST}
