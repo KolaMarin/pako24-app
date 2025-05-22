@@ -646,7 +646,7 @@ export default function OrdersPage() {
                     Pastro filtrat
                   </Button>
                 ) : (
-                  <Button onClick={() => router.push("/")}>Shko tek Porositë</Button>
+                  <Button onClick={() => router.push("/")}>Shko tek Kryefaqja</Button>
                 )}
               </CardContent>
             </Card>

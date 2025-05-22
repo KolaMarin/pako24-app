@@ -44,11 +44,9 @@ export function MobileNavbar({ activeTab: initialActiveTab, onTabChange, items }
     }
 
     // If path is provided and we're not already on that page, navigate to it
-    if (path && pathname !== path && tab !== "shops") {
+    if (path && pathname !== path) {
       router.push(path)
     }
-    // We'll let the parent component handle the shops tab navigation
-    // instead of automatically redirecting
   }
 
   return (
