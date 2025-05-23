@@ -267,7 +267,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-3 md:p-4 space-y-4">
+    <div className="w-full mx-auto p-0 sm:p-2 space-y-2 sm:space-y-3">
       {/* Modals */}
       <BasketInvoiceModal 
         open={showBasketModal} 
@@ -280,39 +280,44 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         onOpenChange={setShowLoginModal}
       />
       
-      {/* Compact Instructions - further reduced margins and padding */}
-      <div className="bg-blue-50 border border-blue-100 rounded-lg p-1.5 mb-1 text-xs">
-        <div className="flex gap-2">
-          <Info className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
-          <p className="text-blue-700">
+      {/* Compact Instructions - different versions for mobile and desktop */}
+      <div className="bg-blue-50 border-0 sm:border border-blue-100 rounded-lg p-1 mb-0.5 sm:mb-1 text-xs">
+        <div className="flex gap-1.5">
+          <Info className="h-3.5 w-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
+          {/* Mobile version (shorter) */}
+          <p className="text-blue-700 sm:hidden">
+            Vendosni URL dhe detajet. Klikoni <span className="font-medium">Shto</span> dhe vazhdoni.
+          </p>
+          {/* Desktop version (full) */}
+          <p className="text-blue-700 hidden sm:block">
             Vendosni URL e produktit, sasinë, madhësinë dhe ngjyrën. Klikoni <span className="font-medium">Shto në Shportë</span> dhe 
-            vazhdoni me ikonën e shportës <ShoppingCart className="h-3.5 w-3.5 text-primary inline mx-0.5" /> në krye të faqes.
+            vazhdoni me ikonën e shportës <ShoppingCart className="h-3 w-3 text-primary inline mx-0.5" /> në krye të faqes.
           </p>
         </div>
       </div>
 
-      {/* Product form card with enhanced styling - reduced margins/padding */}
-      <div className="relative bg-white rounded-xl overflow-hidden border border-primary/20 shadow-md">
-        {/* Left accent bar */}
-        <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70"></div>
+      {/* Product form card with enhanced styling - minimal border on mobile */}
+      <div className="relative bg-white rounded-xl overflow-hidden border-0 sm:border sm:border-primary/20 shadow-md w-full">
+        {/* Left accent bar - hidden on mobile */}
+        <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70 hidden md:block"></div>
         
-        {/* Header section */}
-        <div className="bg-gradient-to-r from-primary-50 to-white py-3 px-4 border-b border-primary/10">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 p-2 rounded-full">
-                <ShoppingCart className="h-5 w-5 text-primary" />
+        {/* Header section - more compact on mobile */}
+        <div className="bg-gradient-to-r from-primary-50 to-white py-1.5 sm:py-2 px-2 sm:px-3 border-b border-primary/10">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="bg-primary/10 p-1 sm:p-1.5 rounded-full">
+                <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-800">Detajet e Produktit</h2>
+              <h2 className="text-sm sm:text-base font-semibold text-gray-800">Detajet e Produktit</h2>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {productLinks[0].price > 0 && (
-                <div className="bg-white px-3 py-1.5 rounded-md shadow-sm border border-primary/10">
-          <span className="block text-xs text-gray-500 font-medium">Çmimi total{productLinks[0].quantity > 1 ? ` (x${productLinks[0].quantity})` : ''}:</span>
-                  <div className="flex gap-2 items-baseline">
-                    <span className="text-primary font-semibold">€{(productLinks[0].price * 1.15 * productLinks[0].quantity).toFixed(2)}</span>
-                    <span className="text-xs text-gray-500">(£{(productLinks[0].price * productLinks[0].quantity).toFixed(2)})</span>
+                <div className="bg-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md shadow-sm border border-primary/10">
+                  <span className="block text-2xs sm:text-xs text-gray-500 font-medium">Çmimi{productLinks[0].quantity > 1 ? ` (x${productLinks[0].quantity})` : ''}:</span>
+                  <div className="flex gap-1 items-baseline">
+                    <span className="text-primary font-semibold text-xs sm:text-sm">€{(productLinks[0].price * 1.15 * productLinks[0].quantity).toFixed(2)}</span>
+                    <span className="text-2xs sm:text-xs text-gray-500 hidden sm:inline">(£{(productLinks[0].price * productLinks[0].quantity).toFixed(2)})</span>
                   </div>
                 </div>
               )}
@@ -320,24 +325,24 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
           </div>
         </div>
         
-        {/* Form body - further reduced padding */}
-        <div className="p-3">
-          <div className="grid gap-6">
-            {/* URL and Quantity - perfectly aligned in the image */}
-            <div className="flex flex-col space-y-3 md:space-y-0">
+        {/* Form body - minimal padding for mobile */}
+        <div className="p-2">
+          <div className="grid gap-4">
+            {/* URL and Quantity - always side by side */}
+            <div className="flex flex-col space-y-2">
               {/* Field Labels row - side by side */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="md:col-span-3">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <LinkIcon className="h-4 w-4 text-primary" />
-                    <Label className="font-medium text-gray-700">
-                      URL e Produktit <span className="text-red-500">*</span>
+              <div className="grid grid-cols-4 gap-2">
+                <div className="col-span-3">
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <LinkIcon className="h-3.5 w-3.5 text-primary" />
+                    <Label className="font-medium text-gray-700 text-xs">
+                      URL <span className="text-red-500">*</span>
                     </Label>
                   </div>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <Label className="font-medium text-gray-700">
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <Label className="font-medium text-gray-700 text-xs">
                       Sasia <span className="text-red-500">*</span>
                     </Label>
                   </div>
@@ -345,45 +350,45 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
               </div>
               
               {/* Input fields row - side by side */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="md:col-span-3">
+              <div className="grid grid-cols-4 gap-2">
+                <div className="col-span-3">
                   <div className="relative">
                     <Input
                       value={productLinks[0].url}
                       onChange={(e) => updateProductLink(0, "url", e.target.value)}
                       required
-                      placeholder="https://www.example.com/product"
+                      placeholder="https://example.com/..."
                       className={cn(
-                        "h-10 pl-3 pr-8 text-sm focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all",
+                        "h-9 pl-2 pr-7 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all",
                         validationErrors["0-url"] ? "border-red-500 focus-visible:ring-red-300" : "border-gray-200",
                       )}
                     />
                     {urlsLoading[0] && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-primary">
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       </div>
                     )}
                     {validationErrors["0-url"] && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500">
-                        <AlertCircle className="h-4 w-4" />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500">
+                        <AlertCircle className="h-3.5 w-3.5" />
                       </div>
                     )}
                   </div>
                   {validationErrors["0-url"] && (
-                    <p className="mt-1 text-xs text-red-500 flex items-center">
-                      <AlertCircle className="h-3 w-3 mr-1 flex-shrink-0" />
+                    <p className="mt-0.5 text-xs text-red-500 flex items-center">
+                      <AlertCircle className="h-3 w-3 mr-0.5 flex-shrink-0" />
                       {validationErrors["0-url"]}
                     </p>
                   )}
                 </div>
                 
                 <div>
-                  <div className="flex h-10 border border-gray-200 rounded-md overflow-hidden shadow-sm">
+                  <div className="flex h-9 border border-gray-200 rounded-md overflow-hidden shadow-sm">
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-full rounded-none border-r border-gray-200 hover:bg-gray-50 flex-1"
+                    className="h-full rounded-none border-r border-gray-200 hover:bg-gray-50 flex-1 px-1"
                     onClick={() => {
                       if (productLinks[0].quantity > 1) {
                         updateProductLink(0, "quantity", Math.max(1, productLinks[0].quantity - 1))
@@ -391,7 +396,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                     }}
                     disabled={productLinks[0].quantity <= 1}
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-3 w-3" />
                   </Button>
                   <Input
                     type="number"
@@ -407,7 +412,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                     step="1"
                     required
                     className={cn(
-                      "h-full text-center text-sm font-medium focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-0 border-0 rounded-none flex-1",
+                      "h-full text-center text-xs font-medium focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 border-0 rounded-none flex-1 p-0 w-6",
                       validationErrors["0-quantity"] ? "border-red-500 focus-visible:ring-red-300" : "",
                       "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
                     )}
@@ -416,15 +421,15 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-full rounded-none border-l border-gray-200 hover:bg-gray-50 flex-1"
+                    className="h-full rounded-none border-l border-gray-200 hover:bg-gray-50 flex-1 px-1"
                     onClick={() => updateProductLink(0, "quantity", productLinks[0].quantity + 1)}
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-3 w-3" />
                   </Button>
                   </div>
                   {validationErrors["0-quantity"] && (
-                    <p className="mt-1.5 text-xs text-red-500 flex items-center">
-                      <AlertCircle className="h-3 w-3 mr-1" />
+                    <p className="mt-0.5 text-xs text-red-500 flex items-center">
+                      <AlertCircle className="h-3 w-3 mr-0.5" />
                       {validationErrors["0-quantity"]}
                     </p>
                   )}
@@ -432,38 +437,38 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
               </div>
             </div>
 
-            {/* Size, Color, Price - with consistent height */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Size, Color, Price - more compact for mobile */}
+            <div className="grid grid-cols-3 gap-2">
               <div>
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Ruler className="h-4 w-4 text-primary" />
-                  <Label className="font-medium text-gray-700">Madhësia</Label>
+                <div className="flex items-center gap-1 mb-0.5">
+                  <Ruler className="h-3.5 w-3.5 text-primary" />
+                  <Label className="font-medium text-gray-700 text-xs">Madhësia</Label>
                 </div>
                 <Input
                   value={productLinks[0].size}
                   onChange={(e) => updateProductLink(0, "size", e.target.value)}
-                  placeholder="S/M/L/XL/42/..."
-                  className="h-10 text-sm focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-0 border-gray-200 transition-all"
+                  placeholder="S/M/L/42..."
+                  className="h-9 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200"
                 />
               </div>
 
               <div>
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Palette className="h-4 w-4 text-primary" />
-                  <Label className="font-medium text-gray-700">Ngjyra</Label>
+                <div className="flex items-center gap-1 mb-0.5">
+                  <Palette className="h-3.5 w-3.5 text-primary" />
+                  <Label className="font-medium text-gray-700 text-xs">Ngjyra</Label>
                 </div>
                 <Input
                   value={productLinks[0].color}
                   onChange={(e) => updateProductLink(0, "color", e.target.value)}
-                  placeholder="E zezë, e bardhë, etj."
-                  className="h-10 text-sm focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-0 border-gray-200 transition-all"
+                  placeholder="E zezë/bardhë..."
+                  className="h-9 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200"
                 />
               </div>
 
               <div>
-                <div className="flex items-center gap-1.5 mb-1">
-                  <PoundSterling className="h-4 w-4 text-primary" />
-                  <Label className="font-medium text-gray-700">Çmimi (£)</Label>
+                <div className="flex items-center gap-1 mb-0.5">
+                  <PoundSterling className="h-3.5 w-3.5 text-primary" />
+                  <Label className="font-medium text-gray-700 text-xs">Çmimi (£)</Label>
                 </div>
                 <Input
                   type="number"
@@ -475,52 +480,53 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                   }}
                   step="0.01"
                   placeholder="0.00"
-                  className="h-10 text-sm focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-0 border-gray-200 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="h-9 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
 
-            {/* Additional info - further reduced height */}
+            {/* Additional info - more compact for mobile */}
             <div>
-              <div className="flex items-center gap-1.5 mb-1">
-                <Info className="h-4 w-4 text-primary" />
-                <Label className="font-medium text-gray-700">Informacion shtesë</Label>
+              <div className="flex items-center gap-1 mb-0.5">
+                <Info className="h-3.5 w-3.5 text-primary" />
+                <Label className="font-medium text-gray-700 text-xs">Info shtesë</Label>
               </div>
               <Textarea
                 value={productLinks[0].additionalInfo}
                 onChange={(e) => updateProductLink(0, "additionalInfo", e.target.value)}
-                placeholder="Detaje shtesë për këtë produkt..."
-                className="min-h-[50px] text-sm focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-0 border-gray-200 transition-all resize-none"
+                placeholder="Detaje shtesë..."
+                className="min-h-[40px] text-xs focus-visible:ring-1 focus-visible:ring-primary/50 border-gray-200 resize-none py-1.5 px-2"
               />
             </div>
           </div>
         </div>
         
-        {/* Footer with action buttons - reduced padding */}
-        <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end">
-          <div className="flex gap-3">
+        {/* Footer with action buttons - more compact for mobile */}
+        <div className="px-2 py-2 bg-gray-50 border-t border-gray-100 flex justify-end">
+          <div className="flex gap-2">
             <Button 
               variant="outline"
               size="sm"
               onClick={clearForm}
-              className="text-gray-700 border-gray-300"
+              className="text-gray-700 border-gray-300 text-xs h-8 px-2"
             >
-              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-              Pastro formularin
+              <RefreshCw className="h-3 w-3 mr-1" />
+              Pastro
             </Button>
             
             <Button
               onClick={handleAddToBasket}
               disabled={isSubmitting}
-              className="bg-primary hover:bg-primary/90 text-white"
+              className="bg-primary hover:bg-primary/90 text-white text-xs h-8 px-3"
               size="sm"
             >
               {isSubmitting ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                <Loader2 className="h-3 w-3 animate-spin mr-1" />
               ) : (
                 <>
-                  <ShoppingCart className="h-3.5 w-3.5 mr-1.5" />
-                  Shto në Shportë
+                  <ShoppingCart className="h-3 w-3 mr-1" />
+                  <span className="hidden sm:inline">Shto në Shportë</span>
+                  <span className="sm:hidden">Shto</span>
                 </>
               )}
             </Button>
