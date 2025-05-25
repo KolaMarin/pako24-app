@@ -221,7 +221,7 @@ export function ShopList() {
         </TabsList>
       </Tabs>
 
-      <ScrollArea className={`${isMobile ? "h-[calc(100vh-300px)]" : "h-[500px]"} pr-4`}>
+      <ScrollArea className={`${isMobile ? "h-[calc(100vh-300px)] pr-1" : "h-[500px] pr-4"}`}>
         {loading ? (
           <div className="text-center py-8 text-gray-500">
             Duke ngarkuar dyqanet...
@@ -243,7 +243,7 @@ export function ShopList() {
               categories.map((category) => (
                 <div key={category.name} className="mb-6">
                   <h3 className="font-medium text-lg mb-3">{category.name}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                     {category.shops.map((shop) => (
                       <ShopCard
                         key={shop.id}
@@ -265,7 +265,7 @@ export function ShopList() {
                 </div>
               ))
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                 {filteredShops.map((shop) => (
                   <ShopCard
                     key={shop.id}

@@ -267,7 +267,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full mx-auto p-0 sm:p-2 space-y-2 sm:space-y-3 pt-3 md:pt-4 pb-3">
+    <div className="w-full mx-auto p-0 sm:p-2 space-y-2 sm:space-y-3 pt-3 md:pt-4 fixed sm:relative top-15 left-0 right-0 z-10 bg-gray-50 sm:bg-transparent sm:z-0">
       {/* Modals */}
       <BasketInvoiceModal 
         open={showBasketModal} 
@@ -285,27 +285,30 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         {/* Left accent bar - hidden on mobile */}
         <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70 hidden md:block"></div>
         
-        {/* Header section - streamlined with inline price */}
-        <div className="bg-gradient-to-r from-primary-50 to-white py-1.5 sm:py-2 px-2 sm:px-3 border-b border-primary/10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <div className="bg-primary/10 p-1 sm:p-1.5 rounded-full">
-                <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+        {/* Header section - enhanced with help text */}
+        <div className="bg-gradient-to-r from-primary-50 to-white py-2.5 sm:py-2 px-3 sm:px-3 border-b border-primary/10">
+          <div className="flex flex-col space-y-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="bg-primary/10 p-1 sm:p-1.5 rounded-full">
+                  <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                </div>
+                <h2 className="text-sm sm:text-base font-semibold text-gray-800">Detajet e Produktit</h2>
               </div>
-              <h2 className="text-sm sm:text-base font-semibold text-gray-800">Detajet e Produktit</h2>
+              
+              {productLinks[0].price > 0 && (
+                <div className="flex items-center">
+                  <Badge 
+                    variant="outline" 
+                    className="bg-primary/5 border-primary/20 text-primary font-semibold px-1.5 py-0.5"
+                  >
+                    €{(productLinks[0].price * 1.15 * productLinks[0].quantity).toFixed(2)}
+                    {productLinks[0].quantity > 1 && <span className="ml-0.5 text-primary/80 font-medium">x{productLinks[0].quantity}</span>}
+                  </Badge>
+                </div>
+              )}
             </div>
-            
-            {productLinks[0].price > 0 && (
-              <div className="flex items-center">
-                <Badge 
-                  variant="outline" 
-                  className="bg-primary/5 border-primary/20 text-primary font-semibold px-1.5 py-0.5"
-                >
-                  €{(productLinks[0].price * 1.15 * productLinks[0].quantity).toFixed(2)}
-                  {productLinks[0].quantity > 1 && <span className="ml-0.5 text-primary/80 font-medium">x{productLinks[0].quantity}</span>}
-                </Badge>
-              </div>
-            )}
+            <p className="text-[11px] text-gray-500 sm:hidden">Vendosni URL dhe detajet. Klikoni Shto dhe vaxhdoni</p>
           </div>
         </div>
         
@@ -431,7 +434,8 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                 <Input
                   value={productLinks[0].size}
                   onChange={(e) => updateProductLink(0, "size", e.target.value)}
-                  placeholder="S/M/L/42..."
+                  placeholder="XL/42"
+                  inputMode="text"
                   className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all pl-2 border-gray-200"
                 />
               </div>
@@ -444,7 +448,8 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                 <Input
                   value={productLinks[0].color}
                   onChange={(e) => updateProductLink(0, "color", e.target.value)}
-                  placeholder="E zezë/bardhë..."
+                  placeholder="blu/kuqe"
+                  inputMode="text"
                   className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all pl-2 border-gray-200"
                 />
               </div>
@@ -456,7 +461,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                 </div>
                 <Input
                   type="number"
-                  inputMode="decimal"
+                  inputMode="numeric"
                   value={productLinks[0].price || ""}
                   onChange={(e) => {
                     const value = Number.parseFloat(e.target.value)
@@ -478,8 +483,9 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
               <Textarea
                 value={productLinks[0].additionalInfo}
                 onChange={(e) => updateProductLink(0, "additionalInfo", e.target.value)}
-                placeholder="Detaje shtesë..."
-                className="min-h-[100px] text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all border-gray-200 resize-none py-2 px-2"
+                placeholder="p.sh. Dërgesa të bëhet pas orës 17:00"
+                className="min-h-[60px] text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all border-gray-200 resize-none py-2 px-2 overflow-hidden"
+                rows={2}
               />
             </div>
           </div>
@@ -517,6 +523,9 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
           </div>
         </div>
       </div>
+      
+      {/* Add extra padding at the bottom on mobile to prevent nav bar overlap */}
+      <div className="h-16 sm:hidden"></div>
     </div>
   )
 }
