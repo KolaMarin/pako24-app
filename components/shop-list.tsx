@@ -210,7 +210,7 @@ export function ShopList() {
           placeholder="Kërko dyqane..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 h-12 text-base"
+          className="pl-10 h-12 text-base focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all border-gray-200"
         />
       </div>
 
