@@ -69,12 +69,9 @@ export function MobileNavbar({ activeTab: initialActiveTab, onTabChange, items }
               onClick={() => handleTabChange(item.id, item.path, item.action)}
             >
               <div className="relative">
-                <Icon className={cn("h-5 w-5", isActive && "scale-110 transition-transform")} />
-                {isActive && (
-                  <span className="absolute -bottom-1.5 left-1/2 w-2 h-2 bg-primary rounded-full transform -translate-x-1/2" />
-                )}
+                <Icon className={cn("h-5 w-5", isActive && "scale-125 transition-transform")} />
               </div>
-              <span className={cn("text-xs font-medium", isActive && "font-semibold")}>{item.label}</span>
+              <span className={cn("text-xs font-medium", isActive && "font-semibold text-primary")}>{item.label}</span>
             </button>
           )
         })}

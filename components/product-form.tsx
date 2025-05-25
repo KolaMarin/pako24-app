@@ -267,7 +267,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full mx-auto p-0 sm:p-2 space-y-1 sm:space-y-2 pb-16 md:pb-0">
+    <div className="w-full mx-auto p-0 sm:p-2 space-y-2 sm:space-y-3 pb-16 md:pb-0">
       {/* Modals */}
       <BasketInvoiceModal 
         open={showBasketModal} 
@@ -309,11 +309,11 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
           </div>
         </div>
         
-        {/* Form body - minimal padding for mobile */}
-        <div className="p-1.5 sm:p-2">
-          <div className="grid gap-3 sm:gap-4">
+        {/* Form body - improved padding for better spacing */}
+        <div className="p-3 sm:p-4">
+          <div className="grid gap-4 sm:gap-5">
             {/* URL and Quantity - always side by side */}
-            <div className="flex flex-col space-y-1.5 sm:space-y-2">
+            <div className="flex flex-col space-y-2 sm:space-y-3">
               {/* Field Labels row - side by side */}
               <div className="grid grid-cols-4 gap-2">
                 <div className="col-span-3">
@@ -343,7 +343,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                       required
                       placeholder="https://example.com/..."
                       className={cn(
-                        "h-9 pl-2 pr-7 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all",
+                        "h-11 pl-2 pr-7 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all",
                         validationErrors["0-url"] ? "border-red-500 focus-visible:ring-red-300" : "border-gray-200",
                       )}
                     />
@@ -367,7 +367,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                 </div>
                 
                 <div>
-                  <div className="flex h-9 border border-gray-200 rounded-md overflow-hidden shadow-sm">
+                  <div className="flex h-11 border border-gray-200 rounded-md overflow-hidden shadow-sm">
                   <Button
                     type="button"
                     variant="ghost"
@@ -422,7 +422,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
             </div>
 
             {/* Size, Color, Price - more compact for mobile */}
-            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               <div>
                 <div className="flex items-center gap-1 mb-0.5">
                   <Ruler className="h-3.5 w-3.5 text-primary" />
@@ -432,7 +432,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                   value={productLinks[0].size}
                   onChange={(e) => updateProductLink(0, "size", e.target.value)}
                   placeholder="S/M/L/42..."
-                  className="h-9 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200"
+                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200"
                 />
               </div>
 
@@ -445,7 +445,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                   value={productLinks[0].color}
                   onChange={(e) => updateProductLink(0, "color", e.target.value)}
                   placeholder="E zezë/bardhë..."
-                  className="h-9 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200"
+                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200"
                 />
               </div>
 
@@ -464,7 +464,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                   }}
                   step="0.01"
                   placeholder="0.00"
-                  className="h-9 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
@@ -479,14 +479,14 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                 value={productLinks[0].additionalInfo}
                 onChange={(e) => updateProductLink(0, "additionalInfo", e.target.value)}
                 placeholder="Detaje shtesë..."
-                className="min-h-[40px] text-xs focus-visible:ring-1 focus-visible:ring-primary/50 border-gray-200 resize-none py-1.5 px-2"
+                className="min-h-[100px] text-xs focus-visible:ring-1 focus-visible:ring-primary/50 border-gray-200 resize-none py-2 px-2"
               />
             </div>
           </div>
         </div>
         
         {/* Enhanced footer with distinct styling */}
-        <div className="px-2 py-1.5 sm:py-2 bg-gradient-to-b from-gray-50 to-gray-100 border-t border-gray-200 shadow-inner flex justify-end">
+        <div className="px-3 py-2.5 sm:py-3 bg-gradient-to-b from-gray-50 to-gray-100 border-t border-gray-200 shadow-inner flex justify-end">
           <div className="flex gap-2">
             <Button 
               variant="outline"
