@@ -26,11 +26,12 @@ export function MobileNavbar({ activeTab: initialActiveTab, onTabChange, items }
   const [activeTab, setActiveTab] = useState(initialActiveTab)
 
   useEffect(() => {
-    // Update active tab based on current path
-    if (pathname === "/") setActiveTab("home")
+    // Update active tab based on current path, with "order" (Shto) as default
+    if (pathname === "/") setActiveTab("order")
     else if (pathname === "/shops") setActiveTab("shops")
     else if (pathname === "/orders") setActiveTab("orders")
     else if (pathname === "/settings") setActiveTab("settings")
+    else setActiveTab("order") // Default to "order" for any other path
   }, [pathname])
 
   const handleTabChange = (tab: string, path?: string, action?: () => void) => {
@@ -60,18 +61,20 @@ export function MobileNavbar({ activeTab: initialActiveTab, onTabChange, items }
             <button
               key={item.id}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 transition-colors",
-                isActive ? "text-primary" : "text-gray-500 hover:text-gray-900",
+                "flex flex-col items-center justify-center gap-1 transition-all duration-200",
+                isActive 
+                  ? "text-primary bg-primary/5" 
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50",
               )}
               onClick={() => handleTabChange(item.id, item.path, item.action)}
             >
               <div className="relative">
-                <Icon className="h-5 w-5" />
+                <Icon className={cn("h-5 w-5", isActive && "scale-110 transition-transform")} />
                 {isActive && (
-                  <span className="absolute -bottom-1.5 left-1/2 w-1 h-1 bg-primary rounded-full transform -translate-x-1/2" />
+                  <span className="absolute -bottom-1.5 left-1/2 w-2 h-2 bg-primary rounded-full transform -translate-x-1/2" />
                 )}
               </div>
-              <span className="text-xs font-medium">{item.label}</span>
+              <span className={cn("text-xs font-medium", isActive && "font-semibold")}>{item.label}</span>
             </button>
           )
         })}

@@ -267,7 +267,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full mx-auto p-0 sm:p-2 space-y-2 sm:space-y-3">
+    <div className="w-full mx-auto p-0 sm:p-2 space-y-1 sm:space-y-2 pb-16 md:pb-0">
       {/* Modals */}
       <BasketInvoiceModal 
         open={showBasketModal} 
@@ -280,30 +280,14 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         onOpenChange={setShowLoginModal}
       />
       
-      {/* Compact Instructions - different versions for mobile and desktop */}
-      <div className="bg-blue-50 border-0 sm:border border-blue-100 rounded-lg p-1 mb-0.5 sm:mb-1 text-xs">
-        <div className="flex gap-1.5">
-          <Info className="h-3.5 w-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
-          {/* Mobile version (shorter) */}
-          <p className="text-blue-700 sm:hidden">
-            Vendosni URL dhe detajet. Klikoni <span className="font-medium">Shto</span> dhe vazhdoni.
-          </p>
-          {/* Desktop version (full) */}
-          <p className="text-blue-700 hidden sm:block">
-            Vendosni URL e produktit, sasinë, madhësinë dhe ngjyrën. Klikoni <span className="font-medium">Shto në Shportë</span> dhe 
-            vazhdoni me ikonën e shportës <ShoppingCart className="h-3 w-3 text-primary inline mx-0.5" /> në krye të faqes.
-          </p>
-        </div>
-      </div>
-
-      {/* Product form card with enhanced styling - minimal border on mobile */}
-      <div className="relative bg-white rounded-xl overflow-hidden border-0 sm:border sm:border-primary/20 shadow-md w-full">
+      {/* Product form card with enhanced styling */}
+      <div className="relative bg-white rounded-xl overflow-hidden border border-primary/10 shadow-lg w-full">
         {/* Left accent bar - hidden on mobile */}
         <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70 hidden md:block"></div>
         
-        {/* Header section - more compact on mobile */}
+        {/* Header section - streamlined with inline price */}
         <div className="bg-gradient-to-r from-primary-50 to-white py-1.5 sm:py-2 px-2 sm:px-3 border-b border-primary/10">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 sm:gap-2">
               <div className="bg-primary/10 p-1 sm:p-1.5 rounded-full">
                 <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
@@ -311,25 +295,25 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
               <h2 className="text-sm sm:text-base font-semibold text-gray-800">Detajet e Produktit</h2>
             </div>
             
-            <div className="flex items-center gap-2">
-              {productLinks[0].price > 0 && (
-                <div className="bg-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md shadow-sm border border-primary/10">
-                  <span className="block text-2xs sm:text-xs text-gray-500 font-medium">Çmimi{productLinks[0].quantity > 1 ? ` (x${productLinks[0].quantity})` : ''}:</span>
-                  <div className="flex gap-1 items-baseline">
-                    <span className="text-primary font-semibold text-xs sm:text-sm">€{(productLinks[0].price * 1.15 * productLinks[0].quantity).toFixed(2)}</span>
-                    <span className="text-2xs sm:text-xs text-gray-500 hidden sm:inline">(£{(productLinks[0].price * productLinks[0].quantity).toFixed(2)})</span>
-                  </div>
-                </div>
-              )}
-            </div>
+            {productLinks[0].price > 0 && (
+              <div className="flex items-center">
+                <Badge 
+                  variant="outline" 
+                  className="bg-primary/5 border-primary/20 text-primary font-semibold px-1.5 py-0.5"
+                >
+                  €{(productLinks[0].price * 1.15 * productLinks[0].quantity).toFixed(2)}
+                  {productLinks[0].quantity > 1 && <span className="ml-0.5 text-primary/80 font-medium">x{productLinks[0].quantity}</span>}
+                </Badge>
+              </div>
+            )}
           </div>
         </div>
         
         {/* Form body - minimal padding for mobile */}
-        <div className="p-2">
-          <div className="grid gap-4">
+        <div className="p-1.5 sm:p-2">
+          <div className="grid gap-3 sm:gap-4">
             {/* URL and Quantity - always side by side */}
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col space-y-1.5 sm:space-y-2">
               {/* Field Labels row - side by side */}
               <div className="grid grid-cols-4 gap-2">
                 <div className="col-span-3">
@@ -438,7 +422,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
             </div>
 
             {/* Size, Color, Price - more compact for mobile */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
               <div>
                 <div className="flex items-center gap-1 mb-0.5">
                   <Ruler className="h-3.5 w-3.5 text-primary" />
@@ -501,14 +485,14 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
           </div>
         </div>
         
-        {/* Footer with action buttons - more compact for mobile */}
-        <div className="px-2 py-2 bg-gray-50 border-t border-gray-100 flex justify-end">
+        {/* Enhanced footer with distinct styling */}
+        <div className="px-2 py-1.5 sm:py-2 bg-gradient-to-b from-gray-50 to-gray-100 border-t border-gray-200 shadow-inner flex justify-end">
           <div className="flex gap-2">
             <Button 
               variant="outline"
               size="sm"
               onClick={clearForm}
-              className="text-gray-700 border-gray-300 text-xs h-8 px-2"
+              className="text-gray-700 border-gray-300 shadow-sm text-xs h-8 px-2 bg-white hover:bg-gray-50"
             >
               <RefreshCw className="h-3 w-3 mr-1" />
               Pastro
@@ -517,7 +501,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
             <Button
               onClick={handleAddToBasket}
               disabled={isSubmitting}
-              className="bg-primary hover:bg-primary/90 text-white text-xs h-8 px-3"
+              className="bg-primary hover:bg-primary/90 text-white text-xs h-8 px-3 shadow-sm"
               size="sm"
             >
               {isSubmitting ? (

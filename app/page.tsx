@@ -204,7 +204,7 @@ function HomePageContent() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.2 }}
-              className="p-4"
+              className="px-2 py-1"
             >
               <Card className="bg-white shadow-sm border-0 overflow-hidden">
                 <CardContent className="p-0">
