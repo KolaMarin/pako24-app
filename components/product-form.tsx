@@ -267,7 +267,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full mx-auto p-0 sm:p-2 space-y-2 sm:space-y-3 pb-16 md:pb-0">
+    <div className="w-full mx-auto p-0 sm:p-2 space-y-2 sm:space-y-3 pt-3 md:pt-4 pb-3">
       {/* Modals */}
       <BasketInvoiceModal 
         open={showBasketModal} 
@@ -432,7 +432,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                   value={productLinks[0].size}
                   onChange={(e) => updateProductLink(0, "size", e.target.value)}
                   placeholder="S/M/L/42..."
-                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200"
+                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all pl-2 border-gray-200"
                 />
               </div>
 
@@ -445,7 +445,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                   value={productLinks[0].color}
                   onChange={(e) => updateProductLink(0, "color", e.target.value)}
                   placeholder="E zezë/bardhë..."
-                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200"
+                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all pl-2 border-gray-200"
                 />
               </div>
 
@@ -464,7 +464,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                   }}
                   step="0.01"
                   placeholder="0.00"
-                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 pl-2 border-gray-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all pl-2 border-gray-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
@@ -479,7 +479,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                 value={productLinks[0].additionalInfo}
                 onChange={(e) => updateProductLink(0, "additionalInfo", e.target.value)}
                 placeholder="Detaje shtesë..."
-                className="min-h-[100px] text-xs focus-visible:ring-1 focus-visible:ring-primary/50 border-gray-200 resize-none py-2 px-2"
+                className="min-h-[100px] text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all border-gray-200 resize-none py-2 px-2"
               />
             </div>
           </div>
