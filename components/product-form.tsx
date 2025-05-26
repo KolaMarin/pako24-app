@@ -30,6 +30,7 @@ import {
   Minus,
   RefreshCw,
   Download,
+  Package,
 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Separator } from "@/components/ui/separator"
@@ -267,7 +268,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full mx-auto p-0 sm:p-2 space-y-2 sm:space-y-3 pt-3 md:pt-4 fixed sm:relative top-15 left-0 right-0 z-10 bg-gray-50 sm:bg-transparent sm:z-0">
+    <div className="w-full mx-auto px-1 py-0 sm:p-2 space-y-2 sm:space-y-3 pt-3 md:pt-4 fixed sm:relative top-15 left-0 right-0 z-10 bg-gray-50 sm:bg-transparent sm:z-0">
       {/* Modals */}
       <BasketInvoiceModal 
         open={showBasketModal} 
@@ -291,7 +292,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <div className="bg-primary/10 p-1 sm:p-1.5 rounded-full">
-                  <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                  <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                 </div>
                 <h2 className="text-sm sm:text-base font-semibold text-gray-800">Detajet e Produktit</h2>
               </div>
@@ -303,12 +304,14 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                     className="bg-primary/5 border-primary/20 text-primary font-semibold px-1.5 py-0.5"
                   >
                     €{(productLinks[0].price * 1.15 * productLinks[0].quantity).toFixed(2)}
-                    {productLinks[0].quantity > 1 && <span className="ml-0.5 text-primary/80 font-medium">x{productLinks[0].quantity}</span>}
+                    {productLinks[0].quantity > 1 && <span className="ml-0.5 text-primary/80 font-medium">(x{productLinks[0].quantity})</span>}
                   </Badge>
                 </div>
               )}
             </div>
-            <p className="text-[11px] text-gray-500 sm:hidden">Vendosni URL dhe detajet. Klikoni Shto dhe vaxhdoni</p>
+            <p className="text-[11px] text-blue-500">
+              Vendosni URL dhe detajet. Klikoni Shto dhe vaxhdoni me <span className="font-bold">shportën</span> <ShoppingCart className="h-3 w-3 inline-block font-bold" />
+            </p>
           </div>
         </div>
         
@@ -514,7 +517,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                 <Loader2 className="h-3 w-3 animate-spin mr-1" />
               ) : (
                 <>
-                  <ShoppingCart className="h-3 w-3 mr-1" />
+                  <Plus className="h-3 w-3 mr-1" />
                   <span className="hidden sm:inline">Shto në Shportë</span>
                   <span className="sm:hidden">Shto</span>
                 </>

@@ -664,7 +664,6 @@ export default function OrdersPage() {
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm sm:text-base font-medium">#{order.id.slice(0, 8)}</h3>
                         <Badge
                           variant="secondary"
                           className={cn(
@@ -675,6 +674,7 @@ export default function OrdersPage() {
                           {getStatusIcon(order.status)}
                           {getStatusText(order.status)}
                         </Badge>
+                        <h3 className="text-sm sm:text-base font-medium">#{order.id.slice(0, 8)}</h3>
                       </div>
                       <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
                         <Calendar className="h-3 w-3" />
@@ -734,7 +734,7 @@ export default function OrdersPage() {
                         <span className="flex-1">Produktet ({order.productLinks.length})</span>
                       </span>
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3">
+                    <AccordionContent className="px-3 pb-3 pt-3">
                       <div className="space-y-3">
                         {order.productLinks.map((product, index) => (
                             <div
@@ -742,14 +742,14 @@ export default function OrdersPage() {
                             className="bg-gray-50 rounded-lg border border-gray-100 overflow-hidden p-3 mb-2 w-full"
                           >
                             <div className="flex items-center gap-3">
-                              {/* Package icon - larger for mobile */}
-                              <div className="flex-shrink-0 bg-primary-100 rounded-md h-10 w-10 sm:h-8 sm:w-8 flex items-center justify-center">
-                                <Package className="h-5 w-5 sm:h-4 sm:w-4 text-primary" />
+                              {/* Package icon - no border, aligned left with no padding */}
+                              <div className="flex-shrink-0 flex items-center justify-center mr-1.5">
+                                <Package className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-primary" />
                               </div>
 
                               {/* Product details - better mobile layout */}
                               <div className="flex-1 min-w-0">
-                                <div className="flex flex-wrap justify-between items-start gap-1">
+                                <div className="flex flex-wrap justify-between items-start gap-1 mb-1">
                                   {/* Display Title if available, otherwise URL - larger text for mobile */}
                                   {product.title ? (
                                     <span className="text-sm sm:text-xs font-medium text-gray-800 truncate max-w-full sm:max-w-[300px] block">
@@ -762,8 +762,17 @@ export default function OrdersPage() {
                                       rel="noopener noreferrer"
                                       className="text-xs font-medium text-primary hover:text-primary/80 hover:underline truncate max-w-[300px]"
                                     >
-                                      {product.url}
-                                      <ExternalLink className="inline h-3 w-3 ml-1" />
+                                      {isMobile ? (
+                                        <>
+                                          {product.url.substring(0, 20)}...
+                                          <ExternalLink className="inline h-3 w-3 ml-1" />
+                                        </>
+                                      ) : (
+                                        <>
+                                          {product.url}
+                                          <ExternalLink className="inline h-3 w-3 ml-1" />
+                                        </>
+                                      )}
                                     </a>
                                   )}
                                   {/* Show URL below title if title exists */}
@@ -774,8 +783,17 @@ export default function OrdersPage() {
                                       rel="noopener noreferrer"
                                       className="text-xs text-gray-500 hover:text-primary/80 hover:underline truncate max-w-[200px] block mt-0.5"
                                     >
-                                      {product.url}
-                                      <ExternalLink className="inline h-3 w-3 ml-1" />
+                                      {isMobile ? (
+                                        <>
+                                          {product.url.substring(0, 20)}...
+                                          <ExternalLink className="inline h-3 w-3 ml-1" />
+                                        </>
+                                      ) : (
+                                        <>
+                                          {product.url}
+                                          <ExternalLink className="inline h-3 w-3 ml-1" />
+                                        </>
+                                      )}
                                     </a>
                                   )}
 
@@ -783,9 +801,11 @@ export default function OrdersPage() {
                                   {product.priceEUR && (
                                     <span className="text-xs font-medium text-primary">
                                       €{(product.priceEUR || 0).toFixed(2)}
-                                      <span className="text-xs text-gray-500 ml-1">
-                                        (x{product.quantity})
-                                      </span>
+                                      {!isMobile && (
+                                        <span className="text-xs text-gray-500 ml-1">
+                                          ({product.quantity} copë)
+                                        </span>
+                                      )}
                                     </span>
                                   )}
                                 </div>

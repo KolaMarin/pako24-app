@@ -192,22 +192,17 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
           ) : (
             <>
               {/* Invoice header with logo and company info */}
-              <div className="mb-0 pt-2 pb-3 border-b border-gray-200">
+              <div className="mb-0 pt-0 pb-3 border-b border-gray-200">
                 <div className="flex flex-col">
-                  <div className="flex items-center mb-3">
+                  <div className="flex items-center mb-2">
                     <Package className="h-6 w-6 mr-2 text-secondary" />
                     <span className="text-primary font-extrabold text-xl">{configs.COMPANY_NAME}</span>
                   </div>
                   
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col">
-                      <div className="text-sm text-gray-600">{configs.COMPANY_EMAIL}</div>
-                      <div className="text-sm text-gray-600">{configs.COMPANY_PHONE}</div>
-                    </div>
-                    
-                    <div className="flex items-center text-sm text-gray-600 mt-2">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      <span>Data: {currentDate}</span>
+                  <div className="flex justify-start items-center">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      <span>{currentDate}</span>
                     </div>
                   </div>
                 </div>
@@ -218,7 +213,9 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="text-lg font-semibold text-gray-800">Produkte në shportë</h3>
                 </div>
-                <div className="w-full">
+                
+                {/* Desktop Table View - Hidden on mobile */}
+                <div className="w-full hidden sm:block">
                   <table className="w-full border-collapse text-xs table-fixed">
                     <thead>
                       <tr className="bg-gray-50">
@@ -305,6 +302,116 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                       })}
                     </tbody>
                   </table>
+                </div>
+                
+                {/* Mobile Card View - Only visible on mobile */}
+                <div className="w-full sm:hidden space-y-3">
+                  {items.map((item, index) => {
+                    const fees = item.price > 0 ? calculateFees(item.price, item.quantity) : null
+                    return (
+                      <div key={index} className="border border-gray-200 rounded-md p-2 bg-white shadow-sm">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center">
+                            <span className="bg-gray-100 text-gray-800 font-medium rounded-full h-5 w-5 flex items-center justify-center text-xs mr-1.5">{index + 1}</span>
+                            <h4 className="font-medium text-gray-800 text-sm">
+                              {item.title ? (
+                                <span className="line-clamp-1">{item.title}</span>
+                              ) : "Produkt"}
+                            </h4>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeItem(index)}
+                            className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        
+                        <div className="space-y-1.5 text-xs mb-2">
+                          <div>
+                            <a 
+                              href={item.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline flex items-start"
+                            >
+                              <span className="truncate block max-w-[200px]">{item.url}</span>
+                              <ExternalLink className="h-3 w-3 ml-1 flex-shrink-0" />
+                            </a>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-1.5">
+                            {item.size && (
+                              <div className="col-span-1">
+                                <span className="text-gray-500">Madhësia: </span>
+                                <span className="font-medium">{item.size}</span>
+                              </div>
+                            )}
+                            
+                            {item.color && (
+                              <div className="col-span-1">
+                                <span className="text-gray-500">Ngjyra: </span>
+                                <span className="font-medium">{item.color}</span>
+                              </div>
+                            )}
+                            
+                            <div className="col-span-1">
+                              <span className="text-gray-500">Çmimi: </span>
+                              {item.price > 0 ? (
+                                <span className="font-medium">€{(item.price * exchangeRate).toFixed(2)}</span>
+                              ) : "-"}
+                            </div>
+                            
+                            <div className="col-span-1">
+                              <span className="text-gray-500">Sasia: </span>
+                              <span className="font-medium">{item.quantity}</span>
+                            </div>
+                          </div>
+                          
+                          {item.additionalInfo && (
+                            <div className="pt-1 border-t border-gray-100 mt-1.5">
+                              <span className="text-gray-500">Info shtesë: </span>
+                              <span>{item.additionalInfo}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex justify-between items-center border-t border-gray-100 pt-2 mt-2">
+                          <div className="flex items-center space-x-1">
+                            <Button
+                              variant="outline" 
+                              size="icon"
+                              onClick={() => handleQuantityChange(index, false)}
+                              className="h-6 w-6 p-0"
+                              disabled={item.quantity <= 1}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="text-sm font-medium min-w-[1.5rem] text-center">{item.quantity}</span>
+                            <Button 
+                              variant="outline" 
+                              size="icon"
+                              onClick={() => handleQuantityChange(index, true)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          
+                          <div className="text-right">
+                            <div className="text-xs text-gray-500">Totali:</div>
+                            <div className="font-bold text-sm">
+                              {item.price > 0 ? (
+                                <>€{(item.price * exchangeRate * item.quantity).toFixed(2)}</>
+                              ) : "-"}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
               
