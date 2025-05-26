@@ -529,8 +529,8 @@ export default function OrdersPage() {
   if (isLoading) {
     return (
       <Layout>
-      <div className="max-w-4xl mx-auto px-4 pb-20">
-          <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-primary">Porositë e Mia</h1>
+      <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 pb-20">
+          <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-center sm:text-left text-primary">Porositë e Mia</h1>
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <Card key={i} className="bg-white shadow-md overflow-hidden">
@@ -560,10 +560,10 @@ export default function OrdersPage() {
 
   return (
     <Layout>
-        <div className="max-w-4xl mx-auto px-4 pb-20">
+        <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 pb-20">
         {/* Mobile-optimized filters */}
-        <Card className="mb-6 bg-white shadow-md">
-          <CardContent className="p-3">
+        <Card className="mb-4 sm:mb-6 bg-white shadow-md">
+          <CardContent className="p-2 sm:p-3">
             <div className="space-y-3">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -660,15 +660,15 @@ export default function OrdersPage() {
                 )}
               >
                 {/* Order header - always visible */}
-                <div className="p-3 border-b">
+                <div className="p-3 sm:p-4 border-b">
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-medium">#{order.id.slice(0, 8)}</h3>
+                        <h3 className="text-sm sm:text-base font-medium">#{order.id.slice(0, 8)}</h3>
                         <Badge
                           variant="secondary"
                           className={cn(
-                            "px-2 py-0.5 text-xs text-white flex items-center gap-1",
+                            "px-2 py-1 text-xs sm:text-sm text-white flex items-center gap-1",
                             getStatusColor(order.status),
                           )}
                         >
@@ -685,7 +685,7 @@ export default function OrdersPage() {
                     <div className="flex items-center gap-2">
                     {order.totalFinalPriceEUR && (
                         <div className="text-right">
-                          <div className="font-medium text-primary">€{order.totalFinalPriceEUR.toFixed(2)}</div>
+                          <div className="font-medium text-primary text-base sm:text-lg">€{order.totalFinalPriceEUR.toFixed(2)}</div>
                           <div className="text-xs text-gray-500">{order.productLinks.length} produkte</div>
                         </div>
                       )}
@@ -728,10 +728,10 @@ export default function OrdersPage() {
                   }}
                 >
                   <AccordionItem value="products" className="border-b-0">
-                    <AccordionTrigger className="px-3 py-2 hover:no-underline hover:bg-gray-50">
-                      <span className="flex items-center gap-2 text-sm font-medium">
-                        <ShoppingBag className="h-4 w-4 text-primary" />
-                        Produktet ({order.productLinks.length})
+                    <AccordionTrigger className="px-3 py-3 sm:py-2 hover:no-underline hover:bg-gray-50">
+                      <span className="flex items-center gap-2 text-sm sm:text-base font-medium w-full">
+                        <ShoppingBag className="h-5 w-5 sm:h-4 sm:w-4 text-primary" />
+                        <span className="flex-1">Produktet ({order.productLinks.length})</span>
                       </span>
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-3">
@@ -739,20 +739,20 @@ export default function OrdersPage() {
                         {order.productLinks.map((product, index) => (
                             <div
                             key={index}
-                            className="bg-gray-50 rounded-lg border border-gray-100 overflow-hidden p-2 mb-2"
+                            className="bg-gray-50 rounded-lg border border-gray-100 overflow-hidden p-3 mb-2 w-full"
                           >
-                            <div className="flex items-center gap-2">
-                              {/* Package icon */}
-                              <div className="flex-shrink-0 bg-primary-100 rounded-md h-8 w-8 flex items-center justify-center">
-                                <Package className="h-4 w-4 text-primary" />
+                            <div className="flex items-center gap-3">
+                              {/* Package icon - larger for mobile */}
+                              <div className="flex-shrink-0 bg-primary-100 rounded-md h-10 w-10 sm:h-8 sm:w-8 flex items-center justify-center">
+                                <Package className="h-5 w-5 sm:h-4 sm:w-4 text-primary" />
                               </div>
 
-                              {/* Product details - more compact layout */}
+                              {/* Product details - better mobile layout */}
                               <div className="flex-1 min-w-0">
                                 <div className="flex flex-wrap justify-between items-start gap-1">
-                                  {/* Display Title if available, otherwise URL */}
+                                  {/* Display Title if available, otherwise URL - larger text for mobile */}
                                   {product.title ? (
-                                    <span className="text-xs font-medium text-gray-800 truncate max-w-[300px] block">
+                                    <span className="text-sm sm:text-xs font-medium text-gray-800 truncate max-w-full sm:max-w-[300px] block">
                                       {product.title}
                                     </span>
                                   ) : (
@@ -784,7 +784,7 @@ export default function OrdersPage() {
                                     <span className="text-xs font-medium text-primary">
                                       €{(product.priceEUR || 0).toFixed(2)}
                                       <span className="text-xs text-gray-500 ml-1">
-                                        ({product.quantity} copë)
+                                        (x{product.quantity})
                                       </span>
                                     </span>
                                   )}
@@ -823,34 +823,34 @@ export default function OrdersPage() {
                       )}
 
                       {/* Order summary - using database values */}
-                      <div className="mt-3 pt-3 border-t border-gray-100">
-                        <h4 className="text-sm font-medium mb-2">Përmbledhje e Porosisë</h4>
-                        <div className="space-y-1 text-sm bg-gray-50 p-3 rounded-md">
+                      <div className="mt-4 pt-3 border-t border-gray-100">
+                        <h4 className="text-sm sm:text-base font-medium mb-2">Përmbledhje e Porosisë</h4>
+                        <div className="space-y-2 text-sm bg-gray-50 p-3 sm:p-4 rounded-md">
                           {/* Base price total */}
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Çmimi bazë:</span>
+                            <span className="text-gray-600">Çmimi bazë:</span>
                             <div>
-                              <span>
+                              <span className="font-medium">
                                 €{order.totalPriceEUR?.toFixed(2) || "0.00"}
                               </span>
                             </div>
                           </div>
                           {/* Customs fee total */}
                           <div className="flex justify-between">
-                            <span className="text-gray-500">
+                            <span className="text-gray-600">
                               Dogana ({configs.CUSTOMS_FEE_PERCENTAGE ? `${(configs.CUSTOMS_FEE_PERCENTAGE * 100).toFixed(0)}%` : 'N/A'}):
                             </span>
-                            <span>€{order.totalCustomsFee?.toFixed(2) || "0.00"}</span>
+                            <span className="font-medium">€{order.totalCustomsFee?.toFixed(2) || "0.00"}</span>
                           </div>
                           {/* Transport fee total */}
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Menaxhimi dhe Transporti (x{order.productLinks.length}):</span>
-                            <span>€{order.totalTransportFee?.toFixed(2) || "0.00"}</span>
+                            <span className="text-gray-600">Menaxhimi dhe Transporti (x{order.productLinks.length}):</span>
+                            <span className="font-medium">€{order.totalTransportFee?.toFixed(2) || "0.00"}</span>
                           </div>
                           {/* Grand total */}
-                          <div className="flex justify-between font-medium pt-1 mt-1 border-t border-gray-200">
-                            <span>Totali:</span>
-                            <span className="text-primary">
+                          <div className="flex justify-between font-medium pt-2 mt-2 border-t border-gray-200">
+                            <span className="text-base">Totali:</span>
+                            <span className="text-primary text-base">
                               €{order.totalFinalPriceEUR?.toFixed(2) || "0.00"}
                             </span>
                           </div>
@@ -861,19 +861,20 @@ export default function OrdersPage() {
                 </Accordion>
 
                 {/* Order summary and actions */}
-                <div className="p-3 border-t border-gray-100">
+                <div className="p-3 sm:p-4 border-t border-gray-100">
                   {/* Action buttons */}
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                     {order.status === "PENDING" && (
                       <Button
                         variant="destructive"
                         size="sm"
-                        className="text-xs h-8"
+                        className="text-xs sm:text-sm h-9 sm:h-8 px-4"
                         onClick={() => {
                           setSelectedOrderId(order.id)
                           setShowCancelDialog(true)
                         }}
                       >
+                        <AlertCircle className="h-4 w-4 mr-1.5 sm:mr-1" />
                         Anulo Porosinë
                       </Button>
                     )}
@@ -882,7 +883,7 @@ export default function OrdersPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-xs h-8"
+                        className="text-xs sm:text-sm h-9 sm:h-8 px-4"
                         onClick={() => {
                           // Handle reorder functionality
                           toast({
@@ -891,7 +892,7 @@ export default function OrdersPage() {
                           })
                         }}
                       >
-                        <RefreshCw className="h-3 w-3 mr-1" />
+                        <RefreshCw className="h-4 w-4 mr-1.5 sm:mr-1" />
                         Porosit Përsëri
                       </Button>
                     )}
@@ -900,13 +901,13 @@ export default function OrdersPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-xs h-8"
+                      className="text-xs sm:text-sm h-9 sm:h-8 px-4"
                       onClick={() => {
                         // Generate and download the invoice
                         generateOrderInvoice(order)
                       }}
                     >
-                      <Download className="h-3 w-3 mr-1" />
+                      <Download className="h-4 w-4 mr-1.5 sm:mr-1" />
                       Shkarko Faturën
                     </Button>
                   </div>
