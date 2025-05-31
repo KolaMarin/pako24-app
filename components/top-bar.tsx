@@ -12,9 +12,10 @@ interface TopBarProps {
   onToggleSidebar?: () => void
   showBasketIcon?: boolean
   setShowBasketModal?: (show: boolean) => void
+  isMobile?: boolean
 }
 
-export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal }: TopBarProps) {
+export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal, isMobile = false }: TopBarProps) {
   const { user, logout } = useAuth()
   const [showLoginModal, setShowLoginModal] = useState(false)
 
@@ -45,7 +46,7 @@ export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal }: 
             </div>
           )}
           
-          {!user && (
+          {!user && !isMobile && (
             <Button
               variant="outline"
               className="border-2 hover:bg-primary hover:text-white transition-all duration-300"

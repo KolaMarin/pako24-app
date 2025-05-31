@@ -144,7 +144,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <TopBar 
         onToggleSidebar={toggleSidebar} 
         showBasketIcon={true} 
-        setShowBasketModal={setShowBasketModal} 
+        setShowBasketModal={setShowBasketModal}
+        isMobile={isMobile}
       />
       
       {/* Basket Modal */}

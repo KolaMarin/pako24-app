@@ -289,8 +289,8 @@ function HomePageContent() {
         items={[
           { id: "order", label: "Shto", icon: PlusCircle, path: "/" },
           { id: "shops", label: "Dyqanet", icon: Store, path: "/shops" },
-          { id: "orders", label: "Porosite", icon: ShoppingBag, path: "/orders" },
-          { id: "settings", label: "Cilesimet", icon: Settings, path: "/settings" },
+          { id: "orders", label: "Porosite", icon: ShoppingBag, path: user ? "/orders" : undefined },
+          { id: "settings", label: "Cilesimet", icon: Settings, path: user ? "/settings" : undefined },
         ]}
       />
 
