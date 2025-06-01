@@ -111,193 +111,197 @@ function HomePageContent() {
   React.useEffect(() => {
     setIsClient(true)
   }, [])
-  
-  // For desktop screens, use the Layout component
-  if (!isMobile && isClient) {
-    return (
-      <Layout>
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-6 w-full">
-            <div className="grid grid-cols-2 gap-2 w-full">
-              <button
-                className={cn(
-                  "flex items-center justify-center py-3 px-4 rounded-md transition-all",
-                  activeTab === "order"
-                    ? "bg-primary text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200",
-                )}
-                onClick={() => setActiveTab("order")}
-              >
-                <ShoppingBag className="h-5 w-5 mr-2" />
-                Dërgo Porosi
-              </button>
-              <button
-                className={cn(
-                  "flex items-center justify-center py-3 px-4 rounded-md transition-all",
-                  activeTab === "shops"
-                    ? "bg-primary text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200",
-                )}
-                onClick={() => setActiveTab("shops")}
-              >
-                <Store className="h-5 w-5 mr-2" />
-                Dyqanet
-              </button>
-            </div>
-          </div>
 
-          <AnimatePresence mode="wait">
-            {activeTab === "order" && (
-              <motion.div
-                key="order"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Card className="bg-white shadow-lg border-0 overflow-hidden">
-                  <CardContent className="p-0">
-                    <ProductForm onSubmit={handleSubmitOrder} />
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-
-            {activeTab === "shops" && (
-              <motion.div
-                key="shops"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Card className="bg-white shadow-lg border-0 overflow-hidden">
-                  <CardContent className="p-4">
-                    <ShopList />
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-        <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
-        <RegistrationModal open={showRegistrationModal} onOpenChange={setShowRegistrationModal} />
-      </Layout>
-    )
-  }
-
-  // Default to mobile layout for server-side rendering and mobile clients
+  // Determine which layout to render based on client-side detection
+  // We'll use CSS to hide/show different layouts rather than conditional rendering
+  // This ensures consistent DOM structure between server and client
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <MobileHeader 
-        user={user} 
-        onLoginClick={() => setShowLoginModal(true)} 
-        setShowBasketModal={setShowBasketModal} 
-      />
+    <>
+      {/* Desktop layout - hidden on mobile with CSS */}
+      <div className={cn("hidden", isClient && !isMobile ? "md:block" : "")}>
+        <Layout>
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-6 w-full">
+              <div className="grid grid-cols-2 gap-2 w-full">
+                <button
+                  className={cn(
+                    "flex items-center justify-center py-3 px-4 rounded-md transition-all",
+                    activeTab === "order"
+                      ? "bg-primary text-white shadow-md"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200",
+                  )}
+                  onClick={() => setActiveTab("order")}
+                >
+                  <ShoppingBag className="h-5 w-5 mr-2" />
+                  Dërgo Porosi
+                </button>
+                <button
+                  className={cn(
+                    "flex items-center justify-center py-3 px-4 rounded-md transition-all",
+                    activeTab === "shops"
+                      ? "bg-primary text-white shadow-md"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200",
+                  )}
+                  onClick={() => setActiveTab("shops")}
+                >
+                  <Store className="h-5 w-5 mr-2" />
+                  Dyqanet
+                </button>
+              </div>
+            </div>
 
-      <main className="flex-1 pb-20 mt-16">
-        <AnimatePresence mode="wait">
-          {activeTab === "order" && (
-            <motion.div
-              key="order"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.2 }}
-              className="px-2 py-1"
-            >
-              <Card className="bg-white shadow-sm border-0 overflow-hidden">
-                <CardContent className="p-0">
-                  <ProductForm onSubmit={handleSubmitOrder} />
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {activeTab === "shops" && (
-            <motion.div
-              key="shops"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              className="p-4"
-            >
-              <Card className="bg-white shadow-sm border-0 overflow-hidden">
-                <CardContent className="p-4">
-                  <ShopList />
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {activeTab === "orders" && (
-            <motion.div
-              key="orders"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
-              className="p-4"
-            >
-              {!user ? (
-                <Card className="bg-white shadow-sm p-6 text-center">
-                  <p className="text-gray-500 mb-4">Ju duhet të identifikoheni për të parë porositë tuaja</p>
-                  <button
-                    onClick={() => setShowLoginModal(true)}
-                    className="px-4 py-2 bg-primary text-white rounded-md"
-                  >
-                    Identifikohu
-                  </button>
-                </Card>
-              ) : (
-                <RedirectToOrders />
+            <AnimatePresence mode="wait">
+              {activeTab === "order" && (
+                <motion.div
+                  key="order"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Card className="bg-white shadow-lg border-0 overflow-hidden">
+                    <CardContent className="p-0">
+                      <ProductForm onSubmit={handleSubmitOrder} />
+                    </CardContent>
+                  </Card>
+                </motion.div>
               )}
-            </motion.div>
-          )}
 
-          {activeTab === "settings" && (
-            <motion.div
-              key="settings"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
-              className="p-4"
-            >
-              {user ? (
-                <SettingsContent user={user} logout={logout} />
-              ) : (
-                <Card className="bg-white shadow-sm p-6 text-center">
-                  <p className="text-gray-500 mb-4">Ju duhet të identifikoheni për të parë cilësimet tuaja</p>
-                  <button
-                    onClick={() => setShowLoginModal(true)}
-                    className="px-4 py-2 bg-primary text-white rounded-md"
-                  >
-                    Identifikohu
-                  </button>
-                </Card>
+              {activeTab === "shops" && (
+                <motion.div
+                  key="shops"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Card className="bg-white shadow-lg border-0 overflow-hidden">
+                    <CardContent className="p-4">
+                      <ShopList />
+                    </CardContent>
+                  </Card>
+                </motion.div>
               )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </main>
+            </AnimatePresence>
+          </div>
+        </Layout>
+      </div>
 
-      <MobileNavbar
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        items={[
-          { id: "order", label: "Shto", icon: PlusCircle, path: "/" },
-          { id: "shops", label: "Dyqanet", icon: Store, path: "/shops" },
-          { id: "orders", label: "Porosite", icon: ShoppingBag, path: user ? "/orders" : undefined },
-          { id: "settings", label: "Cilesimet", icon: Settings, path: user ? "/settings" : undefined },
-        ]}
-      />
+      {/* Mobile layout - hidden on desktop with CSS */}
+      <div className={cn("block", isClient && !isMobile ? "md:hidden" : "")}>
+        <div className="flex flex-col min-h-screen bg-gray-50">
+          <MobileHeader 
+            user={user} 
+            onLoginClick={() => setShowLoginModal(true)} 
+            setShowBasketModal={setShowBasketModal} 
+          />
 
+          <main className="flex-1 pb-20 mt-16">
+            <AnimatePresence mode="wait">
+              {activeTab === "order" && (
+                <motion.div
+                  key="order"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.2 }}
+                  className="px-2 py-1"
+                >
+                  <Card className="bg-white shadow-sm border-0 overflow-hidden">
+                    <CardContent className="p-0">
+                      <ProductForm onSubmit={handleSubmitOrder} />
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+
+              {activeTab === "shops" && (
+                <motion.div
+                  key="shops"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="p-4"
+                >
+                  <Card className="bg-white shadow-sm border-0 overflow-hidden">
+                    <CardContent className="p-4">
+                      <ShopList />
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+
+              {activeTab === "orders" && (
+                <motion.div
+                  key="orders"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="p-4"
+                >
+                  {!user ? (
+                    <Card className="bg-white shadow-sm p-6 text-center">
+                      <p className="text-gray-500 mb-4">Ju duhet të identifikoheni për të parë porositë tuaja</p>
+                      <button
+                        onClick={() => setShowLoginModal(true)}
+                        className="px-4 py-2 bg-primary text-white rounded-md"
+                      >
+                        Identifikohu
+                      </button>
+                    </Card>
+                  ) : (
+                    <RedirectToOrders />
+                  )}
+                </motion.div>
+              )}
+
+              {activeTab === "settings" && (
+                <motion.div
+                  key="settings"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="p-4"
+                >
+                  {user ? (
+                    <SettingsContent user={user} logout={logout} />
+                  ) : (
+                    <Card className="bg-white shadow-sm p-6 text-center">
+                      <p className="text-gray-500 mb-4">Ju duhet të identifikoheni për të parë cilësimet tuaja</p>
+                      <button
+                        onClick={() => setShowLoginModal(true)}
+                        className="px-4 py-2 bg-primary text-white rounded-md"
+                      >
+                        Identifikohu
+                      </button>
+                    </Card>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </main>
+
+          <MobileNavbar
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            items={[
+              { id: "order", label: "Shto", icon: PlusCircle, path: "/" },
+              { id: "shops", label: "Dyqanet", icon: Store, path: "/shops" },
+              { id: "orders", label: "Porosite", icon: ShoppingBag, path: user ? "/orders" : undefined },
+              { id: "settings", label: "Cilesimet", icon: Settings, path: user ? "/settings" : undefined },
+            ]}
+          />
+        </div>
+      </div>
+
+      {/* Modals - consistent across both layouts */}
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
       <RegistrationModal open={showRegistrationModal} onOpenChange={setShowRegistrationModal} />
       <BasketInvoiceModal open={showBasketModal} onOpenChange={setShowBasketModal} onSubmit={handleSubmitOrder} />
-    </div>
+    </>
   )
 }
 

@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { ShoppingCart } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useBasketStore } from "@/lib/basket-store"
@@ -21,7 +22,16 @@ export function BasketIcon({
   size = "default",
   asChild = false
 }: BasketIconProps) {
+  // Add client-side state to track hydration
+  const [isClient, setIsClient] = React.useState(false)
+  
+  // Get basket data but only use it after hydration
   const uniqueProductCount = useBasketStore(state => state.uniqueProductCount())
+  
+  // Set isClient to true after hydration
+  React.useEffect(() => {
+    setIsClient(true)
+  }, [])
   
   // Common content for both button and div versions
   const content = (
@@ -30,13 +40,15 @@ export function BasketIcon({
         "text-primary", 
         size === "sm" ? "h-4 w-4" : size === "lg" ? "h-6 w-6" : "h-5 w-5"
       )} />
-      {uniqueProductCount > 0 && (
-        <Badge 
-          className="absolute top-1/2 -translate-y-1/2 -left-1 h-5 w-5 p-0 flex items-center justify-center bg-primary text-white text-xs rounded-full"
-        >
-          {uniqueProductCount}
-        </Badge>
-      )}
+      <Badge 
+        className={cn(
+          "absolute top-1/2 -translate-y-1/2 -left-1 h-5 w-5 p-0 flex items-center justify-center bg-primary text-white text-xs rounded-full",
+          // Hide the badge if count is 0, but maintain the DOM structure
+          (!isClient || uniqueProductCount === 0) ? "opacity-0" : "opacity-100"
+        )}
+      >
+        {isClient ? uniqueProductCount : 0}
+      </Badge>
       {showLabel && <span className="ml-2 hidden md:inline-block">Shporta</span>}
     </>
   )
