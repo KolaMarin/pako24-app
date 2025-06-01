@@ -16,7 +16,7 @@ import { RegistrationModal } from "@/components/registration-modal"
 import { BasketInvoiceModal } from "@/components/basket-invoice-modal"
 import { motion, AnimatePresence } from "framer-motion"
 import Layout from "@/components/layout"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Save } from "lucide-react"
@@ -37,6 +37,15 @@ function HomePageContent() {
   const [showRegistrationModal, setShowRegistrationModal] = useState(false)
   const [showBasketModal, setShowBasketModal] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  // Use the activeTab from URL parameter if available
+  useEffect(() => {
+    const tabParam = searchParams.get('activeTab')
+    if (tabParam && ['order', 'shops', 'orders', 'settings'].includes(tabParam)) {
+      setActiveTab(tabParam)
+    }
+  }, [searchParams])
 
   const handleSubmitOrder = async (data: { productLinks: any[] }) => {
     if (!user) {
@@ -232,7 +241,8 @@ function HomePageContent() {
                 </motion.div>
               )}
 
-              {activeTab === "orders" && (
+              {/* Removed orders tab - always navigate to /orders page */}
+              {false && (
                 <motion.div
                   key="orders"
                   initial={{ opacity: 0, y: 20 }}
@@ -257,7 +267,8 @@ function HomePageContent() {
                 </motion.div>
               )}
 
-              {activeTab === "settings" && (
+              {/* Removed settings tab - always navigate to /settings page */}
+              {false && (
                 <motion.div
                   key="settings"
                   initial={{ opacity: 0, y: 20 }}
@@ -290,8 +301,8 @@ function HomePageContent() {
             items={[
               { id: "order", label: "Shto", icon: PlusCircle, path: "/" },
               { id: "shops", label: "Dyqanet", icon: Store, path: "/shops" },
-              { id: "orders", label: "Porosite", icon: ShoppingBag, path: user ? "/orders" : undefined },
-              { id: "settings", label: "Cilesimet", icon: Settings, path: user ? "/settings" : undefined },
+              { id: "orders", label: "Porosite", icon: ShoppingBag, path: "/orders" },
+              { id: "settings", label: "Cilesimet", icon: Settings, path: "/settings" },
             ]}
           />
         </div>

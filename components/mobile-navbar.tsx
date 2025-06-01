@@ -5,6 +5,7 @@ import type React from "react"
 import { cn } from "@/lib/utils"
 import { useRouter, usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
+import { useAuth } from "@/lib/auth"
 
 interface MobileNavbarItem {
   id: string
@@ -35,6 +36,7 @@ export function MobileNavbar({ activeTab: initialActiveTab, onTabChange, items }
   }, [pathname])
 
   const handleTabChange = (tab: string, path?: string, action?: () => void) => {
+    // First update the active tab for visual indication
     setActiveTab(tab)
     onTabChange(tab)
 

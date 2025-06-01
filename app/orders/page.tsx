@@ -99,12 +99,11 @@ export default function OrdersPage() {
   }, [])
 
   useEffect(() => {
-    // Redirect if not logged in
+    // Only fetch orders if user is logged in
     if (!user) {
-      router.push("/")
-      return
+      return;
     }
-
+    
     const fetchOrders = async () => {
       try {
         setIsLoading(true)
@@ -521,9 +520,29 @@ export default function OrdersPage() {
     }
   }, [searchParams, sortedOrders, isLoading]);
 
-  // If user is not logged in, don't render anything (redirect happens in useEffect)
+  // If user is not logged in, show login prompt instead of redirecting
   if (!user) {
-    return null
+    return (
+      <Layout>
+        <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 pb-20">
+          {/* Removed title for logged out users */}
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <Card className="max-w-md w-full">
+              <CardContent className="flex flex-col items-center p-6">
+                <p className="text-center mb-4 text-gray-700">
+                  Ju duhet të identifikoheni për të parë porositë tuaja
+                </p>
+                <Button 
+                  className="bg-primary hover:bg-primary/90 text-white"
+                >
+                  Identifikohu
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </Layout>
+    )
   }
 
   if (isLoading) {

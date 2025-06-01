@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import Layout from "@/components/layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { LoginModal } from "@/components/login-modal"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
@@ -15,6 +16,7 @@ import { useRouter } from "next/navigation"
 export default function SettingsPage() {
   const { user, updateUser, updatePassword, logout } = useAuth()
   const router = useRouter()
+  const [showLoginModal, setShowLoginModal] = useState(false)
   
   // User info form state
   const [email, setEmail] = useState(user?.email || "")
@@ -33,10 +35,7 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState("")
 
   useEffect(() => {
-    // Redirect if not logged in
-    if (!user) {
-      router.push("/")
-    }
+    // Only update settings if user is logged in
 
     if (user) {
       setEmail(user.email || "")
@@ -116,9 +115,36 @@ export default function SettingsPage() {
     }
   }
 
-  // If user is not logged in, don't render anything (redirect happens in useEffect)
+  // If user is not logged in, show login prompt
   if (!user) {
-    return null
+    return (
+      <Layout>
+        <div className="max-w-2xl mx-auto px-4">
+          {/* Removed title for logged out users */}
+          <div className="flex items-center justify-center py-10">
+            <Card className="max-w-md w-full">
+              <CardContent className="flex flex-col items-center p-6">
+                <p className="text-center mb-4 text-gray-700">
+                  Ju duhet të identifikoheni për të parë cilësimet tuaja
+                </p>
+                <Button 
+                  onClick={() => setShowLoginModal(true)}
+                  className="bg-primary hover:bg-primary/90 text-white"
+                >
+                  Identifikohu
+                </Button>
+                
+                {/* Login Modal */}
+                <LoginModal
+                  open={showLoginModal}
+                  onOpenChange={setShowLoginModal}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </Layout>
+    )
   }
 
   return (

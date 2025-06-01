@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils"
 import { MobileNavbar } from "@/components/mobile-navbar"
 import type React from "react"
 
-// Import usePathname at the top with other imports
-import { usePathname } from "next/navigation"
+// Import usePathname and useRouter at the top with other imports
+import { usePathname, useRouter } from "next/navigation"
 
 // Move NavLink outside of the Layout component to avoid recreating it on each render
 const NavLink = ({
@@ -48,6 +48,7 @@ const NavLink = ({
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
   const { user, logout } = useAuth()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false) // Default to expanded
   const [isMounted, setIsMounted] = useState(false)
@@ -251,7 +252,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                    pathname === "/shops" ? "shops" : 
                    pathname === "/orders" ? "orders" : 
                    pathname === "/settings" ? "settings" : "order"}
-          onTabChange={() => {}}
+          onTabChange={(tab) => {
+            // If navigating to orders or settings from shops, 
+            // prevent default navigation in favor of in-page tab switch
+            if ((tab === "orders" || tab === "settings")) {
+              // Navigate to the home page with the proper tab selected
+              // Removed redirect - let normal navigation happen
+            }
+          }}
           items={[
             { id: "order", label: "Shto", icon: PlusCircle, path: "/" },
             { id: "shops", label: "Dyqanet", icon: Store, path: "/shops" },
