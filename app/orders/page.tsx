@@ -39,6 +39,7 @@ import { OrderTimeline } from "@/components/order-timeline"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { AuthModal } from "@/components/auth-modal"
 
 interface ProductLink {
   url: string
@@ -81,6 +82,7 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortOrder] = useState<"newest">("newest")
   const [isMobile, setIsMobile] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const { configs } = useConfigStore() // Get configs from the store
@@ -533,6 +535,7 @@ export default function OrdersPage() {
                   Ju duhet të identifikoheni për të parë porositë tuaja
                 </p>
                 <Button 
+                  onClick={() => setShowAuthModal(true)}
                   className="bg-primary hover:bg-primary/90 text-white"
                 >
                   Identifikohu
@@ -541,7 +544,12 @@ export default function OrdersPage() {
             </Card>
           </div>
         </div>
-      </Layout>
+        <AuthModal 
+        open={showAuthModal} 
+        onOpenChange={setShowAuthModal} 
+        defaultTab="login" 
+      />
+    </Layout>
     )
   }
 

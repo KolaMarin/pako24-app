@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth"
 import Link from "next/link"
 import { LogIn, LogOut, Package, Menu } from "lucide-react"
 import { useState } from "react"
-import { LoginModal } from "@/components/login-modal"
+import { AuthModal } from "@/components/auth-modal"
 import { BasketIcon } from "@/components/basket-icon"
 
 interface TopBarProps {
@@ -17,7 +17,7 @@ interface TopBarProps {
 
 export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal, isMobile = false }: TopBarProps) {
   const { user, logout } = useAuth()
-  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   return (
     <>
@@ -50,7 +50,7 @@ export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal, is
             <Button
               variant="outline"
               className="border-2 hover:bg-primary hover:text-white transition-all duration-300"
-              onClick={() => setShowLoginModal(true)}
+              onClick={() => setShowAuthModal(true)}
             >
               <LogIn size={18} className="mr-2" />
               Hyr
@@ -59,7 +59,7 @@ export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal, is
         </div>
       </div>
 
-      <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} defaultTab="login" />
     </>
   )
 }
