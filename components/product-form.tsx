@@ -268,7 +268,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full mx-auto px-1 py-0 sm:p-2 space-y-2 sm:space-y-3 pt-3 md:pt-4 sm:relative bg-gray-50 sm:bg-transparent">
+    <div className="w-full mx-auto px-1 py-0 sm:p-2 space-y-2 sm:space-y-3 pt-3 md:pt-2 sm:relative bg-gray-50 sm:bg-transparent">
       {/* Modals */}
       <BasketInvoiceModal 
         open={showBasketModal} 
@@ -282,7 +282,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       />
       
       {/* Product form card with enhanced styling and internal scrolling */}
-      <div className="relative bg-white rounded-xl overflow-hidden border border-primary/10 shadow-lg w-full h-[calc(100vh-8rem)] flex flex-col">
+      <div className="relative bg-white rounded-xl overflow-hidden border border-primary/10 shadow-lg w-full h-[calc(100vh-8rem)] md:h-[calc(100vh-12rem)] lg:h-auto lg:max-h-[calc(100vh-8rem)] flex flex-col">
         {/* Left accent bar - hidden on mobile */}
         <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70 hidden md:block"></div>
         
@@ -316,8 +316,8 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         </div>
         
         {/* Form body - SCROLLABLE */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4">
-          <div className="grid gap-4 sm:gap-5">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-3 lg:p-4">
+          <div className="grid gap-4 sm:gap-5 md:gap-3 lg:gap-4">
             {/* URL - full width */}
             <div className="flex flex-col space-y-2 sm:space-y-3">
               <div>
