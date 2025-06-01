@@ -268,7 +268,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full mx-auto px-1 py-0 sm:p-2 space-y-2 sm:space-y-3 pt-3 md:pt-4 fixed sm:relative top-15 left-0 right-0 z-10 bg-gray-50 sm:bg-transparent sm:z-0">
+    <div className="w-full mx-auto px-1 py-0 sm:p-2 space-y-2 sm:space-y-3 pt-3 md:pt-4 sm:relative bg-gray-50 sm:bg-transparent max-h-[calc(100vh-8rem)] sm:max-h-none overflow-y-auto sm:overflow-visible">
       {/* Modals */}
       <BasketInvoiceModal 
         open={showBasketModal} 
@@ -528,7 +528,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       </div>
       
       {/* Add extra padding at the bottom on mobile to prevent nav bar overlap */}
-      <div className="h-16 sm:hidden"></div>
+
     </div>
   )
 }
