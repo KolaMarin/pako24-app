@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef, useCallback } from "react"
 import { useShopsStore } from "@/lib/shops-store"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -45,8 +45,13 @@ export function ShopList() {
   const [activeTab, setActiveTab] = useState("all")
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [isMobile, setIsMobile] = useState(false)
+  const [activeCategory, setActiveCategory] = useState<string>("") 
   // Use the Zustand store instead of local state and fetch
   const { shops, isLoading: loading, error, fetchShops } = useShopsStore()
+  
+  // Refs for scroll spy functionality
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   // Check if we're on mobile and load favorites
   useEffect(() => {
@@ -119,6 +124,65 @@ export function ShopList() {
       shops: shops.sort((a, b) => a.name.localeCompare(b.name))
     }))
   }, [allShops])
+
+  // Set initial active category when categories are loaded
+  useEffect(() => {
+    if (categories.length > 0 && activeCategory === "") {
+      setActiveCategory(categories[0].name)
+    }
+  }, [categories, activeCategory])
+
+  // Scroll spy functionality
+  const handleScroll = useCallback(() => {
+    if (activeTab !== "all" || searchTerm) return
+
+    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
+    if (!scrollContainer) return
+
+    const scrollTop = scrollContainer.scrollTop
+    const containerHeight = scrollContainer.clientHeight
+    
+    let currentCategory = activeCategory
+
+    categories.forEach(category => {
+      const categoryElement = categoryRefs.current[category.name]
+      if (categoryElement) {
+        const rect = categoryElement.getBoundingClientRect()
+        const containerRect = scrollContainer.getBoundingClientRect()
+        const relativeTop = rect.top - containerRect.top
+
+        // Category is visible if it's in the top half of the container
+        if (relativeTop <= containerHeight / 2 && relativeTop >= -rect.height / 2) {
+          currentCategory = category.name
+        }
+      }
+    })
+
+    if (currentCategory !== activeCategory) {
+      setActiveCategory(currentCategory)
+    }
+  }, [activeTab, searchTerm, categories, activeCategory])
+
+  // Set up scroll listener
+  useEffect(() => {
+    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll)
+      return () => scrollContainer.removeEventListener('scroll', handleScroll)
+    }
+  }, [handleScroll])
+
+  // Handle category click - scroll to category
+  const handleCategoryClick = (categoryName: string) => {
+    setActiveCategory(categoryName)
+    const categoryElement = categoryRefs.current[categoryName]
+    if (categoryElement && scrollAreaRef.current) {
+      categoryElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      })
+    }
+  }
 
   const filteredShops = useMemo(() => {
     let filteredShops = allShops
@@ -221,7 +285,41 @@ export function ShopList() {
         </TabsList>
       </Tabs>
 
-      <ScrollArea className={`${isMobile ? "h-[calc(100vh-300px)] pr-1" : "h-[500px] pr-4"}`}>
+      {/* Horizontal Category Filter - Only show when activeTab is "all" and no search */}
+      {activeTab === "all" && !searchTerm && categories.length > 0 && (
+        <div className="w-full">
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex gap-2 pb-3 px-1 min-w-max">
+              {categories.map((category) => (
+                <Button
+                  key={category.name}
+                  variant={activeCategory === category.name ? "default" : "outline"}
+                  size="sm"
+                  className={`
+                    flex-shrink-0 rounded-full transition-all whitespace-nowrap
+                    ${isMobile 
+                      ? "px-3 py-1.5 text-xs h-7 min-w-fit" 
+                      : "px-4 py-2 text-sm h-9"
+                    }
+                    ${activeCategory === category.name 
+                      ? "bg-primary text-primary-foreground shadow-sm" 
+                      : "bg-background text-foreground hover:bg-accent hover:text-accent-foreground border-input"
+                    }
+                  `}
+                  onClick={() => handleCategoryClick(category.name)}
+                >
+                  {category.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ScrollArea 
+        ref={scrollAreaRef}
+        className={`${isMobile ? "h-[calc(100vh-350px)] pr-1" : "h-[500px] pr-4"}`}
+      >
         {loading ? (
           <div className="text-center py-8 text-gray-500">
             Duke ngarkuar dyqanet...
@@ -241,7 +339,14 @@ export function ShopList() {
             {/* Group shops by category */}
             {activeTab === "all" && !searchTerm ? (
               categories.map((category) => (
-                <div key={category.name} className="mb-6">
+                <div 
+                  key={category.name} 
+                  className="mb-6"
+                  ref={el => {
+                    categoryRefs.current[category.name] = el
+                  }}
+                  id={`category-${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                >
                   <h3 className="font-medium text-lg mb-3">{category.name}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                     {category.shops.map((shop) => (

@@ -281,13 +281,13 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         onOpenChange={setShowLoginModal}
       />
       
-      {/* Product form card with enhanced styling and internal scrolling */}
-      <div className="relative bg-white rounded-xl overflow-hidden border border-primary/10 shadow-lg w-full h-[calc(100vh-8rem)] md:h-[calc(100vh-12rem)] lg:h-auto lg:max-h-[calc(100vh-8rem)] flex flex-col">
+      {/* Product form card - Buttons now in scrollable area for all screen sizes */}
+      <div className="relative bg-white rounded-xl overflow-hidden border border-primary/10 shadow-lg w-full h-auto md:h-[calc(100vh-12rem)] lg:h-auto lg:max-h-[calc(100vh-8rem)] md:flex md:flex-col">
         {/* Left accent bar - hidden on mobile */}
         <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70 hidden md:block"></div>
         
-        {/* Header section - enhanced with help text - FIXED */}
-        <div className="bg-gradient-to-r from-primary-50 to-white py-2.5 sm:py-2 px-3 sm:px-3 border-b border-primary/10 flex-shrink-0">
+        {/* Header section - FIXED on desktop, scrolls on mobile */}
+        <div className="bg-gradient-to-r from-primary-50 to-white py-2.5 sm:py-2 px-3 sm:px-3 border-b border-primary/10 md:flex-shrink-0">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 sm:gap-2">
@@ -310,13 +310,13 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
               )}
             </div>
             <p className="text-[11px] text-blue-500">
-              Vendosni URL dhe detajet. Klikoni Shto dhe vaxhdoni me <span className="font-bold">shportën</span> <ShoppingCart className="h-3 w-3 inline-block font-bold" />
+              Vendosni URL dhe detajet. Klikoni Shto dhe vazhdoni me <span className="font-bold">shportën</span> <ShoppingCart className="h-3 w-3 inline-block font-bold" />
             </p>
           </div>
         </div>
         
-        {/* Form body - SCROLLABLE */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-3 lg:p-4">
+        {/* Form body with buttons - SCROLLABLE on desktop, normal flow on mobile */}
+        <div className="md:flex-1 md:overflow-y-auto p-3 sm:p-4 md:p-3 lg:p-4">
           <div className="grid gap-4 sm:gap-5 md:gap-3 lg:gap-4">
             {/* URL - full width */}
             <div className="flex flex-col space-y-2 sm:space-y-3">
@@ -483,38 +483,36 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                 rows={2}
               />
             </div>
-          </div>
-        </div>
-        
-        {/* Enhanced footer with distinct styling - FIXED */}
-        <div className="px-3 py-2.5 sm:py-3 bg-gradient-to-b from-gray-50 to-gray-100 border-t border-gray-200 shadow-inner flex justify-end flex-shrink-0">
-          <div className="flex gap-2">
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={clearForm}
-              className="text-gray-700 border-gray-300 shadow-sm text-xs h-8 px-2 bg-white hover:bg-gray-50"
-            >
-              <RefreshCw className="h-3 w-3 mr-1" />
-              Pastro
-            </Button>
             
-            <Button
-              onClick={handleAddToBasket}
-              disabled={isSubmitting}
-              className="bg-primary hover:bg-primary/90 text-white text-xs h-8 px-3 shadow-sm"
-              size="sm"
-            >
-              {isSubmitting ? (
-                <Loader2 className="h-3 w-3 animate-spin mr-1" />
-              ) : (
-                <>
-                  <Plus className="h-3 w-3 mr-1" />
-                  <span className="hidden sm:inline">Shto në Shportë</span>
-                  <span className="sm:hidden">Shto</span>
-                </>
-              )}
-            </Button>
+            {/* Action buttons - inside scrollable area for all screen sizes */}
+            <div className="flex justify-end gap-2 mt-6">
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={clearForm}
+                className="text-gray-700 border-gray-300 shadow-sm text-xs h-8 px-2 bg-white hover:bg-gray-50"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Pastro
+              </Button>
+              
+              <Button
+                onClick={handleAddToBasket}
+                disabled={isSubmitting}
+                className="bg-primary hover:bg-primary/90 text-white text-xs h-8 px-3 shadow-sm"
+                size="sm"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                ) : (
+                  <>
+                    <Plus className="h-3 w-3 mr-1" />
+                    <span className="hidden sm:inline">Shto në Shportë</span>
+                    <span className="sm:hidden">Shto</span>
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { Home, ShoppingBag, Settings, LogOut, Menu, Store, ShoppingCart, User, PanelLeftClose, PanelLeftOpen, PlusCircle } from "lucide-react"
+import { Home, ShoppingBag, Settings, LogOut, Menu, Store, ShoppingCart, User, PanelLeftClose, PanelLeftOpen, PlusCircle, Globe } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { TopBar } from "./top-bar"
 import { BasketIcon } from "@/components/basket-icon"
@@ -47,7 +47,7 @@ const NavLink = ({
   )
 }
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children, activeTab, onTabChange }: { children: React.ReactNode, activeTab?: string, onTabChange?: (tab: string) => void }) {
   const router = useRouter()
   const { user, logout } = useAuth()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false) // Default to expanded
@@ -110,7 +110,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         isActive={pathname === "/orders" || pathname?.startsWith("/orders/")}
         isSidebarCollapsed={isSidebarCollapsed}
       >
-        Porositë e Mia
+        Blerjet e Mia
       </NavLink>
     </nav>
   )
@@ -139,6 +139,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       throw error
     }
   }
+
+  // Determine active tab and tab change behavior
+  const currentActiveTab = activeTab || (
+    pathname === "/" ? "order" :
+    pathname === "/shops" ? "shops" :
+    pathname === "/orders" ? "orders" :
+    pathname === "/settings" ? "settings" : "order"
+  )
+
+  const handleTabChange = onTabChange || ((tab: string) => {
+    // Default navigation behavior for other pages
+    if (tab === "order") router.push("/")
+    else if (tab === "shops") router.push("/shops")
+    else if (tab === "orders") router.push("/orders")
+    else if (tab === "settings") router.push("/settings")
+  })
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
@@ -248,22 +264,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
       {isMobile && (
         <MobileNavbar
-          activeTab={pathname === "/" ? "order" : 
-                   pathname === "/shops" ? "shops" : 
-                   pathname === "/orders" ? "orders" : 
-                   pathname === "/settings" ? "settings" : "order"}
-          onTabChange={(tab) => {
-            // If navigating to orders or settings from shops, 
-            // prevent default navigation in favor of in-page tab switch
-            if ((tab === "orders" || tab === "settings")) {
-              // Navigate to the home page with the proper tab selected
-              // Removed redirect - let normal navigation happen
-            }
-          }}
+          activeTab={currentActiveTab}
+          onTabChange={handleTabChange}
           items={[
-            { id: "order", label: "Shto", icon: PlusCircle, path: "/" },
-            { id: "shops", label: "Dyqanet", icon: Store, path: "/shops" },
-            { id: "orders", label: "Porosite", icon: ShoppingBag, path: "/orders" },
+            { id: "order", label: "Porosit", icon: PlusCircle, path: "/" },
+            { id: "shops", label: "Eksploro", icon: Globe, path: "/shops" },
+            { id: "orders", label: "Blerjet", icon: ShoppingBag, path: "/orders" },
             { id: "settings", label: "Cilesimet", icon: Settings, path: "/settings" },
           ]}
         />
