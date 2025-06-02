@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "@/components/ui/use-toast"
-import { LoginModal } from "@/components/login-modal"
+import { AuthModal } from "@/components/auth-modal"
 import {
   ArrowLeft,
   Check,
@@ -41,7 +41,7 @@ interface BasketInvoiceModalProps {
 export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoiceModalProps) {
   const { items, removeItem, updateItem, clearBasket, itemCount } = useBasketStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const { user } = useAuth()
   const router = useRouter()
   const currentDate = new Date().toLocaleDateString()
@@ -110,7 +110,7 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
   const handleCheckUserLoggedIn = () => {
     if (!user) {
       // Show login modal if user is not logged in
-      setShowLoginModal(true)
+      setShowAuthModal(true)
       return false
     }
     return true
@@ -168,9 +168,10 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
 
   return (
     <>
-      <LoginModal 
-        open={showLoginModal}
-        onOpenChange={setShowLoginModal}
+      <AuthModal 
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        defaultTab="login"
       />
       
       <Dialog open={open} onOpenChange={onOpenChange}>

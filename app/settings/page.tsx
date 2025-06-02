@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import Layout from "@/components/layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { LoginModal } from "@/components/login-modal"
+import { AuthModal } from "@/components/auth-modal"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation"
 export default function SettingsPage() {
   const { user, updateUser, updatePassword, logout } = useAuth()
   const router = useRouter()
-  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
   
   // User info form state
   const [email, setEmail] = useState(user?.email || "")
@@ -128,16 +128,17 @@ export default function SettingsPage() {
                   Ju duhet të identifikoheni për të parë cilësimet tuaja
                 </p>
                 <Button 
-                  onClick={() => setShowLoginModal(true)}
+                  onClick={() => setShowAuthModal(true)}
                   className="bg-primary hover:bg-primary/90 text-white"
                 >
                   Identifikohu
                 </Button>
                 
                 {/* Login Modal */}
-                <LoginModal
-                  open={showLoginModal}
-                  onOpenChange={setShowLoginModal}
+                <AuthModal
+                  open={showAuthModal}
+                  onOpenChange={setShowAuthModal}
+                  defaultTab="login"
                 />
               </CardContent>
             </Card>

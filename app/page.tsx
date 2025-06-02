@@ -11,8 +11,8 @@ import { ShopList } from "@/components/shop-list"
 import { Home, ShoppingBag, Store, Settings, Eye, EyeOff, PlusCircle, LogOut } from "lucide-react"
 import { MobileNavbar } from "@/components/mobile-navbar"
 import { MobileHeader } from "@/components/mobile-header"
-import { LoginModal } from "@/components/login-modal"
-import { RegistrationModal } from "@/components/registration-modal"
+import { AuthModal } from "@/components/auth-modal"
+
 import { BasketInvoiceModal } from "@/components/basket-invoice-modal"
 import { motion, AnimatePresence } from "framer-motion"
 import Layout from "@/components/layout"
@@ -33,8 +33,9 @@ export default function HomePage() {
 function HomePageContent() {
   const { user, logout } = useAuth()
   const [activeTab, setActiveTab] = useState("order")
-  const [showLoginModal, setShowLoginModal] = useState(false)
-  const [showRegistrationModal, setShowRegistrationModal] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authModalTab, setAuthModalTab] = useState<"login" | "register">("login")
+
   const [showBasketModal, setShowBasketModal] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -51,7 +52,8 @@ function HomePageContent() {
     if (!user) {
       // No need to store in localStorage - the Zustand store already persists the data
       // Just show the registration modal
-      setShowRegistrationModal(true)
+      setAuthModalTab("register")
+      setShowAuthModal(true)
       return
     }
 
@@ -201,7 +203,10 @@ function HomePageContent() {
         <div className="flex flex-col min-h-screen bg-gray-50">
           <MobileHeader 
             user={user} 
-            onLoginClick={() => setShowLoginModal(true)} 
+            onLoginClick={() => {
+              setAuthModalTab("login")
+              setShowAuthModal(true)
+            }} 
             setShowBasketModal={setShowBasketModal} 
           />
 
@@ -255,7 +260,10 @@ function HomePageContent() {
                     <Card className="bg-white shadow-sm p-6 text-center">
                       <p className="text-gray-500 mb-4">Ju duhet të identifikoheni për të parë porositë tuaja</p>
                       <button
-                        onClick={() => setShowLoginModal(true)}
+                        onClick={() => {
+                          setAuthModalTab("login")
+                          setShowAuthModal(true)
+                        }}
                         className="px-4 py-2 bg-primary text-white rounded-md"
                       >
                         Identifikohu
@@ -283,7 +291,10 @@ function HomePageContent() {
                     <Card className="bg-white shadow-sm p-6 text-center">
                       <p className="text-gray-500 mb-4">Ju duhet të identifikoheni për të parë cilësimet tuaja</p>
                       <button
-                        onClick={() => setShowLoginModal(true)}
+                        onClick={() => {
+                          setAuthModalTab("login")
+                          setShowAuthModal(true)
+                        }}
                         className="px-4 py-2 bg-primary text-white rounded-md"
                       >
                         Identifikohu
@@ -309,8 +320,8 @@ function HomePageContent() {
       </div>
 
       {/* Modals - consistent across both layouts */}
-      <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
-      <RegistrationModal open={showRegistrationModal} onOpenChange={setShowRegistrationModal} />
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} defaultTab={authModalTab} />
+
       <BasketInvoiceModal open={showBasketModal} onOpenChange={setShowBasketModal} onSubmit={handleSubmitOrder} />
     </>
   )
