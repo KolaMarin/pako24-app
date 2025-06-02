@@ -345,6 +345,7 @@ export default function OrdersPage() {
               margin-right: 8px;
               color: #64748b;
             }
+            .status-PENDING { background-color: #f59e0b; }
             .status-PROCESSING { background-color: #3b82f6; }
             .status-SHIPPED { background-color: #8b5cf6; }
             .status-DELIVERED { background-color: #22c55e; }
@@ -451,12 +452,6 @@ export default function OrdersPage() {
               </div>
             </div>
 
-            <div style="margin: 30px 0;">
-              <button onclick="window.print()" style="padding: 10px 20px; background-color: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Printo Faturën
-              </button>
-            </div>
-
             <div class="footer">
               <p>Faleminderit për porosinë tuaj!</p>
               <p>Për çdo pyetje ose nevojë, ju lutemi na kontaktoni në ${configs.COMPANY_EMAIL} ose ${configs.COMPANY_PHONE}</p>
@@ -468,14 +463,11 @@ export default function OrdersPage() {
       
       invoiceWindow.document.close()
       
-      // After a slight delay, trigger print dialog
-      setTimeout(() => {
-        invoiceWindow.print()
-        toast({
-          title: "Sukses",
-          description: "Fatura u gjenerua me sukses.",
-        })
-      }, 500)
+      // Show success message
+      toast({
+        title: "Sukses",
+        description: "Fatura u hap në dritare të re. Mund ta printoni duke përdorur Ctrl+P.",
+      })
     } catch (error) {
       console.error("Error generating invoice:", error)
       toast({
