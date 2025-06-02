@@ -268,7 +268,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full mx-auto px-1 py-0 sm:p-2 space-y-2 sm:space-y-3 pt-3 md:pt-2 sm:relative bg-gray-50 sm:bg-transparent">
+    <div className="w-full mx-auto px-1 py-0 sm:p-2 space-y-2 sm:space-y-3 pt-1 md:pt-2 sm:relative bg-gray-50 sm:bg-transparent">
       {/* Modals */}
       <BasketInvoiceModal 
         open={showBasketModal} 
@@ -287,7 +287,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70 hidden md:block"></div>
         
         {/* Header section - FIXED on desktop, scrolls on mobile */}
-        <div className="bg-gradient-to-r from-primary-50 to-white py-2.5 sm:py-2 px-3 sm:px-3 border-b border-primary/10 md:flex-shrink-0">
+        <div className="bg-gradient-to-r from-slate-50 to-blue-50 py-2.5 sm:py-2 px-3 sm:px-3 border-b border-slate-200 md:flex-shrink-0">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 sm:gap-2">
