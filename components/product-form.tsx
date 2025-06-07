@@ -282,7 +282,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       />
       
       {/* Product form card - Buttons now in scrollable area for all screen sizes */}
-      <div className="relative bg-white rounded-xl overflow-hidden border border-primary/10 shadow-lg w-full h-auto md:h-[calc(100vh-12rem)] lg:h-auto lg:max-h-[calc(100vh-8rem)] md:flex md:flex-col">
+      <div className="relative bg-white rounded-xl overflow-hidden border border-primary/10 shadow-lg w-full h-auto md:flex md:flex-col">
         {/* Left accent bar - hidden on mobile */}
         <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70 hidden md:block"></div>
         
@@ -316,7 +316,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         </div>
         
         {/* Form body with buttons - SCROLLABLE on desktop, normal flow on mobile */}
-        <div className="md:flex-1 md:overflow-y-auto p-3 sm:p-4 md:p-3 lg:p-4">
+        <div className="p-3 sm:p-4 md:p-3 lg:p-4">
           <div className="grid gap-4 sm:gap-5 md:gap-3 lg:gap-4">
             {/* URL - full width */}
             <div className="flex flex-col space-y-2 sm:space-y-3">
