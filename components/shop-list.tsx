@@ -338,34 +338,59 @@ export function ShopList() {
           <div className="space-y-3">
             {/* Group shops by category */}
             {activeTab === "all" && !searchTerm ? (
-              categories.map((category) => (
+              categories.map((category, index) => (
                 <div 
                   key={category.name} 
-                  className="mb-6"
+                  className={`relative ${index > 0 ? 'mt-8' : ''} mb-6`}
                   ref={el => {
                     categoryRefs.current[category.name] = el
                   }}
                   id={`category-${category.name.toLowerCase().replace(/\s+/g, '-')}`}
                 >
-                  <h3 className="font-medium text-lg mb-3">{category.name}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-                    {category.shops.map((shop) => (
-                      <ShopCard
-                        key={shop.id}
-                        shop={{
-                          name: shop.name,
-                          url: shop.website,
-                          category: shop.category?.name
-                        }}
-                        isFavorite={favorites.has(shop.website)}
-                        isCopied={copiedUrl === shop.website}
-                        onShopClick={handleShopClick}
-                        onToggleFavorite={toggleFavorite}
-                        onCopyUrl={copyToClipboard}
-                        icon={getShopIcon(shop.website)}
-                        logoUrl={shop.logoUrl}
-                      />
-                    ))}
+                  {/* Elegant separator line between categories */}
+                  {index > 0 && (
+                    <div className="absolute -top-4 left-0 right-0 flex items-center justify-center">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                      <div className="mx-4 w-2 h-2 bg-gray-300 rounded-full"></div>
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                    </div>
+                  )}
+                  
+                  {/* Enhanced category card container */}
+                  <div className="bg-white rounded-xl border border-gray-200/60 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 overflow-hidden">
+                    {/* Category header with light blue background */}
+                    <div className="bg-blue-50/60 px-6 py-4 border-b border-gray-200/50">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-8 bg-primary rounded-full shadow-sm"></div>
+                          <h3 className="font-bold text-xl text-gray-800 tracking-tight">{category.name}</h3>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Shops grid with improved spacing */}
+                    <div className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        {category.shops.map((shop) => (
+                          <div key={shop.id} className="transform hover:scale-[1.02] transition-transform duration-200">
+                            <ShopCard
+                              shop={{
+                                name: shop.name,
+                                url: shop.website,
+                                category: shop.category?.name
+                              }}
+                              isFavorite={favorites.has(shop.website)}
+                              isCopied={copiedUrl === shop.website}
+                              onShopClick={handleShopClick}
+                              onToggleFavorite={toggleFavorite}
+                              onCopyUrl={copyToClipboard}
+                              icon={getShopIcon(shop.website)}
+                              logoUrl={shop.logoUrl}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))
@@ -418,9 +443,9 @@ function ShopCard({
   logoUrl?: string | null
 }) {
   return (
-    <Card key={shop.url} className="overflow-hidden hover:shadow-md transition-shadow">
+    <Card key={shop.url} className="overflow-hidden hover:shadow-lg transition-all duration-300 border-gray-200/60 bg-white/90 backdrop-blur-sm">
       <CardContent className="p-0">
-        <div className="flex items-center justify-between p-3 cursor-pointer" onClick={() => onShopClick(shop.url)}>
+        <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50/50 transition-colors duration-200" onClick={() => onShopClick(shop.url)}>
           <div className="flex items-center gap-3 flex-1">
             <div className="flex-shrink-0 bg-gray-50 rounded-md h-12 w-12 flex items-center justify-center overflow-hidden p-0.5">
               {logoUrl ? (
