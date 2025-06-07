@@ -111,3 +111,73 @@
   @apply text-primary;
 }
 
+/* Mobile zoom prevention - comprehensive solution for all input fields */
+@media screen and (max-width: 768px) {
+  /* Target all input types that can cause zoom */
+  input[type="text"],
+  input[type="email"], 
+  input[type="password"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="week"],
+  select,
+  textarea {
+    font-size: 16px !important;
+    -webkit-appearance: none;
+    border-radius: 0;
+    transform-origin: left top;
+    transition: none;
+  }
+  
+  /* Ensure all inputs have consistent styling on mobile */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+  
+  /* Focus states for webkit browsers */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    -webkit-user-select: text;
+    user-select: text;
+    font-size: 16px !important;
+  }
+  
+  /* Specific targeting for common UI library classes */
+  .ui-input,
+  [class*="input"],
+  [class*="Input"],
+  [data-testid*="input"],
+  [placeholder] {
+    font-size: 16px !important;
+  }
+}
+
+/* Disable zoom on double tap and pinch for better mobile UX */
+* {
+  touch-action: manipulation;
+}
+
+/* Additional webkit-specific fixes */
+@supports (-webkit-touch-callout: none) {
+  input[type="text"],
+  input[type="email"], 
+  input[type="password"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  input[type="number"],
+  select,
+  textarea {
+    -webkit-text-size-adjust: 100%;
+    -webkit-user-select: text;
+  }
+}

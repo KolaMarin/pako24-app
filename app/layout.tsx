@@ -11,7 +11,13 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata = {
   title: "PAKO24",
   description: "Dërgesa të shpejta nga dyqanet ndërkombëtare",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  }
 }
 
 export default function RootLayout({
