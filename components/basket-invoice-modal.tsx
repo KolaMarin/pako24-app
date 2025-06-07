@@ -314,11 +314,15 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center">
                             <span className="bg-gray-100 text-gray-800 font-medium rounded-full h-5 w-5 flex items-center justify-center text-xs mr-1.5">{index + 1}</span>
-                            <h4 className="font-medium text-gray-800 text-sm">
-                              {item.title ? (
-                                <span className="line-clamp-1">{item.title}</span>
-                              ) : "Produkt"}
-                            </h4>
+                            <a 
+                              href={item.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline flex items-center text-sm font-medium"
+                            >
+                              <span className="truncate block max-w-[200px]">{item.url}</span>
+                              <ExternalLink className="h-3 w-3 ml-1 flex-shrink-0" />
+                            </a>
                           </div>
                           <Button
                             variant="ghost"
@@ -331,44 +335,31 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                         </div>
                         
                         <div className="space-y-1.5 text-xs mb-2">
-                          <div>
-                            <a 
-                              href={item.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline flex items-start"
-                            >
-                              <span className="truncate block max-w-[200px]">{item.url}</span>
-                              <ExternalLink className="h-3 w-3 ml-1 flex-shrink-0" />
-                            </a>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-1.5">
+                          <div className="flex flex-wrap items-center gap-1">
                             {item.size && (
-                              <div className="col-span-1">
-                                <span className="text-gray-500">Madhësia: </span>
+                              <>
+                                <span className="text-gray-500">Madhësia:</span>
                                 <span className="font-medium">{item.size}</span>
-                              </div>
+                              </>
                             )}
-                            
+                            {item.size && (item.color || item.price > 0) && (
+                              <span className="text-gray-400 mx-1">•</span>
+                            )}
                             {item.color && (
-                              <div className="col-span-1">
-                                <span className="text-gray-500">Ngjyra: </span>
+                              <>
+                                <span className="text-gray-500">Ngjyra:</span>
                                 <span className="font-medium">{item.color}</span>
-                              </div>
+                              </>
                             )}
-                            
-                            <div className="col-span-1">
-                              <span className="text-gray-500">Çmimi: </span>
-                              {item.price > 0 ? (
+                            {item.color && item.price > 0 && (
+                              <span className="text-gray-400 mx-1">•</span>
+                            )}
+                            {item.price > 0 && (
+                              <>
+                                <span className="text-gray-500">Çmimi:</span>
                                 <span className="font-medium">€{(item.price * exchangeRate).toFixed(2)}</span>
-                              ) : "-"}
-                            </div>
-                            
-                            <div className="col-span-1">
-                              <span className="text-gray-500">Sasia: </span>
-                              <span className="font-medium">{item.quantity}</span>
-                            </div>
+                              </>
+                            )}
                           </div>
                           
                           {item.additionalInfo && (
