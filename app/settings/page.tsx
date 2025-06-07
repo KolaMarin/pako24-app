@@ -151,8 +151,6 @@ export default function SettingsPage() {
   return (
     <Layout>
       <div className="max-w-2xl mx-auto px-4">
-        <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-primary">Cilësimet</h1>
-        
         {/* Section 1: User Information */}
         <Card className="bg-white shadow-lg border-0 mb-6">
           <CardContent className="p-6">
@@ -289,7 +287,7 @@ export default function SettingsPage() {
                 ) : (
                   <>
                     <Lock className="mr-2 h-4 w-4" />
-                    Ndysho Fjalëkalimin
+                    Ndrysho Fjalëkalimin
                   </>
                 )}
               </Button>

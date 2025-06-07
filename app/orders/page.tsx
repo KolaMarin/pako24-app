@@ -517,8 +517,8 @@ export default function OrdersPage() {
   // If user is not logged in, show login prompt instead of redirecting
   if (!user) {
     return (
-      <Layout>
-        <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 pb-20">
+    <Layout>
+        <div className={`${isMobile ? 'w-full px-0' : 'max-w-4xl mx-auto px-4'} pb-20`}>
           {/* Removed title for logged out users */}
           <div className="flex items-center justify-center min-h-[60vh]">
             <Card className="max-w-md w-full">
@@ -548,8 +548,7 @@ export default function OrdersPage() {
   if (isLoading) {
     return (
       <Layout>
-      <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 pb-20">
-          <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-center sm:text-left text-primary">Porositë e Mia</h1>
+      <div className={`${isMobile ? 'w-full px-0' : 'max-w-4xl mx-auto px-4'} pb-20`}>
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <Card key={i} className="bg-white shadow-md overflow-hidden">
@@ -579,7 +578,7 @@ export default function OrdersPage() {
 
   return (
     <Layout>
-        <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 pb-20">
+        <div className={`${isMobile ? 'w-full px-0' : 'max-w-4xl mx-auto px-4'} pb-20`}>
         {/* Mobile-optimized filters */}
         <Card className="mb-4 sm:mb-6 bg-white shadow-md">
           <CardContent className="p-2 sm:p-3">
