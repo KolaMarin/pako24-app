@@ -8,10 +8,12 @@ import { BasketInvoiceModal } from "@/components/basket-invoice-modal"
 import { LoginModal } from "@/components/login-modal"
 import { useBasketStore } from "@/lib/basket-store"
 import { useProductFormStore, type ProductLink, getEmptyProduct } from "@/lib/product-form-store"
+import { useConfigStore } from "@/lib/config-store"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Plus,
   Trash2,
@@ -27,6 +29,7 @@ import {
   ArrowRight,
   Loader2,
   PoundSterling,
+  Euro,
   Minus,
   RefreshCw,
   Download,
@@ -60,6 +63,11 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   const [urlsLoading, setUrlsLoading] = useState<{[key: number]: boolean}>({})
   const router = useRouter()
   const { user } = useAuth()
+  
+  // Get configuration values
+  const exchangeRate = useConfigStore(state => state.getExchangeRate())
+  const customsFeePercentage = useConfigStore(state => state.getCustomsFeePercentage())
+  const transportFee = useConfigStore(state => state.getTransportFee())
   
   // Function to clear the form - no confirmation dialog
   const clearForm = () => {
@@ -131,14 +139,19 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
     }
   }
 
-  const calculateFees = (price: number, quantity: number) => {
-    const euroPrice = price * 1.15 // Approximate GBP to EUR conversion
+  // Calculate euro price based on currency selection
+  const calculateEuroPrice = (price: number, currency: string) => {
+    return currency === 'EUR' ? price : price * exchangeRate; // No conversion for EUR, convert GBP
+  }
+
+  const calculateFees = (price: number, quantity: number, currency: string) => {
+    const euroPrice = calculateEuroPrice(price, currency)
     const basePriceEUR = euroPrice * quantity
-    const customsFee = basePriceEUR * 0.2 // 20% of price in EUR
-    const shippingFee = 10 // Base shipping fee of 10€ per order, not per product
+    const customsFee = basePriceEUR * customsFeePercentage // Use config value
+    const shippingFee = transportFee // Use config value
     
     return {
-      basePriceGBP: price * quantity,
+      basePriceOriginal: price * quantity,
       basePriceEUR,
       customsFee,
       shippingFee: shippingFee, // Flat fee, not multiplied by quantity
@@ -303,7 +316,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                     variant="outline" 
                     className="bg-primary/5 border-primary/20 text-primary font-semibold px-1.5 py-0.5"
                   >
-                    €{(productLinks[0].price * 1.15 * productLinks[0].quantity).toFixed(2)}
+                    €{(calculateEuroPrice(productLinks[0].price, productLinks[0].currency) * productLinks[0].quantity).toFixed(2)}
                     {productLinks[0].quantity > 1 && <span className="ml-0.5 text-primary/80 font-medium">(x{productLinks[0].quantity})</span>}
                   </Badge>
                 </div>
@@ -362,21 +375,62 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
             <div className="grid grid-cols-2 gap-2 sm:gap-3">
               <div>
                 <div className="flex items-center gap-1 mb-0.5">
-                  <PoundSterling className="h-3.5 w-3.5 text-primary" />
-                  <Label className="font-medium text-gray-700 text-xs">Çmimi (£)</Label>
+                  <Label className="font-medium text-gray-700 text-xs">Çmimi</Label>
                 </div>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  value={productLinks[0].price || ""}
-                  onChange={(e) => {
-                    const value = Number.parseFloat(e.target.value)
-                    updateProductLink(0, "price", isNaN(value) ? 0 : value)
-                  }}
-                  step="0.01"
-                  placeholder="0.00"
-                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all pl-2 border-gray-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
+                <div className="relative">
+                  <div className="flex h-11 border border-gray-200 rounded-md overflow-hidden shadow-sm focus-within:ring-1 focus-within:ring-primary/50 focus-within:border-primary/50 transition-all">
+                    {/* Currency Selector */}
+                    <Select 
+                      value={productLinks[0].currency} 
+                      onValueChange={(value) => updateProductLink(0, "currency", value)}
+                    >
+                      <SelectTrigger className="w-16 h-full border-0 border-r border-gray-200 rounded-none bg-gray-50/50 hover:bg-gray-50 focus:ring-0 focus:ring-offset-0">
+                        <SelectValue>
+                          <div className="flex items-center gap-1">
+                            {productLinks[0].currency === 'EUR' ? (
+                              <Euro className="h-3.5 w-3.5 text-gray-600" />
+                            ) : (
+                              <PoundSterling className="h-3.5 w-3.5 text-gray-600" />
+                            )}
+                          </div>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="GBP">
+                          <div className="flex items-center gap-2">
+                            <span>GBP (£)</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="EUR">
+                          <div className="flex items-center gap-2">
+                            <span>EUR (€)</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    {/* Price Input */}
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      value={productLinks[0].price || ""}
+                      onChange={(e) => {
+                        const value = Number.parseFloat(e.target.value)
+                        updateProductLink(0, "price", isNaN(value) ? 0 : value)
+                      }}
+                      step="0.01"
+                      placeholder="0.00"
+                      className="h-full border-0 rounded-none text-xs focus-visible:ring-0 focus-visible:ring-offset-0 flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                  </div>
+                  
+                  {/* Real-time conversion display */}
+                  {productLinks[0].price > 0 && productLinks[0].currency === 'GBP' && (
+                    <p className="mt-1 text-xs text-gray-500 flex items-center gap-1">
+                       ≈ €{(productLinks[0].price * exchangeRate).toFixed(2)}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div>

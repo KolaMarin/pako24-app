@@ -9,6 +9,7 @@ export interface ProductLink {
   additionalInfo: string
   price: number
   title: string
+  currency: 'GBP' | 'EUR'
 }
 
 interface ProductFormState {
@@ -29,6 +30,7 @@ export const getEmptyProduct = (): ProductLink => ({
   additionalInfo: "",
   price: 0,
   title: "",
+  currency: "GBP", // Default to GBP to maintain current behavior
 })
 
 export const useProductFormStore = create<ProductFormState>()(

@@ -50,18 +50,19 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
   const customsFeePercentage = useConfigStore(state => state.getCustomsFeePercentage())
   const exchangeRate = useConfigStore(state => state.getExchangeRate())
 
-  const calculateFees = (price: number, quantity: number) => {
-    const euroPrice = price * exchangeRate // GBP to EUR conversion from config
+  const calculateFees = (price: number, quantity: number, currency: 'GBP' | 'EUR') => {
+    const euroPrice = currency === 'EUR' ? price : price * exchangeRate // Only convert if GBP
     const basePriceEUR = euroPrice * quantity
     const customsFee = basePriceEUR * customsFeePercentage // Customs fee percentage from config
     const shippingFee = transportFeePerProduct // Base shipping fee per product type (flat fee, not multiplied by quantity)
     
     return {
-      basePriceGBP: price * quantity,
+      basePriceOriginal: price * quantity,
       basePriceEUR,
       customsFee,
       shippingFee, 
       totalEUR: basePriceEUR + customsFee + shippingFee, // Total in EUR
+      currency
     }
   }
 
@@ -84,9 +85,9 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
   const orderTotals = items.reduce<OrderTotals>(
     (totals, item) => {
       if (item.price > 0) {
-        const fees = calculateFees(item.price, item.quantity)
+        const fees = calculateFees(item.price, item.quantity, item.currency)
         return {
-          basePriceGBP: totals.basePriceGBP + fees.basePriceGBP,
+          basePriceGBP: totals.basePriceGBP + fees.basePriceOriginal,
           basePriceEUR: totals.basePriceEUR + fees.basePriceEUR,
           customsFee: totals.customsFee + fees.customsFee,
           shippingFee: totalTransportFee, // Keep the total transport fee
@@ -130,11 +131,12 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
     try {
       // Transform product links to include calculated fees
       const enrichedProductLinks = items.map((item) => {
-        const fees = item.price > 0 ? calculateFees(item.price, item.quantity) : null
+        const fees = item.price > 0 ? calculateFees(item.price, item.quantity, item.currency) : null
+        const euroPrice = item.currency === 'EUR' ? item.price : item.price * exchangeRate
         return {
           ...item,
           priceGBP: item.price * item.quantity,
-          priceEUR: item.price * exchangeRate * item.quantity,  // Use exchange rate from config
+          priceEUR: euroPrice * item.quantity,  // Respect currency selection
           customsFee: fees?.customsFee || 0,
           transportFee: transportFeePerProduct // Fixed flat fee per product type
         }
@@ -230,7 +232,7 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                     </thead>
                     <tbody>
                       {items.map((item, index) => {
-                        const fees = item.price > 0 ? calculateFees(item.price, item.quantity) : null
+                        const fees = item.price > 0 ? calculateFees(item.price, item.quantity, item.currency) : null
                         return (
                           <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                             <td className="py-1 px-2 text-center font-medium text-gray-800 border-b">{index + 1}</td>
@@ -257,8 +259,10 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                             <td className="py-1 px-2 text-right font-medium text-gray-800 border-b">
                               {item.price > 0 ? (
                                 <>
-                                  €{(item.price * exchangeRate).toFixed(2)}
-                                  <span className="block text-xs text-gray-500">£{item.price.toFixed(2)}</span>
+                                  €{(item.currency === 'EUR' ? item.price : item.price * exchangeRate).toFixed(2)}
+                                  <span className="block text-xs text-gray-500">
+                                    {item.currency === 'EUR' ? 'Final price' : `£${item.price.toFixed(2)}`}
+                                  </span>
                                 </>
                               ) : "-"}
                             </td>
@@ -285,7 +289,7 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                             </td>
                             <td className="py-1 px-2 text-right font-medium text-gray-800 border-b">
                               {item.price > 0 ? (
-                                <span className="font-bold">€{(item.price * exchangeRate * item.quantity).toFixed(2)}</span>
+                                <span className="font-bold">€{((item.currency === 'EUR' ? item.price : item.price * exchangeRate) * item.quantity).toFixed(2)}</span>
                               ) : "-"}
                             </td>
                             <td className="py-1 px-2 text-center border-b">
@@ -308,7 +312,7 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                 {/* Mobile Card View - Only visible on mobile */}
                 <div className="w-full sm:hidden space-y-3">
                   {items.map((item, index) => {
-                    const fees = item.price > 0 ? calculateFees(item.price, item.quantity) : null
+                    const fees = item.price > 0 ? calculateFees(item.price, item.quantity, item.currency) : null
                     return (
                       <div key={index} className="border border-gray-200 rounded-md p-2 bg-white shadow-sm">
                         <div className="flex justify-between items-start mb-2">
@@ -357,7 +361,7 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                             {item.price > 0 && (
                               <>
                                 <span className="text-gray-500">Çmimi:</span>
-                                <span className="font-medium">€{(item.price * exchangeRate).toFixed(2)}</span>
+                                <span className="font-medium">€{(item.currency === 'EUR' ? item.price : item.price * exchangeRate).toFixed(2)}</span>
                               </>
                             )}
                           </div>
@@ -396,7 +400,7 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                             <div className="text-xs text-gray-500">Totali:</div>
                             <div className="font-bold text-sm">
                               {item.price > 0 ? (
-                                <>€{(item.price * exchangeRate * item.quantity).toFixed(2)}</>
+                                <>€{((item.currency === 'EUR' ? item.price : item.price * exchangeRate) * item.quantity).toFixed(2)}</>
                               ) : "-"}
                             </div>
                           </div>

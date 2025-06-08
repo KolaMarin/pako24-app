@@ -238,32 +238,9 @@ export function ShopList() {
     localStorage.setItem("favoriteShops", JSON.stringify(Array.from(newFavorites)))
   }
 
-  // Get icon based on website URL
-  const getShopIcon = (website: string) => {
-    if (website.includes("asos")) return <ShoppingBag className="h-5 w-5 text-blue-600" />
-    if (website.includes("zara")) return <ShoppingBag className="h-5 w-5 text-red-600" />
-    if (website.includes("hm")) return <ShoppingBag className="h-5 w-5 text-green-600" />
-    if (website.includes("mango")) return <ShoppingBag className="h-5 w-5 text-yellow-600" />
-    if (website.includes("uniqlo")) return <ShoppingBag className="h-5 w-5 text-purple-600" />
-    if (website.includes("stories")) return <ShoppingBag className="h-5 w-5 text-pink-600" />
-    if (website.includes("cos")) return <ShoppingBag className="h-5 w-5 text-indigo-600" />
-    if (website.includes("arket")) return <ShoppingBag className="h-5 w-5 text-teal-600" />
-    if (website.includes("boohoo")) return <ShoppingBag className="h-5 w-5 text-orange-600" />
-    if (website.includes("prettylittlething")) return <ShoppingBag className="h-5 w-5 text-pink-500" />
-    if (website.includes("shein")) return <ShoppingBag className="h-5 w-5 text-black" />
-    if (website.includes("missguided")) return <ShoppingBag className="h-5 w-5 text-purple-500" />
-    if (website.includes("nastygal")) return <ShoppingBag className="h-5 w-5 text-red-500" />
-    if (website.includes("marks")) return <Store className="h-5 w-5 text-green-700" />
-    if (website.includes("selfridges")) return <Store className="h-5 w-5 text-yellow-700" />
-    if (website.includes("harrods")) return <Store className="h-5 w-5 text-amber-700" />
-    if (website.includes("johnlewis")) return <Store className="h-5 w-5 text-blue-700" />
-    if (website.includes("sephora")) return <ShoppingBag className="h-5 w-5 text-purple-800" />
-    if (website.includes("boots")) return <ShoppingBag className="h-5 w-5 text-blue-800" />
-    if (website.includes("cultbeauty")) return <ShoppingBag className="h-5 w-5 text-pink-800" />
-    if (website.includes("lookfantastic")) return <ShoppingBag className="h-5 w-5 text-teal-800" />
-
-    // Default icon
-    return <Globe className="h-5 w-5 text-gray-600" />
+  // Simple fallback icon for when logo fails to load or doesn't exist
+  const getShopIcon = (isMobile = false) => {
+    return <Globe className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-gray-600`} />
   }
 
   return (
@@ -274,7 +251,9 @@ export function ShopList() {
           placeholder="Kërko dyqane..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 h-12 text-base focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all border-gray-200"
+          className={`pl-10 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all border-gray-200 ${
+            isMobile ? 'h-10 text-sm placeholder:text-sm' : 'h-12 text-base placeholder:text-base'
+          }`}
         />
       </div>
 
@@ -321,15 +300,15 @@ export function ShopList() {
         className={`${isMobile ? "h-[calc(100vh-350px)] pr-1" : "h-[500px] pr-4"}`}
       >
         {loading ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className={`text-center text-gray-500 ${isMobile ? 'py-6 text-sm' : 'py-8 text-base'}`}>
             Duke ngarkuar dyqanet...
           </div>
         ) : error ? (
-          <div className="text-center py-8 text-red-500">
+          <div className={`text-center text-red-500 ${isMobile ? 'py-6 text-sm' : 'py-8 text-base'}`}>
             {error}
           </div>
         ) : filteredShops.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className={`text-center text-gray-500 ${isMobile ? 'py-6 text-sm' : 'py-8 text-base'}`}>
             {activeTab === "favorites"
               ? "Nuk keni dyqane të preferuara. Shtoni disa duke klikuar ikonën e zemrës."
               : "Nuk u gjet asnjë dyqan që përputhet me kërkimin tuaj."}
@@ -359,17 +338,17 @@ export function ShopList() {
                   {/* Enhanced category card container */}
                   <div className="bg-white rounded-xl border border-gray-200/60 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 overflow-hidden">
                     {/* Category header with light blue background */}
-                    <div className="bg-blue-50/60 px-6 py-4 border-b border-gray-200/50">
+                    <div className={`bg-blue-50/60 border-b border-gray-200/50 ${isMobile ? 'px-4 py-3' : 'px-6 py-4'}`}>
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-8 bg-primary rounded-full shadow-sm"></div>
-                          <h3 className="font-bold text-xl text-gray-800 tracking-tight">{category.name}</h3>
+                          <div className={`bg-primary rounded-full shadow-sm ${isMobile ? 'w-1 h-6' : 'w-1.5 h-8'}`}></div>
+                          <h3 className={`font-bold text-gray-800 tracking-tight ${isMobile ? 'text-lg' : 'text-xl'}`}>{category.name}</h3>
                         </div>
                       </div>
                     </div>
                     
                     {/* Shops grid with improved spacing */}
-                    <div className="p-6">
+                    <div className={isMobile ? 'p-3' : 'p-6'}>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                         {category.shops.map((shop) => (
                           <div key={shop.id} className="transform hover:scale-[1.02] transition-transform duration-200">
@@ -384,8 +363,9 @@ export function ShopList() {
                               onShopClick={handleShopClick}
                               onToggleFavorite={toggleFavorite}
                               onCopyUrl={copyToClipboard}
-                              icon={getShopIcon(shop.website)}
+                              icon={getShopIcon(isMobile)}
                               logoUrl={shop.logoUrl}
+                              isMobile={isMobile}
                             />
                           </div>
                         ))}
@@ -409,8 +389,9 @@ export function ShopList() {
                     onShopClick={handleShopClick}
                     onToggleFavorite={toggleFavorite}
                     onCopyUrl={copyToClipboard}
-                    icon={getShopIcon(shop.website)}
+                    icon={getShopIcon(isMobile)}
                     logoUrl={shop.logoUrl}
+                    isMobile={isMobile}
                   />
                 ))}
               </div>
@@ -432,6 +413,7 @@ function ShopCard({
   onCopyUrl,
   icon,
   logoUrl,
+  isMobile = false,
 }: {
   shop: { name: string; url: string; category?: string }
   isFavorite: boolean
@@ -441,18 +423,19 @@ function ShopCard({
   onCopyUrl: (url: string, e: React.MouseEvent) => void
   icon: React.ReactNode
   logoUrl?: string | null
+  isMobile?: boolean
 }) {
   return (
     <Card key={shop.url} className="overflow-hidden hover:shadow-lg transition-all duration-300 border-gray-200/60 bg-white/90 backdrop-blur-sm">
       <CardContent className="p-0">
-        <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50/50 transition-colors duration-200" onClick={() => onShopClick(shop.url)}>
-          <div className="flex items-center gap-3 flex-1">
-            <div className="flex-shrink-0 bg-gray-50 rounded-md h-12 w-12 flex items-center justify-center overflow-hidden p-0.5">
+        <div className={`flex items-center cursor-pointer hover:bg-gray-50/50 transition-colors duration-200 ${isMobile ? 'p-3' : 'p-4'}`} onClick={() => onShopClick(shop.url)}>
+          <div className={`flex items-center min-w-0 ${isMobile ? 'gap-2 flex-1 mr-2' : 'gap-3 flex-1 mr-3'}`}>
+            <div className={`flex-shrink-0 bg-gray-50 rounded-md flex items-center justify-center overflow-hidden p-0.5 ${isMobile ? 'h-10 w-10' : 'h-12 w-12'}`}>
               {logoUrl ? (
                 <img 
                   src={logoUrl} 
                   alt={`${shop.name} logo`} 
-                  className="h-11 w-11 object-contain"
+                  className={`object-contain ${isMobile ? 'h-9 w-9' : 'h-11 w-11'}`}
                   onError={(e) => {
                     // If logo fails to load, fall back to the icon
                     e.currentTarget.style.display = 'none';
@@ -467,27 +450,27 @@ function ShopCard({
                 {icon}
               </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <span className="font-medium block">{shop.name}</span>
-              <span className="text-xs text-gray-500 truncate block">{shop.url.replace(/^https?:\/\//, "")}</span>
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <span className={`font-medium block truncate ${isMobile ? 'text-sm' : 'text-base'}`}>{shop.name}</span>
+              <span className={`text-gray-500 truncate block ${isMobile ? 'text-xs' : 'text-xs'}`}>{shop.url.replace(/^https?:\/\//, "")}</span>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className={`flex flex-shrink-0 ${isMobile ? 'gap-1' : 'gap-2'}`}>
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 rounded-full"
+              className={`p-0 rounded-full ${isMobile ? 'h-7 w-7' : 'h-8 w-8'}`}
               onClick={(e) => onToggleFavorite(shop.url, e)}
             >
-              <Heart className={`h-4 w-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-500"}`} />
+              <Heart className={`${isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'} ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-500"}`} />
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 rounded-full"
+              className={`p-0 rounded-full ${isMobile ? 'h-7 w-7' : 'h-8 w-8'}`}
               onClick={(e) => onCopyUrl(shop.url, e)}
             >
-              {isCopied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4 text-gray-500" />}
+              {isCopied ? <Check className={`${isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'} text-green-600`} /> : <Copy className={`${isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'} text-gray-500`} />}
             </Button>
           </div>
         </div>
