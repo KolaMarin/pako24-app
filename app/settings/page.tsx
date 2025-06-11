@@ -7,16 +7,18 @@ import Layout from "@/components/layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AuthModal } from "@/components/auth-modal"
+import { OnboardingModal } from "@/components/onboarding-modal"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
-import { Eye, EyeOff, Save, Lock, LogOut } from "lucide-react"
+import { Eye, EyeOff, Save, Lock, LogOut, HelpCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function SettingsPage() {
   const { user, updateUser, updatePassword, logout } = useAuth()
   const router = useRouter()
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false)
   
   // User info form state
   const [email, setEmail] = useState(user?.email || "")
@@ -151,6 +153,18 @@ export default function SettingsPage() {
   return (
     <Layout>
       <div className="max-w-2xl mx-auto px-4">
+        {/* How it works button */}
+        <div className="mb-6">
+          <Button
+            onClick={() => setShowOnboardingModal(true)}
+            variant="outline"
+            className="w-full border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-300"
+          >
+            <HelpCircle className="mr-2 h-5 w-5" />
+            Si funksionon?
+          </Button>
+        </div>
+
         {/* Section 1: User Information */}
         <Card className="bg-white shadow-lg border-0 mb-6">
           <CardContent className="p-6">
@@ -312,6 +326,12 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Onboarding Modal */}
+      <OnboardingModal 
+        open={showOnboardingModal} 
+        onOpenChange={setShowOnboardingModal} 
+      />
     </Layout>
   )
 }

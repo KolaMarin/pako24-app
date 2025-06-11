@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/lib/auth"
 import { ShopsInitializer } from "@/components/shops-initializer"
 import { ConfigInitializer } from "@/components/config-initializer"
+import { OnboardingInitializer } from "@/components/onboarding-initializer"
 import type React from "react"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -31,6 +32,7 @@ export default function RootLayout({
         <AuthProvider>
           <ShopsInitializer />
           <ConfigInitializer />
+          <OnboardingInitializer />
           {children}
           <Toaster />
         </AuthProvider>
@@ -38,7 +40,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-
-import './globals.css'

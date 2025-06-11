@@ -7,6 +7,7 @@ import { LogIn, LogOut, Package, Menu } from "lucide-react"
 import { useState } from "react"
 import { AuthModal } from "@/components/auth-modal"
 import { BasketIcon } from "@/components/basket-icon"
+import { OnboardingModal } from "@/components/onboarding-modal"
 
 interface TopBarProps {
   onToggleSidebar?: () => void
@@ -18,6 +19,7 @@ interface TopBarProps {
 export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal, isMobile = false }: TopBarProps) {
   const { user, logout } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false)
 
   return (
     <>
@@ -26,12 +28,15 @@ export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal, is
         style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
       >
         <div className="flex items-center">
-          {/* Removed sidebar toggle button for mobile */}
-          <Link href="/" className="text-2xl font-bold flex items-center">
+          {/* Clickable logo that opens onboarding */}
+          <button 
+            onClick={() => setShowOnboardingModal(true)}
+            className="text-2xl font-bold flex items-center hover:opacity-80 transition-opacity"
+          >
             <Package className="h-8 w-8 mr-3 text-secondary" />
             <span className="text-primary font-extrabold">PAKO</span>
             <span className="text-secondary font-extrabold">24</span>
-          </Link>
+          </button>
         </div>
 
         <div className="flex items-center gap-2">
@@ -60,6 +65,7 @@ export function TopBar({ onToggleSidebar, showBasketIcon, setShowBasketModal, is
       </div>
 
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} defaultTab="login" />
+      <OnboardingModal open={showOnboardingModal} onOpenChange={setShowOnboardingModal} />
     </>
   )
 }
