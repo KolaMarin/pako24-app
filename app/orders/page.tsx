@@ -19,7 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { cn, formatPriceHTML } from "@/lib/utils"
 import {
   Calendar,
   Clock,
@@ -40,6 +40,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AuthModal } from "@/components/auth-modal"
+import { Price } from "@/components/ui/price"
 
 interface ProductLink {
   url: string
@@ -409,7 +410,17 @@ export default function OrdersPage() {
                   <tr>
                     <td>${index + 1}</td>
                     <td>
-                      <a href="${product.url}" class="product-url" target="_blank">${product.title || product.url}</a>
+                      <a href="${product.url}" class="product-url" target="_blank">
+                        ${product.title ? product.title : (product.url.length > 60 ? product.url.substring(0, 60) + '...' : product.url)}
+                        <svg style="display: inline; width: 12px; height: 12px; margin-left: 4px; vertical-align: middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15,3 21,3 21,9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                      </a>
+                      ${product.title && product.url.length > 60 ? 
+                        `<div style="margin-top: 3px; font-size: 10px; color: #888; word-break: break-all;">${product.url.substring(0, 80)}...</div>` : ''
+                      }
                       ${product.size || product.color ? 
                         `<div style="margin-top: 5px; font-size: 12px; color: #666;">
                           ${product.size ? `Madhësia: ${product.size}` : ''}
@@ -420,10 +431,9 @@ export default function OrdersPage() {
                     </td>
                     <td>${product.quantity}</td>
                     <td>
-                      €${(product.priceEUR || 0).toFixed(2)}
-                      ${product.priceGBP ? `<span style="display: block; font-size: 11px; color: #777;">£${product.priceGBP.toFixed(2)}</span>` : ''}
+                      ${formatPriceHTML((product.priceEUR || 0) / product.quantity)}
                     </td>
-                    <td class="text-right">€${((product.priceEUR || 0) * product.quantity).toFixed(2)}</td>
+                    <td class="text-right">${formatPriceHTML(product.priceEUR || 0)}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -432,23 +442,23 @@ export default function OrdersPage() {
             <div class="totals">
               <div class="total-row">
                 <span>Çmimi bazë:</span>
-                <span>€${order.totalPriceEUR?.toFixed(2) || "0.00"}</span>
+                <span>${formatPriceHTML(order.totalPriceEUR || 0)}</span>
               </div>
               <div class="total-row">
                 <span>Dogana (${(configs.CUSTOMS_FEE_PERCENTAGE * 100).toFixed(0)}%):</span>
-                <span>€${order.totalCustomsFee?.toFixed(2) || "0.00"}</span>
+                <span>${formatPriceHTML(order.totalCustomsFee || 0)}</span>
               </div>
               <div class="total-row">
                 <span>Menaxhimi dhe Transporti (x${order.productLinks.length}):</span>
-                <span>€${order.totalTransportFee?.toFixed(2) || "0.00"}</span>
+                <span>${formatPriceHTML(order.totalTransportFee || 0)}</span>
               </div>
               <div class="total-row final-total">
                 <span>TOTALI:</span>
-                <span>€${order.totalFinalPriceEUR?.toFixed(2) || (
+                <span>${formatPriceHTML(order.totalFinalPriceEUR || (
                   (order.totalPriceEUR || 0) + 
                   (order.totalCustomsFee || 0) + 
                   (order.totalTransportFee || 0)
-                ).toFixed(2)}</span>
+                ))}</span>
               </div>
             </div>
 
@@ -703,7 +713,13 @@ export default function OrdersPage() {
                     <div className="flex items-center gap-2">
                     {order.totalFinalPriceEUR && (
                         <div className="text-right">
-                          <div className="font-medium text-primary text-base sm:text-lg">€{order.totalFinalPriceEUR.toFixed(2)}</div>
+                          <div className="font-medium text-primary text-base sm:text-lg">
+                            <Price 
+                              amount={order.totalFinalPriceEUR}
+                              className="font-medium text-primary text-base sm:text-lg"
+                              decimalClassName="text-[0.65em]"
+                            />
+                          </div>
                           <div className="text-xs text-gray-500">{order.productLinks.length} produkte</div>
                         </div>
                       )}
@@ -818,7 +834,11 @@ export default function OrdersPage() {
                                   {/* Product price on the right */}
                                   {product.priceEUR && (
                                     <span className="text-xs font-medium text-primary">
-                                      €{(product.priceEUR || 0).toFixed(2)}
+                                      <Price 
+                                        amount={product.priceEUR || 0}
+                                        className="text-xs font-medium text-primary"
+                                        decimalClassName="text-[0.6em]"
+                                      />
                                       {!isMobile && (
                                         <span className="text-xs text-gray-500 ml-1">
                                           ({product.quantity} copë)
@@ -868,9 +888,11 @@ export default function OrdersPage() {
                           <div className="flex justify-between">
                             <span className="text-gray-600">Çmimi bazë:</span>
                             <div>
-                              <span className="font-medium">
-                                €{order.totalPriceEUR?.toFixed(2) || "0.00"}
-                              </span>
+                              <Price 
+                                amount={order.totalPriceEUR || 0}
+                                className="font-medium"
+                                decimalClassName="text-[0.65em]"
+                              />
                             </div>
                           </div>
                           {/* Customs fee total */}
@@ -878,19 +900,29 @@ export default function OrdersPage() {
                             <span className="text-gray-600">
                               Dogana ({configs.CUSTOMS_FEE_PERCENTAGE ? `${(configs.CUSTOMS_FEE_PERCENTAGE * 100).toFixed(0)}%` : 'N/A'}):
                             </span>
-                            <span className="font-medium">€{order.totalCustomsFee?.toFixed(2) || "0.00"}</span>
+                            <Price 
+                              amount={order.totalCustomsFee || 0}
+                              className="font-medium"
+                              decimalClassName="text-[0.65em]"
+                            />
                           </div>
                           {/* Transport fee total */}
                           <div className="flex justify-between">
                             <span className="text-gray-600">Menaxhimi dhe Transporti (x{order.productLinks.length}):</span>
-                            <span className="font-medium">€{order.totalTransportFee?.toFixed(2) || "0.00"}</span>
+                            <Price 
+                              amount={order.totalTransportFee || 0}
+                              className="font-medium"
+                              decimalClassName="text-[0.65em]"
+                            />
                           </div>
                           {/* Grand total */}
                           <div className="flex justify-between font-medium pt-2 mt-2 border-t border-gray-200">
                             <span className="text-base">Totali:</span>
-                            <span className="text-primary text-base">
-                              €{order.totalFinalPriceEUR?.toFixed(2) || "0.00"}
-                            </span>
+                            <Price 
+                              amount={order.totalFinalPriceEUR || 0}
+                              className="text-primary text-base font-medium"
+                              decimalClassName="text-[0.7em]"
+                            />
                           </div>
                         </div>
                       </div>
@@ -939,7 +971,7 @@ export default function OrdersPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-xs sm:text-sm h-9 sm:h-8 px-4"
+                      className="!text-xs sm:!text-sm h-9 sm:h-8 px-4"
                       onClick={() => {
                         // Generate and download the invoice
                         generateOrderInvoice(order)

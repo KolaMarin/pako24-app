@@ -52,6 +52,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { toast } from "@/components/ui/use-toast"
+import { Price } from "@/components/ui/price"
 import {
   Search,
   User,
@@ -549,7 +550,13 @@ function CustomersPageContent(): JSX.Element {
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-muted-foreground">Total Spent</p>
-                            <p className="text-2xl font-bold">€{selectedCustomer.statistics.totalSpent.toFixed(2)}</p>
+                            <div className="text-2xl font-bold">
+                              <Price 
+                                amount={selectedCustomer.statistics.totalSpent}
+                                className="text-2xl font-bold"
+                                decimalClassName="text-[0.75em]"
+                              />
+                            </div>
                           </div>
                           <BarChart4 className="h-8 w-8 text-muted-foreground/30" />
                         </div>

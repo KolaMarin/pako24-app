@@ -31,6 +31,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Price } from "@/components/ui/price"
 
 interface BasketInvoiceModalProps {
   open: boolean
@@ -258,12 +259,10 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                             </td>
                             <td className="py-1 px-2 text-right font-medium text-gray-800 border-b">
                               {item.price > 0 ? (
-                                <>
-                                  €{(item.currency === 'EUR' ? item.price : item.price * exchangeRate).toFixed(2)}
-                                  <span className="block text-xs text-gray-500">
-                                    {item.currency === 'EUR' ? 'Final price' : `£${item.price.toFixed(2)}`}
-                                  </span>
-                                </>
+                                <Price 
+                                  amount={item.currency === 'EUR' ? item.price : item.price * exchangeRate}
+                                  className="font-medium text-gray-800"
+                                />
                               ) : "-"}
                             </td>
                             <td className="py-1 px-2 text-center text-gray-800 border-b">
@@ -289,7 +288,10 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                             </td>
                             <td className="py-1 px-2 text-right font-medium text-gray-800 border-b">
                               {item.price > 0 ? (
-                                <span className="font-bold">€{((item.currency === 'EUR' ? item.price : item.price * exchangeRate) * item.quantity).toFixed(2)}</span>
+                                <Price 
+                                  amount={(item.currency === 'EUR' ? item.price : item.price * exchangeRate) * item.quantity}
+                                  className="font-bold text-gray-800"
+                                />
                               ) : "-"}
                             </td>
                             <td className="py-1 px-2 text-center border-b">
@@ -361,7 +363,13 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                             {item.price > 0 && (
                               <>
                                 <span className="text-gray-500">Çmimi:</span>
-                                <span className="font-medium">€{(item.currency === 'EUR' ? item.price : item.price * exchangeRate).toFixed(2)}</span>
+                                <span className="font-medium">
+                                  <Price 
+                                    amount={item.currency === 'EUR' ? item.price : item.price * exchangeRate}
+                                    className="font-medium"
+                                    decimalClassName="text-[0.65em]"
+                                  />
+                                </span>
                               </>
                             )}
                           </div>
@@ -400,7 +408,11 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                             <div className="text-xs text-gray-500">Totali:</div>
                             <div className="font-bold text-sm">
                               {item.price > 0 ? (
-                                <>€{((item.currency === 'EUR' ? item.price : item.price * exchangeRate) * item.quantity).toFixed(2)}</>
+                                <Price 
+                                  amount={(item.currency === 'EUR' ? item.price : item.price * exchangeRate) * item.quantity}
+                                  className="font-bold text-sm"
+                                  decimalClassName="text-[0.65em]"
+                                />
                               ) : "-"}
                             </div>
                           </div>
@@ -417,21 +429,37 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                   <div className="flex justify-between mb-2">
                     <span className="text-sm text-gray-600">Çmimi bazë:</span>
                     <div className="text-right">
-                      <span className="text-sm font-medium">€{orderTotals.basePriceEUR.toFixed(2)}</span>
+                      <Price 
+                        amount={orderTotals.basePriceEUR}
+                        className="text-sm font-medium"
+                        decimalClassName="text-[0.65em]"
+                      />
                     </div>
                   </div>
                   <div className="flex justify-between mb-2">
                     <span className="text-sm text-gray-600">Dogana ({(customsFeePercentage * 100).toFixed(0)}%):</span>
-                    <span className="text-sm font-medium">€{orderTotals.customsFee.toFixed(2)}</span>
+                    <Price 
+                      amount={orderTotals.customsFee}
+                      className="text-sm font-medium"
+                      decimalClassName="text-[0.65em]"
+                    />
                   </div>
                   <div className="flex justify-between mb-2">
                     <span className="text-sm text-gray-600">Menaxhimi dhe Transporti {uniqueProductTypes > 0 && `(x${uniqueProductTypes})`}:</span>
-                    <span className="text-sm font-medium">€{orderTotals.shippingFee.toFixed(2)}</span>
+                    <Price 
+                      amount={orderTotals.shippingFee}
+                      className="text-sm font-medium"
+                      decimalClassName="text-[0.65em]"
+                    />
                   </div>
                   <Separator className="my-2" />
                   <div className="flex justify-between items-center">
                     <span className="text-base font-semibold">Totali:</span>
-                    <span className="text-lg font-bold text-primary">€{orderTotals.totalEUR.toFixed(2)}</span>
+                    <Price 
+                      amount={orderTotals.totalEUR}
+                      className="text-lg font-bold text-primary"
+                      decimalClassName="text-[0.75em]"
+                    />
                   </div>
                 </div>
               </div>

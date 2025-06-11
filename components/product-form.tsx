@@ -43,6 +43,7 @@ import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Toaster } from "@/components/ui/toaster"
+import { Price } from "@/components/ui/price"
 
 interface ProductFormProps {
   onSubmit: (data: { productLinks: ProductLink[] }) => Promise<void>
@@ -316,7 +317,10 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                     variant="outline" 
                     className="bg-primary/5 border-primary/20 text-primary font-semibold px-1.5 py-0.5"
                   >
-                    €{(calculateEuroPrice(productLinks[0].price, productLinks[0].currency) * productLinks[0].quantity).toFixed(2)}
+                    <Price 
+                      amount={calculateEuroPrice(productLinks[0].price, productLinks[0].currency) * productLinks[0].quantity}
+                      className="text-primary"
+                    />
                     {productLinks[0].quantity > 1 && <span className="ml-0.5 text-primary/80 font-medium">(x{productLinks[0].quantity})</span>}
                   </Badge>
                 </div>
@@ -427,7 +431,11 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                   {/* Real-time conversion display */}
                   {productLinks[0].price > 0 && productLinks[0].currency === 'GBP' && (
                     <p className="mt-1 text-xs text-gray-500 flex items-center gap-1">
-                       ≈ €{(productLinks[0].price * exchangeRate).toFixed(2)}
+                       ≈ <Price 
+                         amount={productLinks[0].price * exchangeRate}
+                         className="text-gray-500"
+                         decimalClassName="text-[0.65em]"
+                       />
                     </p>
                   )}
                 </div>

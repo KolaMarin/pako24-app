@@ -22,6 +22,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Price } from "@/components/ui/price"
+import { formatPriceHTML } from "@/lib/utils"
 
 interface ProductLink {
   id: string
@@ -513,15 +515,27 @@ export default function AdminOrdersPage() {
               <div className="grid grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
                 <div>
                   <p className="text-sm text-muted-foreground">Çmimi (EUR)</p>
-                  <p className="font-medium">€{product.priceEUR.toFixed(2)}</p>
+                  <Price 
+                    amount={product.priceEUR}
+                    className="font-medium"
+                    decimalClassName="text-[0.65em]"
+                  />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Dogana</p>
-                  <p className="font-medium">€{product.customsFee.toFixed(2)}</p>
+                  <Price 
+                    amount={product.customsFee}
+                    className="font-medium"
+                    decimalClassName="text-[0.65em]"
+                  />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Transporti</p>
-                  <p className="font-medium">€{product.transportFee.toFixed(2)}</p>
+                  <Price 
+                    amount={product.transportFee}
+                    className="font-medium"
+                    decimalClassName="text-[0.65em]"
+                  />
                 </div>
               </div>
             </div>
@@ -724,7 +738,17 @@ export default function AdminOrdersPage() {
                   <tr>
                     <td>${index + 1}</td>
                     <td>
-                      <a href="${product.url}" class="product-url" target="_blank">${product.url}</a>
+                      <a href="${product.url}" class="product-url" target="_blank">
+                        ${product.url.length > 60 ? product.url.substring(0, 60) + '...' : product.url}
+                        <svg style="display: inline; width: 12px; height: 12px; margin-left: 4px; vertical-align: middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15,3 21,3 21,9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                      </a>
+                      ${product.url.length > 60 ? 
+                        `<div style="margin-top: 3px; font-size: 10px; color: #888; word-break: break-all;">${product.url.substring(0, 80)}...</div>` : ''
+                      }
                       ${product.size || product.color ? 
                         `<div style="margin-top: 5px; font-size: 12px; color: #666;">
                           ${product.size ? `Madhësia: ${product.size}` : ''}
@@ -735,10 +759,10 @@ export default function AdminOrdersPage() {
                     </td>
                     <td>${product.quantity}</td>
                     <td>
-                      €${product.priceEUR.toFixed(2)}
-                      ${product.priceGBP ? `<span style="display: block; font-size: 11px; color: #777;">£${product.priceGBP.toFixed(2)}</span>` : ''}
+                      ${formatPriceHTML(product.priceEUR)}
+                      ${product.priceGBP ? `<span style="display: block; font-size: 11px; color: #777;">${formatPriceHTML(product.priceGBP, '£')}</span>` : ''}
                     </td>
-                    <td class="text-right">€${(product.priceEUR * product.quantity).toFixed(2)}</td>
+                    <td class="text-right">${formatPriceHTML(product.priceEUR * product.quantity)}</td>
                   </tr>
                 `).join('')}
               </tbody>
