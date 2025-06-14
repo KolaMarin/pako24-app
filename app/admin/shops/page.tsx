@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "@/components/ui/use-toast"
-import { Search, Plus, Edit, Trash2, ExternalLink, Check, X, Store } from "lucide-react"
+import { Search, Plus, Edit, Trash2, ExternalLink, Check, X, Store, ChevronUp, ChevronDown } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -32,6 +32,8 @@ import {
 interface Category {
   id: string
   name: string
+  description?: string | null
+  order: number
   _count?: {
     shops: number
   }
@@ -73,6 +75,8 @@ export default function AdminShopsPage() {
   const [editCategoryName, setEditCategoryName] = useState("")
   const [isDeleteCategoryDialogOpen, setIsDeleteCategoryDialogOpen] = useState(false)
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null)
+  const [hasOrderChanges, setHasOrderChanges] = useState(false)
+  const [savingOrder, setSavingOrder] = useState(false)
   
   // Shop form data
   const [shopFormData, setShopFormData] = useState({
@@ -236,6 +240,83 @@ export default function AdminShopsPage() {
         variant: "destructive",
       })
     }
+  }
+
+  // Category ordering functions
+  const moveCategoryUp = (categoryIndex: number) => {
+    if (categoryIndex === 0) return
+    
+    const newCategories = [...categories]
+    const [movedCategory] = newCategories.splice(categoryIndex, 1)
+    newCategories.splice(categoryIndex - 1, 0, movedCategory)
+    
+    // Update order values
+    const updatedCategories = newCategories.map((cat, idx) => ({
+      ...cat,
+      order: idx + 1
+    }))
+    
+    setCategories(updatedCategories)
+    setHasOrderChanges(true)
+  }
+
+  const moveCategoryDown = (categoryIndex: number) => {
+    if (categoryIndex === categories.length - 1) return
+    
+    const newCategories = [...categories]
+    const [movedCategory] = newCategories.splice(categoryIndex, 1)
+    newCategories.splice(categoryIndex + 1, 0, movedCategory)
+    
+    // Update order values
+    const updatedCategories = newCategories.map((cat, idx) => ({
+      ...cat,
+      order: idx + 1
+    }))
+    
+    setCategories(updatedCategories)
+    setHasOrderChanges(true)
+  }
+
+  const saveCategoryOrder = async () => {
+    try {
+      setSavingOrder(true)
+      
+      const categoriesToUpdate = categories.map((cat, index) => ({
+        id: cat.id,
+        order: index + 1
+      }))
+
+      const response = await fetch('/api/admin/shop-categories/update-order', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ categories: categoriesToUpdate })
+      })
+
+      if (!response.ok) throw new Error('Failed to update category order')
+
+      setHasOrderChanges(false)
+      
+      toast({
+        title: "Sukses",
+        description: "Renditja e kategorive u përditësua me sukses"
+      })
+    } catch (error) {
+      console.error('Error saving category order:', error)
+      toast({
+        title: "Gabim",
+        description: "Përditësimi i renditjes dështoi. Ju lutemi provoni përsëri.",
+        variant: "destructive"
+      })
+    } finally {
+      setSavingOrder(false)
+    }
+  }
+
+  const resetCategoryOrder = async () => {
+    await fetchData()
+    setHasOrderChanges(false)
   }
 
   // Shop management functions
@@ -510,11 +591,37 @@ export default function AdminShopsPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Shops by category - similar to customer view */}
-        {categories.map((category) => (
+        {/* Shops by category - with ordering controls */}
+        {categories.map((category, index) => (
           <Card key={category.id} className="mb-6 overflow-visible">
             <div className="flex justify-between items-center px-6 pt-6 pb-4 group">
               <div className="flex items-center gap-2">
+                {/* Category ordering controls */}
+                <div className="flex flex-col gap-0.5 mr-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-4 w-6 p-0 text-gray-400 hover:text-gray-600"
+                    onClick={() => moveCategoryUp(index)}
+                    disabled={index === 0}
+                  >
+                    <ChevronUp className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-4 w-6 p-0 text-gray-400 hover:text-gray-600"
+                    onClick={() => moveCategoryDown(index)}
+                    disabled={index === categories.length - 1}
+                  >
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </div>
+                
+                <div className="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded text-gray-600 mr-2">
+                  #{index + 1}
+                </div>
+                
                 <h2 className="text-xl font-bold">{category.name}</h2>
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                   {isEditingCategory === category.id ? (
@@ -875,6 +982,21 @@ export default function AdminShopsPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Fixed notification for category order changes */}
+        {hasOrderChanges && (
+          <div className="fixed bottom-6 right-6 bg-blue-500 text-white p-4 rounded-lg shadow-lg z-50">
+            <div className="text-sm font-medium mb-2">Renditja e kategorive ka ndryshuar</div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="secondary" onClick={resetCategoryOrder} disabled={savingOrder}>
+                Anulo
+              </Button>
+              <Button size="sm" onClick={saveCategoryOrder} disabled={savingOrder}>
+                {savingOrder ? "Duke ruajtur..." : "Ruaj Renditjen"}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </AdminLayout>
   )

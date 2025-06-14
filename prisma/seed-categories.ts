@@ -2,13 +2,22 @@ import { PrismaClient } from '@prisma/client'
 
 const categoryPrisma = new PrismaClient()
 
-// Initial categories data
+// Updated categories data with explicit ordering
 const initialCategories = [
-  { name: "Fashion & Clothing", description: "Clothing retailers offering a wide range of fashion items" },
-  { name: "Fast Fashion", description: "Affordable and trendy clothing retailers" },
-  { name: "Department Stores", description: "Large retail establishments offering a wide range of products" },
-  { name: "Beauty & Cosmetics", description: "Retailers specialized in beauty products and cosmetics" },
-  { name: "Other", description: "Miscellaneous shops that don't fit other categories" }
+  { name: "Fashion & Luxury Clothes", description: "High-end fashion brands and luxury clothing retailers", order: 1 },
+  { name: "Beauty & Makeup", description: "Cosmetics, skincare, and beauty products retailers", order: 2 },
+  { name: "Sports & Fitness", description: "Athletic wear, fitness equipment, and sports retailers", order: 3 },
+  { name: "Health & Vitamins", description: "Supplements, vitamins, and health products", order: 4 },
+  { name: "Jewelry & Watches", description: "Fine jewelry, watches, and luxury accessories", order: 5 },
+  { name: "Specialty & Vintage", description: "Consignment, vintage luxury, and specialty retailers", order: 6 },
+  { name: "Toys & Baby", description: "Toys, baby products, and children's items", order: 7 },
+  { name: "Pet Supplies", description: "Pet food, accessories, and animal care products", order: 8 },
+  { name: "Electronics & Technology", description: "Consumer electronics, computers, and technology products", order: 9 },
+  { name: "Home & Furniture", description: "Home furnishings, furniture, and interior décor", order: 10 },
+  { name: "Automotive", description: "Auto parts, accessories, and automotive products", order: 11 },
+  { name: "Books & Entertainment", description: "Books, games, and entertainment products", order: 12 },
+  { name: "Garden & Outdoor", description: "Outdoor furniture, gardening, and patio products", order: 13 },
+  { name: "Food & Beverages", description: "Gourmet foods, beverages, and culinary products", order: 14 }
 ]
 
 async function main() {
@@ -30,7 +39,12 @@ async function main() {
           })
           console.log(`Created category: ${category.name}`)
         } else {
-          console.log(`Category already exists: ${category.name}`)
+          // Update existing category with the order value
+          await categoryPrisma.shopCategory.update({
+            where: { id: existingCategory.id },
+            data: { order: category.order }
+          })
+          console.log(`Updated category order for: ${category.name} (order: ${category.order})`)
         }
       } catch (e: any) {
         // If the table doesn't exist yet, just create the category

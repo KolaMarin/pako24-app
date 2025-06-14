@@ -17,6 +17,7 @@ interface Category {
   id: string
   name: string
   description?: string | null
+  order?: number
 }
 
 // Type for shop data
@@ -97,32 +98,38 @@ export function ShopList() {
     }))
   }, [shops])
   
-  // Group shops by category
+  // Group shops by category with proper ordering
   const categories: CategoryWithShops[] = useMemo(() => {
-    const groupedShops: Record<string, Shop[]> = {}
+    const groupedShops: Record<string, { shops: Shop[], order: number }> = {}
     
     // First, initialize categories, even those with no shops
     allShops.forEach(shop => {
       if (shop.category) {
         // Use category name from the database
         const categoryName = shop.category.name
+        const categoryOrder = (shop.category as any).order || 999
         if (!groupedShops[categoryName]) {
-          groupedShops[categoryName] = []
+          groupedShops[categoryName] = { shops: [], order: categoryOrder }
         }
-        groupedShops[categoryName].push(shop)
+        groupedShops[categoryName].shops.push(shop)
       } else {
         // For shops with no category, put them in "Other"
         if (!groupedShops["Other"]) {
-          groupedShops["Other"] = []
+          groupedShops["Other"] = { shops: [], order: 999 }
         }
-        groupedShops["Other"].push(shop)
+        groupedShops["Other"].shops.push(shop)
       }
     })
     
-    return Object.entries(groupedShops).map(([name, shops]) => ({
-      name,
-      shops: shops.sort((a, b) => a.name.localeCompare(b.name))
-    }))
+    // Convert to array and sort by category order
+    return Object.entries(groupedShops)
+      .map(([name, data]) => ({
+        name,
+        shops: data.shops.sort((a, b) => a.name.localeCompare(b.name)),
+        order: data.order
+      }))
+      .sort((a, b) => a.order - b.order)
+      .map(({ name, shops }) => ({ name, shops }))
   }, [allShops])
 
   // Set initial active category when categories are loaded

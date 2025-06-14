@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 // GET /api/shops - Get all active shops for users
 export async function GET(request: NextRequest) {
   try {
-    // Get all active shops with their categories
+    // Get all active shops with their categories, ordered by category order then shop name
     const shops = await prisma.shop.findMany({
       where: {
         active: true
@@ -12,9 +12,16 @@ export async function GET(request: NextRequest) {
       include: {
         category: true
       },
-      orderBy: {
-        name: "asc",
-      },
+      orderBy: [
+        {
+          category: {
+            order: "asc"
+          }
+        },
+        {
+          name: "asc"
+        }
+      ],
     })
 
     return NextResponse.json(shops)

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Get all categories with shop count
+    // Get all categories with shop count, ordered by order field
     const categories = await prisma.shopCategory.findMany({
       include: {
         _count: {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: {
-        createdAt: 'desc'
+        order: 'asc'
       }
     })
 

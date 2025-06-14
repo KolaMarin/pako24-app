@@ -180,10 +180,15 @@ function CustomersPageContent(): JSX.Element {
       
       if (response.ok) {
         const data: CustomerResponse = await response.json()
-        setCustomers(data.customers)
+        setCustomers(data.customers || [])
         setPagination(data.pagination)
       } else {
-        throw new Error("Failed to fetch customers")
+        console.error("Failed to fetch customers - response not ok")
+        toast({
+          title: "Error",
+          description: "Failed to load customers. Please try again.",
+          variant: "destructive",
+        })
       }
     } catch (error) {
       console.error("Error fetching customers:", error)
@@ -377,148 +382,146 @@ function CustomersPageContent(): JSX.Element {
   }
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-              <div>
-                <CardTitle>Customer Management</CardTitle>
-                <CardDescription>
-                  View and manage your customers, their information, and account status
-                </CardDescription>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+            <div>
+              <CardTitle>Customer Management</CardTitle>
+              <CardDescription>
+                View and manage your customers, their information, and account status
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="relative w-[250px]">
+                <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search by email or phone..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSearch()
+                  }}
+                  className="pl-8"
+                />
               </div>
-              <div className="flex items-center gap-2">
-                <div className="relative w-[250px]">
-                  <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by email or phone..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleSearch()
-                    }}
-                    className="pl-8"
-                  />
-                </div>
-                <Button onClick={handleSearch}>Search</Button>
-              </div>
+              <Button onClick={handleSearch}>Search</Button>
             </div>
-          </CardHeader>
+          </div>
+        </CardHeader>
+        
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <div className="px-6">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="all">All Customers</TabsTrigger>
+              <TabsTrigger value="active">Active</TabsTrigger>
+              <TabsTrigger value="blocked">Blocked</TabsTrigger>
+            </TabsList>
+          </div>
           
-          <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <div className="px-6">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="all">All Customers</TabsTrigger>
-                <TabsTrigger value="active">Active</TabsTrigger>
-                <TabsTrigger value="blocked">Blocked</TabsTrigger>
-              </TabsList>
-            </div>
-            
-            <TabsContent value="all" className="pt-2">
-              <CustomerTable
-                customers={customers}
-                onViewDetails={fetchCustomerDetails}
-                onChangePassword={openPasswordModal}
-                onToggleBlock={handleToggleBlock}
-                loading={loading}
-              />
-            </TabsContent>
-            
-            <TabsContent value="active" className="pt-2">
-              <CustomerTable
-                customers={customers}
-                onViewDetails={fetchCustomerDetails}
-                onChangePassword={openPasswordModal}
-                onToggleBlock={handleToggleBlock}
-                loading={loading}
-              />
-            </TabsContent>
-            
-            <TabsContent value="blocked" className="pt-2">
-              <CustomerTable
-                customers={customers}
-                onViewDetails={fetchCustomerDetails}
-                onChangePassword={openPasswordModal}
-                onToggleBlock={handleToggleBlock}
-                loading={loading}
-              />
-            </TabsContent>
-          </Tabs>
+          <TabsContent value="all" className="pt-2">
+            <CustomerTable
+              customers={customers}
+              onViewDetails={fetchCustomerDetails}
+              onChangePassword={openPasswordModal}
+              onToggleBlock={handleToggleBlock}
+              loading={loading}
+            />
+          </TabsContent>
           
-          <CardFooter className="flex items-center justify-between border-t p-6">
-            <div className="text-sm text-muted-foreground">
-              Showing {customers.length} of {pagination.total} customers
-            </div>
-            
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => {
-                      if (pagination.page > 1) {
-                        handlePageChange(pagination.page - 1)
-                      }
-                    }}
-                    className={pagination.page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
-                
-                {[...Array(pagination.totalPages)].map((_, i) => {
-                  const page = i + 1
-                  
-                  // Show first page, last page, current page, and pages around current page
-                  if (
-                    page === 1 ||
-                    page === pagination.totalPages ||
-                    (page >= pagination.page - 1 && page <= pagination.page + 1)
-                  ) {
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          onClick={() => handlePageChange(page)}
-                          isActive={page === pagination.page}
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    )
-                  }
-                  
-                  // Show ellipsis for skipped pages
-                  if (
-                    (page === 2 && pagination.page > 3) ||
-                    (page === pagination.totalPages - 1 && pagination.page < pagination.totalPages - 2)
-                  ) {
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    )
-                  }
-                  
-                  return null
-                })}
-                
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => {
-                      if (pagination.page < pagination.totalPages) {
-                        handlePageChange(pagination.page + 1)
-                      }
-                    }}
-                    className={
-                      pagination.page >= pagination.totalPages
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
+          <TabsContent value="active" className="pt-2">
+            <CustomerTable
+              customers={customers}
+              onViewDetails={fetchCustomerDetails}
+              onChangePassword={openPasswordModal}
+              onToggleBlock={handleToggleBlock}
+              loading={loading}
+            />
+          </TabsContent>
+          
+          <TabsContent value="blocked" className="pt-2">
+            <CustomerTable
+              customers={customers}
+              onViewDetails={fetchCustomerDetails}
+              onChangePassword={openPasswordModal}
+              onToggleBlock={handleToggleBlock}
+              loading={loading}
+            />
+          </TabsContent>
+        </Tabs>
+        
+        <CardFooter className="flex items-center justify-between border-t p-6">
+          <div className="text-sm text-muted-foreground">
+            Showing {customers.length} of {pagination.total} customers
+          </div>
+          
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => {
+                    if (pagination.page > 1) {
+                      handlePageChange(pagination.page - 1)
                     }
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </CardFooter>
-        </Card>
-      </div>
+                  }}
+                  className={pagination.page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              
+              {[...Array(pagination.totalPages)].map((_, i) => {
+                const page = i + 1
+                
+                // Show first page, last page, current page, and pages around current page
+                if (
+                  page === 1 ||
+                  page === pagination.totalPages ||
+                  (page >= pagination.page - 1 && page <= pagination.page + 1)
+                ) {
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => handlePageChange(page)}
+                        isActive={page === pagination.page}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                }
+                
+                // Show ellipsis for skipped pages
+                if (
+                  (page === 2 && pagination.page > 3) ||
+                  (page === pagination.totalPages - 1 && pagination.page < pagination.totalPages - 2)
+                ) {
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )
+                }
+                
+                return null
+              })}
+              
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => {
+                    if (pagination.page < pagination.totalPages) {
+                      handlePageChange(pagination.page + 1)
+                    }
+                  }}
+                  className={
+                    pagination.page >= pagination.totalPages
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </CardFooter>
+      </Card>
       
       {/* Customer Details Modal */}
       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
@@ -703,7 +706,7 @@ function CustomersPageContent(): JSX.Element {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </div>
   )
 }
 
