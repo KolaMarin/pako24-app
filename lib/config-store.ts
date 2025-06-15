@@ -81,11 +81,13 @@ export const useConfigStore = create<ConfigStore>((set, get) => ({
   setLoaded: (loaded) => set({ isLoaded: loaded }),
   
   getTransportFee: () => {
-    return get().configs.STANDARD_TRANSPORT_FEE || 10
+    const fee = get().configs.STANDARD_TRANSPORT_FEE
+    return fee !== undefined && fee !== null ? fee : 10
   },
 
   getPreviousTransportFee: () => {
-    return get().configs.PREVIOUS_TRANSPORT_FEE || 15
+    const fee = get().configs.PREVIOUS_TRANSPORT_FEE
+    return fee !== undefined && fee !== null ? fee : 15
   },
 
   shouldShowPreviousPrice: () => {
