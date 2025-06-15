@@ -71,25 +71,11 @@ export function ShopList() {
         console.error("Failed to parse saved favorites", e)
       }
     }
-    
-    // Optional: Fetch shops if they're not already loaded
-    if (shops.length === 0) {
-      fetchShops()
-    }
-    
-    // Add a manual refresh option on error or timeout
-    if (error) {
-      const retryTimer = setTimeout(() => {
-        fetchShops()
-      }, 5000) // Retry after 5 seconds if there was an error
-      
-      return () => clearTimeout(retryTimer)
-    }
 
     return () => {
       window.removeEventListener("resize", checkMobile)
     }
-  }, [fetchShops])
+  }, [])
 
   // Get all shops with their categories
   const allShops = useMemo(() => {

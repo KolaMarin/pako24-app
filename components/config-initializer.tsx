@@ -5,7 +5,7 @@ import { loadAppConfigs } from '@/lib/config-store'
 
 export function ConfigInitializer() {
   useEffect(() => {
-    // Load app configurations on client-side
+    // Load app configurations once per session
     loadAppConfigs()
   }, [])
 

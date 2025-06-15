@@ -48,6 +48,8 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
   const currentDate = new Date().toLocaleDateString()
   const configs = useConfigStore(state => state.configs)
   const transportFeePerProduct = useConfigStore(state => state.getTransportFee())
+  const previousTransportFee = useConfigStore(state => state.getPreviousTransportFee())
+  const shouldShowPreviousPrice = useConfigStore(state => state.shouldShowPreviousPrice())
   const customsFeePercentage = useConfigStore(state => state.getCustomsFeePercentage())
   const exchangeRate = useConfigStore(state => state.getExchangeRate())
 
@@ -446,11 +448,28 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
                   </div>
                   <div className="flex justify-between mb-2">
                     <span className="text-sm text-gray-600">Menaxhimi dhe Transporti {uniqueProductTypes > 0 && `(x${uniqueProductTypes})`}:</span>
-                    <Price 
-                      amount={orderTotals.shippingFee}
-                      className="text-sm font-medium"
-                      decimalClassName="text-[0.65em]"
-                    />
+                    <div className="text-right">
+                      {shouldShowPreviousPrice ? (
+                        <div className="flex items-center gap-2">
+                          <Price 
+                            amount={previousTransportFee * uniqueProductTypes}
+                            className="text-sm text-gray-500 line-through"
+                            decimalClassName="text-[0.65em]"
+                          />
+                          <Price 
+                            amount={orderTotals.shippingFee}
+                            className="text-sm font-medium"
+                            decimalClassName="text-[0.65em]"
+                          />
+                        </div>
+                      ) : (
+                        <Price 
+                          amount={orderTotals.shippingFee}
+                          className="text-sm font-medium"
+                          decimalClassName="text-[0.65em]"
+                        />
+                      )}
+                    </div>
                   </div>
                   <Separator className="my-2" />
                   <div className="flex justify-between items-center">

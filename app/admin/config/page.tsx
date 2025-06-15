@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Switch } from "@/components/ui/switch"
 import { Save, Mail, Phone, MapPin, PoundSterling, Euro, Package, TruckIcon } from "lucide-react"
 
 interface AppConfig {
@@ -34,6 +35,8 @@ export default function AdminConfigPage() {
   
   // Shipping Costs
   const [standardShippingCost, setStandardShippingCost] = useState("")
+  const [previousShippingCost, setPreviousShippingCost] = useState("")
+  const [showPreviousPrice, setShowPreviousPrice] = useState(false)
   const [extraKgCost, setExtraKgCost] = useState("")
   const [customsFeePercentage, setCustomsFeePercentage] = useState("")
 
@@ -69,6 +72,12 @@ export default function AdminConfigPage() {
               break
             case "STANDARD_TRANSPORT_FEE":
               setStandardShippingCost(config.value)
+              break
+            case "PREVIOUS_TRANSPORT_FEE":
+              setPreviousShippingCost(config.value)
+              break
+            case "SHOW_PREVIOUS_TRANSPORT_PRICE":
+              setShowPreviousPrice(config.value === 'true')
               break
             case "PRICE_PER_EXCEEDED_KG":
               setExtraKgCost(config.value)
@@ -192,6 +201,16 @@ export default function AdminConfigPage() {
           "STANDARD_TRANSPORT_FEE", 
           standardShippingCost, 
           "Standard shipping cost in EUR"
+        ),
+        saveConfig(
+          "PREVIOUS_TRANSPORT_FEE", 
+          previousShippingCost, 
+          "Previous shipping cost to show price reduction"
+        ),
+        saveConfig(
+          "SHOW_PREVIOUS_TRANSPORT_PRICE", 
+          showPreviousPrice.toString(), 
+          "Whether to show previous transport price with strikethrough"
         ),
         saveConfig(
           "PRICE_PER_EXCEEDED_KG", 
@@ -387,6 +406,38 @@ export default function AdminConfigPage() {
                     Kosto bazë e transportit për çdo porosi
                   </p>
                 </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="previous-shipping">Kosto e Mëparshme e Transportit (EUR)</Label>
+                  <div className="relative">
+                    <TruckIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="previous-shipping"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={previousShippingCost}
+                      onChange={(e) => setPreviousShippingCost(e.target.value)}
+                      className="pl-8"
+                    />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Kosto e vjetër e transportit për të treguar uljen e çmimit
+                  </p>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="show-previous-price"
+                    checked={showPreviousPrice}
+                    onCheckedChange={setShowPreviousPrice}
+                  />
+                  <Label htmlFor="show-previous-price">Trego çmimin e mëparshëm</Label>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Kur aktivizuar, çmimi i mëparshëm do të shfaqet me vijë në shportë (vetëm kur çmimi i mëparshëm është më i lartë)
+                </p>
+
                 <div className="grid gap-2">
                   <Label htmlFor="extra-kg-cost">Kosto për Kilogram Shtesë (EUR)</Label>
                   <div className="relative">

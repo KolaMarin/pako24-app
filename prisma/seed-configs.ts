@@ -47,6 +47,16 @@ export async function seedConfigs() {
       value: '0.2',
       description: 'Customs fee percentage (e.g., 0.2 for 20%)',
     },
+    {
+      key: 'PREVIOUS_TRANSPORT_FEE',
+      value: '15',
+      description: 'Previous transport fee to show price reduction',
+    },
+    {
+      key: 'SHOW_PREVIOUS_TRANSPORT_PRICE',
+      value: 'true',
+      description: 'Whether to show previous transport price with strikethrough',
+    },
   ]
 
   console.log('Seeding default configuration values...')
