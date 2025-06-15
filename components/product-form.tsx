@@ -547,28 +547,28 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
             </div>
             
             {/* Action buttons - inside scrollable area for all screen sizes */}
-            <div className="flex justify-end gap-2 mt-6">
+            <div className="flex justify-end gap-2 mt-4">
               <Button 
                 variant="outline"
                 size="sm"
                 onClick={clearForm}
-                className="text-gray-700 border-gray-300 shadow-sm text-xs h-8 px-2 bg-white hover:bg-gray-50"
+                className="text-gray-700 border-gray-300 shadow-sm text-sm h-11 px-3 bg-white hover:bg-gray-50"
               >
-                <RefreshCw className="h-3 w-3 mr-1" />
+                <RefreshCw className="h-4 w-4 mr-1" />
                 Pastro
               </Button>
               
               <Button
                 onClick={handleAddToBasket}
                 disabled={isSubmitting}
-                className="bg-primary hover:bg-primary/90 text-white text-xs h-8 px-3 shadow-sm"
+                className="bg-primary hover:bg-primary/90 text-white text-sm h-11 px-4 shadow-sm"
                 size="sm"
               >
                 {isSubmitting ? (
-                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
                 ) : (
                   <>
-                    <Plus className="h-3 w-3 mr-1" />
+                    <Plus className="h-4 w-4 mr-1" />
                     <span className="hidden sm:inline">Shto në Shportë</span>
                     <span className="sm:hidden">Shto</span>
                   </>
