@@ -22,6 +22,12 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     }
   }
 
+  const handleBack = () => {
+    if (currentStep === 2) {
+      setCurrentStep(1)
+    }
+  }
+
   const handleSkip = () => {
     onComplete()
   }
@@ -29,7 +35,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {currentStep === 1 && <OnboardingStep1 onNext={handleNext} onSkip={handleSkip} />}
-      {currentStep === 2 && <OnboardingStep2 onNext={handleNext} onSkip={handleSkip} />}
+      {currentStep === 2 && <OnboardingStep2 onNext={handleNext} onBack={handleBack} onSkip={handleSkip} />}
     </div>
   )
 }
@@ -157,9 +163,17 @@ function OnboardingStep1({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
   )
 }
 
-function OnboardingStep2({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }) {
+function OnboardingStep2({ onNext, onBack, onSkip }: { onNext: () => void; onBack: () => void; onSkip: () => void }) {
   return (
-    <div className="h-screen flex flex-col justify-center items-center px-6 py-4 max-w-md mx-auto">
+    <div className="h-screen flex flex-col justify-center items-center px-6 py-4 max-w-md mx-auto relative">
+      {/* Back Button */}
+      <button 
+        onClick={onBack}
+        className="absolute top-6 left-6 text-gray-500 hover:text-gray-700 transition-colors text-sm flex items-center gap-1"
+      >
+        ← Prapa
+      </button>
+
       {/* Icon */}
       <div className="w-14 h-14 md:w-16 md:h-16 bg-blue-100 rounded-full flex items-center justify-center mb-3 md:mb-4">
         <ShoppingBag className="w-7 h-7 md:w-8 md:h-8 text-blue-600" />
