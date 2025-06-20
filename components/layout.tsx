@@ -254,7 +254,7 @@ export default function Layout({ children, activeTab, onTabChange }: { children:
         <main
           className={cn(
             "flex-1 overflow-y-auto transition-all duration-300 ease-in-out",
-            "px-4",
+            isMobile ? "px-2" : "px-4", // Reduced horizontal padding on mobile for more width
             isMobile ? "py-3 pb-20" : "py-6", // Reduced top padding and added bottom padding for mobile navbar
             "mt-16",
             user && !isMobile ? (isSidebarCollapsed ? "ml-16" : "ml-64") : "ml-0",

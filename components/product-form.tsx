@@ -282,7 +282,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full mx-auto px-1 py-0 sm:p-2 space-y-2 sm:space-y-3 pt-1 md:pt-2 sm:relative bg-slate-50 sm:bg-transparent">
+    <div className="w-full bg-slate-50 sm:bg-transparent">
       {/* Modals */}
       <BasketInvoiceModal 
         open={showBasketModal} 
@@ -296,7 +296,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       />
       
       {/* Product form card - Buttons now in scrollable area for all screen sizes */}
-      <div className="relative bg-white rounded-xl overflow-hidden border border-primary/10 shadow-lg w-full h-auto md:flex md:flex-col">
+      <div className="relative bg-white overflow-hidden border border-primary/10 shadow-lg w-full h-auto md:flex md:flex-col">
         {/* Left accent bar - hidden on mobile */}
         <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70 hidden md:block"></div>
         
