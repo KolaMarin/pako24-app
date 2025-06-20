@@ -282,7 +282,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full mx-auto px-1 py-0 sm:p-2 space-y-2 sm:space-y-3 pt-1 md:pt-2 sm:relative bg-gray-50 sm:bg-transparent">
+    <div className="w-full mx-auto px-1 py-0 sm:p-2 space-y-2 sm:space-y-3 pt-1 md:pt-2 sm:relative bg-slate-50 sm:bg-transparent">
       {/* Modals */}
       <BasketInvoiceModal 
         open={showBasketModal} 
