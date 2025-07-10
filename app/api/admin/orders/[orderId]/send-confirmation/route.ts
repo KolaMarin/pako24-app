@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { sendOrderConfirmationToCustomer, type CustomerConfirmationData } from "@/lib/email-service"
 
 export async function POST(request: Request, { params }: { params: { orderId: string } }) {
   try {
     const order = await prisma.order.findUnique({
       where: { id: params.orderId },
-      include: { user: true }
+      include: { 
+        user: true,
+        productLinks: true
+      }
     })
     
     if (!order) {
@@ -16,21 +20,38 @@ export async function POST(request: Request, { params }: { params: { orderId: st
       return NextResponse.json({ error: "Përdoruesi nuk u gjet" }, { status: 404 })
     }
 
-    // Here you would integrate with a WhatsApp API to send the confirmation
-    // For this example, we'll just simulate sending a message
-    console.log(`Sending WhatsApp confirmation to ${order.user.phoneNumber} for order ${order.id}`)
-
-    // In a real application, you would use a WhatsApp API here
-    // For example, using the Twilio API for WhatsApp:
-    // await twilioClient.messages.create({
-    //   body: `Your order ${order.id} has been confirmed. Total: £${order.totalPriceGBP.toFixed(2)}`,
-    //   from: 'whatsapp:+14155238886',
-    //   to: `whatsapp:${order.user.phoneNumber}`
-    // })
-
-    return NextResponse.json({ success: true })
+    // Send email confirmation to customer
+    try {
+      const emailData: CustomerConfirmationData = {
+        orderId: order.id,
+        customerEmail: order.user.email,
+        customerName: order.user.email.split('@')[0], // Use part before @ as name
+        products: order.productLinks.map((link) => ({
+          url: link.url,
+          quantity: link.quantity,
+          size: link.size,
+          color: link.color,
+          priceEUR: link.priceEUR,
+          title: link.title || undefined,
+        })),
+        totalFinalPriceEUR: order.totalFinalPriceEUR,
+        createdAt: order.createdAt,
+      }
+      
+      const emailSent = await sendOrderConfirmationToCustomer(emailData)
+      
+      if (emailSent) {
+        console.log(`Order confirmation email sent successfully to ${order.user.email}`)
+        return NextResponse.json({ success: true, message: "Emaili i konfirmimit u dërgua me sukses" })
+      } else {
+        throw new Error("Failed to send email")
+      }
+    } catch (emailError) {
+      console.error("Failed to send confirmation email:", emailError)
+      return NextResponse.json({ error: "Dërgimi i emailit të konfirmimit dështoi" }, { status: 500 })
+    }
   } catch (error) {
-    console.error("Failed to send WhatsApp confirmation:", error)
-    return NextResponse.json({ error: "Dërgimi i konfirmimit në WhatsApp dështoi" }, { status: 500 })
+    console.error("Failed to send order confirmation:", error)
+    return NextResponse.json({ error: "Dërgimi i konfirmimit dështoi" }, { status: 500 })
   }
 }

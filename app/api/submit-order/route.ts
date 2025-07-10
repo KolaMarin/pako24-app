@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import type { ProductLink } from "@/lib/types"
 import { recalculateOrderTotals } from "@/lib/prisma-utils"
+import { sendOrderNotificationToAdmin, type OrderNotificationData } from "@/lib/email-service"
 
 export async function POST(request: Request) {
   try {
@@ -67,6 +68,42 @@ export async function POST(request: Request) {
 
     // Recalculate order totals
     const updatedOrder = await recalculateOrderTotals(order.id)
+    
+    // Send email notification to admin
+    try {
+      const emailData: OrderNotificationData = {
+        orderId: updatedOrder.id,
+        customerEmail: user.email,
+        customerPhone: user.phoneNumber,
+        products: updatedOrder.productLinks.map((link) => ({
+          url: link.url,
+          quantity: link.quantity,
+          size: link.size,
+          color: link.color,
+          priceEUR: link.priceEUR,
+          priceGBP: link.priceGBP,
+          customsFee: link.customsFee,
+          transportFee: link.transportFee,
+          title: link.title || undefined,
+        })),
+        totalPriceEUR: updatedOrder.totalPriceEUR,
+        totalPriceGBP: updatedOrder.totalPriceGBP,
+        totalCustomsFee: updatedOrder.totalCustomsFee,
+        totalTransportFee: updatedOrder.totalTransportFee,
+        totalFinalPriceEUR: updatedOrder.totalFinalPriceEUR,
+        createdAt: updatedOrder.createdAt,
+      }
+      
+      const emailSent = await sendOrderNotificationToAdmin(emailData)
+      if (emailSent) {
+        console.log('Order notification email sent successfully')
+      } else {
+        console.error('Failed to send order notification email')
+      }
+    } catch (emailError) {
+      console.error('Error sending order notification email:', emailError)
+      // Don't fail the order creation if email fails
+    }
     
     return NextResponse.json({ success: true, order: updatedOrder })
   } catch (error) {
