@@ -157,7 +157,7 @@ export default function Layout({ children, activeTab, onTabChange }: { children:
   })
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
+    <div className="flex flex-col h-dvh bg-gray-50 relative">
       <TopBar 
         onToggleSidebar={toggleSidebar} 
         showBasketIcon={true} 
@@ -171,7 +171,7 @@ export default function Layout({ children, activeTab, onTabChange }: { children:
         onOpenChange={setShowBasketModal} 
         onSubmit={handleSubmitOrder} 
       />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 relative min-h-0">
         {user && !isMobile && (
           <aside
             className={cn(
@@ -253,12 +253,18 @@ export default function Layout({ children, activeTab, onTabChange }: { children:
         )}
         <main
           className={cn(
-            "flex-1 overflow-y-auto transition-all duration-300 ease-in-out",
-            isMobile ? "px-2" : "px-4", // Reduced horizontal padding on mobile for more width
-            isMobile ? "py-3 pb-20" : "py-6", // Reduced top padding and added bottom padding for mobile navbar
-            "mt-16",
+            "flex-1 transition-all duration-300 ease-in-out",
+            isMobile ? "px-2" : "px-4",
+            isMobile ? "py-3 pb-20" : "py-6", // Restored original padding
+            "mt-16", // Back to margin-top for proper spacing
             user && !isMobile ? (isSidebarCollapsed ? "ml-16" : "ml-64") : "ml-0",
+            "overflow-y-auto overflow-x-hidden",
+            isMobile && "touch-pan-y", // Better touch scrolling on mobile
           )}
+          style={isMobile ? {
+            height: 'calc(100dvh - 4rem)',
+            maxHeight: 'calc(100dvh - 4rem)',
+          } : undefined}
         >
           {children}
         </main>
