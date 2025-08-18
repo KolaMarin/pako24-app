@@ -699,9 +699,9 @@ export default function OrdersPage() {
           </CardContent>
         </Card>
 
-        <div className="space-y-3">
+        <div className="space-y-8">
           {sortedOrders.length === 0 ? (
-            <Card className="bg-white shadow-md border-0 rounded-lg">
+            <Card className="bg-white shadow-lg border border-gray-100 rounded-xl">
               <CardContent className={`${isMobile ? 'p-6' : 'p-8'} text-center`}>
                 <div className="bg-blue-50 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                   <ShoppingBag className="h-8 w-8 text-blue-500" />
@@ -736,14 +736,14 @@ export default function OrdersPage() {
               </CardContent>
             </Card>
           ) : (
-            sortedOrders.map((order) => (
-              <Card
-                key={order.id}
-                className={cn(
-                  "bg-white shadow-md border-0 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-lg",
-                  expandedOrder === order.id ? "ring-1 ring-blue-200 shadow-lg" : "",
-                )}
-              >
+            sortedOrders.map((order, index) => (
+              <div key={order.id} className="relative">
+                <Card
+                  className={cn(
+                    "bg-white shadow-xl border border-gray-200/60 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-blue-300/60 hover:-translate-y-1",
+                    expandedOrder === order.id ? "ring-2 ring-blue-400/60 shadow-2xl border-blue-300/60 transform -translate-y-1" : "",
+                  )}
+                >
                 {/* Compact order header */}
                 <div className={`${isMobile ? 'p-3' : 'p-4'} border-b border-gray-100 bg-gray-50/30`}>
                   <div className="flex justify-between items-center">
@@ -846,33 +846,70 @@ export default function OrdersPage() {
                         {order.productLinks.map((product, index) => (
                           <div
                             key={index}
-                            className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${isMobile ? 'p-2 mb-2' : 'p-3 mb-2'} w-full shadow-sm hover:shadow-md transition-all duration-200`}
+                            className={`bg-white rounded-xl border-2 border-gray-100 overflow-hidden ${isMobile ? 'p-3 mb-3' : 'p-4 mb-3'} w-full shadow-md hover:shadow-lg hover:border-blue-200 transition-all duration-200 relative`}
                           >
-                            <div className="flex items-start gap-2">
-                              {/* Number instead of icon */}
-                              <div className="flex-shrink-0 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                {index + 1}
-                              </div>
+                            {/* Subtle gradient overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-50/20 via-transparent to-purple-50/20 pointer-events-none"></div>
+                            <div className="relative z-10">
+                              <div className="flex items-start gap-2">
+                                {/* Number instead of icon */}
+                                <div className="flex-shrink-0 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                  {index + 1}
+                                </div>
 
-                              {/* Product details - compact */}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-start mb-1">
-                                  {/* Product title/URL */}
-                                  {product.title ? (
-                                    <span className={`font-medium text-gray-800 truncate ${isMobile ? 'text-sm' : 'text-sm'} block flex-1 mr-2`}>
-                                      {product.title}
-                                    </span>
-                                  ) : (
+                                {/* Product details - compact */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex justify-between items-start mb-1">
+                                    {/* Product title/URL */}
+                                    {product.title ? (
+                                      <span className={`font-medium text-gray-800 truncate ${isMobile ? 'text-sm' : 'text-sm'} block flex-1 mr-2`}>
+                                        {product.title}
+                                      </span>
+                                    ) : (
+                                      <a
+                                        href={product.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`font-medium text-primary hover:text-primary/80 hover:underline truncate ${isMobile ? 'text-sm' : 'text-sm'} flex-1 mr-2`}
+                                      >
+                                        {isMobile ? (
+                                          <>
+                                            {product.url.substring(0, 25)}...
+                                            <ExternalLink className="inline h-3 w-3 ml-1" />
+                                          </>
+                                        ) : (
+                                          <>
+                                            {product.url}
+                                            <ExternalLink className="inline h-3 w-3 ml-1" />
+                                          </>
+                                        )}
+                                      </a>
+                                    )}
+                                    
+                                    {/* Product price */}
+                                    {product.priceEUR && (
+                                      <span className="text-xs font-bold text-primary flex-shrink-0">
+                                        <Price 
+                                          amount={product.priceEUR || 0}
+                                          className="text-xs font-bold text-primary"
+                                          decimalClassName="text-[0.6em]"
+                                        />
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* Show URL if title exists */}
+                                  {product.title && (
                                     <a
                                       href={product.url}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className={`font-medium text-primary hover:text-primary/80 hover:underline truncate ${isMobile ? 'text-sm' : 'text-sm'} flex-1 mr-2`}
+                                      className="text-xs text-gray-500 hover:text-primary/80 hover:underline truncate block mb-1"
                                     >
                                       {isMobile ? (
                                         <>
-                                          {product.url.substring(0, 25)}...
-                                          <ExternalLink className="inline h-3 w-3 ml-1" />
+                                          {product.url.substring(0, 30)}...
+                                          <ExternalLink className="inline h-2.5 w-2.5 ml-1" />
                                         </>
                                       ) : (
                                         <>
@@ -882,50 +919,17 @@ export default function OrdersPage() {
                                       )}
                                     </a>
                                   )}
-                                  
-                                  {/* Product price */}
-                                  {product.priceEUR && (
-                                    <span className="text-xs font-bold text-primary flex-shrink-0">
-                                      <Price 
-                                        amount={product.priceEUR || 0}
-                                        className="text-xs font-bold text-primary"
-                                        decimalClassName="text-[0.6em]"
-                                      />
-                                    </span>
-                                  )}
-                                </div>
 
-                                {/* Show URL if title exists */}
-                                {product.title && (
-                                  <a
-                                    href={product.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-gray-500 hover:text-primary/80 hover:underline truncate block mb-1"
-                                  >
-                                    {isMobile ? (
-                                      <>
-                                        {product.url.substring(0, 30)}...
-                                        <ExternalLink className="inline h-2.5 w-2.5 ml-1" />
-                                      </>
-                                    ) : (
-                                      <>
-                                        {product.url}
-                                        <ExternalLink className="inline h-3 w-3 ml-1" />
-                                      </>
+                                  {/* Compact product attributes */}
+                                  <div className="flex flex-wrap items-center text-xs text-gray-600 gap-2">
+                                    <span>Sasia: <strong>{product.quantity}</strong></span>
+                                    {product.size && (
+                                      <span>Madhësia: <strong>{product.size}</strong></span>
                                     )}
-                                  </a>
-                                )}
-
-                                {/* Compact product attributes */}
-                                <div className="flex flex-wrap items-center text-xs text-gray-600 gap-2">
-                                  <span>Sasia: <strong>{product.quantity}</strong></span>
-                                  {product.size && (
-                                    <span>Madhësia: <strong>{product.size}</strong></span>
-                                  )}
-                                  {product.color && (
-                                    <span>Ngjyra: <strong>{product.color}</strong></span>
-                                  )}
+                                    {product.color && (
+                                      <span>Ngjyra: <strong>{product.color}</strong></span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -1033,6 +1037,18 @@ export default function OrdersPage() {
                   </div>
                 </div>
               </Card>
+                
+                {/* Beautiful separator between orders - only show if not the last order */}
+                {index < sortedOrders.length - 1 && (
+                  <div className="flex items-center justify-center my-6">
+                    <div className="flex-grow h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+                    <div className="px-4">
+                      <div className="w-2 h-2 bg-blue-200 rounded-full animate-pulse"></div>
+                    </div>
+                    <div className="flex-grow h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+                  </div>
+                )}
+              </div>
             ))
           )}
         </div>
