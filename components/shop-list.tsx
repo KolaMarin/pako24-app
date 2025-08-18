@@ -239,18 +239,27 @@ export function ShopList() {
   return (
     <div className="w-full space-y-4">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+          <Search className="h-5 w-5 text-blue-500" />
+        </div>
         <Input
-          placeholder="Kërko dyqane..."
+          placeholder="Kërko dyqane nga e gjithë bota..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className={`pl-10 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all border-gray-200 ${
-            isMobile ? 'h-10 text-sm placeholder:text-sm' : 'h-12 text-base placeholder:text-base'
+          className={`pl-12 pr-4 bg-gradient-to-r from-blue-50/50 via-white to-purple-50/50 border-2 border-gray-200 rounded-xl focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:ring-offset-0 focus-visible:border-blue-400 hover:border-gray-300 transition-all duration-300 shadow-sm hover:shadow-md backdrop-blur-sm ${
+            isMobile ? 'h-11 text-sm placeholder:text-sm font-medium' : 'h-12 text-base placeholder:text-base font-medium'
           }`}
         />
+        {searchTerm && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <div className="bg-blue-100 text-blue-600 px-2 py-1 rounded-md text-xs font-medium">
+              {filteredShops.length} rezultate
+            </div>
+          </div>
+        )}
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="all">Të Gjitha</TabsTrigger>
           <TabsTrigger value="favorites">Të Preferuarat</TabsTrigger>
@@ -313,57 +322,71 @@ export function ShopList() {
               categories.map((category, index) => (
                 <div 
                   key={category.name} 
-                  className={`relative ${index > 0 ? 'mt-8' : ''} mb-6`}
+                  className={`relative ${index > 0 ? 'mt-12' : 'mt-6'} mb-8`}
                   ref={el => {
                     categoryRefs.current[category.name] = el
                   }}
                   id={`category-${category.name.toLowerCase().replace(/\s+/g, '-')}`}
                 >
-                  {/* Elegant separator line between categories */}
-                  {index > 0 && (
-                    <div className="absolute -top-4 left-0 right-0 flex items-center justify-center">
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                      <div className="mx-4 w-2 h-2 bg-gray-300 rounded-full"></div>
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                  {/* Professional separator with category title */}
+                  <div className="relative mb-6">
+                    {/* Main separator line */}
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full h-px bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200"></div>
                     </div>
-                  )}
-                  
-                  {/* Enhanced category card container */}
-                  <div className="bg-white rounded-xl border border-gray-200/60 shadow-lg shadow-gray-100/50 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 overflow-hidden">
-                    {/* Category header with light blue background */}
-                    <div className={`bg-blue-50/60 border-b border-gray-200/50 ${isMobile ? 'px-4 py-3' : 'px-6 py-4'}`}>
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          <div className={`bg-primary rounded-full shadow-sm ${isMobile ? 'w-1 h-6' : 'w-1.5 h-8'}`}></div>
-                          <h3 className={`font-bold text-gray-800 tracking-tight ${isMobile ? 'text-lg' : 'text-xl'}`}>{category.name}</h3>
+                    
+                    {/* Category title container */}
+                    <div className="relative flex justify-center">
+                      <div className={`bg-gradient-to-r from-blue-50 via-white to-indigo-50 px-6 py-3 border-2 border-blue-200/60 rounded-full shadow-lg hover:shadow-xl hover:from-blue-100 hover:to-indigo-100 transition-all duration-300 backdrop-blur-sm ${
+                        isMobile ? 'mx-4' : 'mx-8'
+                      }`}>
+                        <div className="flex items-center gap-3">
+                          {/* Category icon */}
+                          <div className={`flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 shadow-md hover:shadow-lg transition-shadow duration-300 ${
+                            isMobile ? 'w-7 h-7' : 'w-9 h-9'
+                          }`}>
+                            <Store className={`text-white ${isMobile ? 'h-3.5 w-3.5' : 'h-5 w-5'}`} />
+                          </div>
+                          
+                          {/* Category name */}
+                          <h3 className={`font-bold text-gray-900 tracking-tight drop-shadow-sm ${
+                            isMobile ? 'text-base' : 'text-xl'
+                          }`}>
+                            {category.name}
+                          </h3>
+                          
+                          {/* Shop count badge */}
+                          <div className={`bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full font-semibold border-2 border-blue-300/50 shadow-sm ${
+                            isMobile ? 'px-2.5 py-1 text-xs' : 'px-3.5 py-1.5 text-sm'
+                          }`}>
+                            {category.shops.length}
+                          </div>
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Shops grid with improved spacing */}
-                    <div className={isMobile ? 'p-3' : 'p-6'}>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                        {category.shops.map((shop) => (
-                          <div key={shop.id} className="transform hover:scale-[1.02] transition-transform duration-200">
-                            <ShopCard
-                              shop={{
-                                name: shop.name,
-                                url: shop.website,
-                                category: shop.category?.name
-                              }}
-                              isFavorite={favorites.has(shop.website)}
-                              isCopied={copiedUrl === shop.website}
-                              onShopClick={handleShopClick}
-                              onToggleFavorite={toggleFavorite}
-                              onCopyUrl={copyToClipboard}
-                              icon={getShopIcon(isMobile)}
-                              logoUrl={shop.logoUrl}
-                              isMobile={isMobile}
-                            />
-                          </div>
-                        ))}
+                  </div>
+                  
+                  {/* Shops grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                    {category.shops.map((shop) => (
+                      <div key={shop.id} className="transform hover:scale-[1.02] transition-transform duration-200">
+                        <ShopCard
+                          shop={{
+                            name: shop.name,
+                            url: shop.website,
+                            category: shop.category?.name
+                          }}
+                          isFavorite={favorites.has(shop.website)}
+                          isCopied={copiedUrl === shop.website}
+                          onShopClick={handleShopClick}
+                          onToggleFavorite={toggleFavorite}
+                          onCopyUrl={copyToClipboard}
+                          icon={getShopIcon(isMobile)}
+                          logoUrl={shop.logoUrl}
+                          isMobile={isMobile}
+                        />
                       </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               ))

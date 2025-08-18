@@ -34,13 +34,13 @@ const NavLink = ({
       href={href}
       className={cn(
         "flex items-center px-4 py-3 rounded-md transition-all duration-200",
-        isActive ? "bg-primary/10 text-primary font-medium" : "hover:bg-gray-100 hover:text-primary",
+        isActive ? "bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 font-medium border-r-2 border-blue-500" : "hover:bg-blue-50 hover:text-blue-600",
         "active:bg-gray-200",
         isSidebarCollapsed ? "justify-center" : "justify-start gap-3",
       )}
     >
       <div className="flex items-center justify-center w-6 h-6">
-        <Icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-gray-500")} />
+        <Icon className={cn("h-5 w-5", isActive ? "text-blue-600" : "text-gray-500")} />
       </div>
       {!isSidebarCollapsed && <span className="text-base font-medium">{children}</span>}
     </Link>
@@ -188,14 +188,14 @@ export default function Layout({ children, activeTab, onTabChange }: { children:
                 variant="ghost" 
                 size="icon" 
                 onClick={toggleSidebar} 
-                className="h-10 w-10 hover:bg-gray-100"
+                className="h-10 w-10 hover:bg-blue-50"
                 title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               >
                 <div className="flex items-center justify-center w-6 h-6">
                   {isSidebarCollapsed ? (
-                    <PanelLeftOpen className="h-6 w-6 text-primary" />
+                    <PanelLeftOpen className="h-6 w-6 text-blue-600" />
                   ) : (
-                    <PanelLeftClose className="h-6 w-6 text-primary" />
+                    <PanelLeftClose className="h-6 w-6 text-blue-600" />
                   )}
                 </div>
               </Button>
@@ -207,7 +207,7 @@ export default function Layout({ children, activeTab, onTabChange }: { children:
                 <Button
                   variant="outline"
                   className={cn(
-                    "flex items-center hover:bg-gray-100 border",
+                    "flex items-center hover:bg-blue-50 border-gray-200 hover:border-blue-300",
                     isSidebarCollapsed 
                       ? "h-10 w-10 justify-center" 
                       : "w-full justify-center gap-2"
@@ -216,11 +216,11 @@ export default function Layout({ children, activeTab, onTabChange }: { children:
                 >
                   <div className="flex items-center justify-center w-6 h-6">
                     <User className={cn(
-                      "text-primary",
+                      "text-blue-600",
                       isSidebarCollapsed ? "h-6 w-6" : "h-5 w-5"
                     )} />
                   </div>
-                  {!isSidebarCollapsed && <span className="font-medium">Profili</span>}
+                  {!isSidebarCollapsed && <span className="font-medium text-blue-600">Profili</span>}
                 </Button>
                 
                 {showUserDropdown && (

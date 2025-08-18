@@ -53,31 +53,71 @@ export function MobileNavbar({ activeTab: initialActiveTab, onTabChange, items }
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-50 h-16 md:hidden">
-      <div className="grid grid-cols-4 h-full">
-        {items.map((item) => {
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/50 z-50 h-16 md:hidden shadow-lg">
+      {/* Background gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-white via-white to-transparent pointer-events-none" />
+      
+      <div className="grid grid-cols-4 h-full relative z-10">
+        {items.map((item, index) => {
           const Icon = item.icon
           const isActive = activeTab === item.id
+
+          // Define colors for each tab
+          const colors = {
+            order: "text-blue-600 bg-blue-50",
+            shops: "text-orange-600 bg-orange-50", 
+            orders: "text-purple-600 bg-purple-50",
+            settings: "text-gray-600 bg-gray-50"
+          }
+
+          const activeColor = colors[item.id as keyof typeof colors] || "text-primary bg-primary/5"
 
           return (
             <button
               key={item.id}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 transition-all duration-200",
+                "flex flex-col items-center justify-center gap-1 transition-all duration-300 relative px-2 py-2",
                 isActive 
-                  ? "text-primary bg-primary/5" 
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50",
+                  ? `${activeColor} font-semibold` 
+                  : "text-gray-400 hover:text-gray-600 hover:bg-gray-50/50",
               )}
               onClick={() => handleTabChange(item.id, item.path, item.action)}
             >
-              <div className="relative">
-                <Icon className={cn("h-5 w-5", isActive && "scale-125 transition-transform")} />
+              {/* Active indicator */}
+              {isActive && (
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-b-full" />
+              )}
+              
+              <div className={cn(
+                "relative p-2 rounded-xl transition-all duration-300",
+                isActive && "transform scale-110 shadow-sm"
+              )}>
+                <Icon className="h-5 w-5" />
+                
+                {/* Subtle glow effect for active tab */}
+                {isActive && (
+                  <div className="absolute inset-0 bg-current opacity-10 rounded-xl blur-sm" />
+                )}
               </div>
-              <span className={cn("text-xs font-medium", isActive && "font-semibold text-primary")}>{item.label}</span>
+              
+              <span className={cn(
+                "text-xs transition-all duration-300",
+                isActive ? "font-bold" : "font-medium"
+              )}>
+                {item.label}
+              </span>
+
+              {/* Subtle animation dot */}
+              {isActive && (
+                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-current rounded-full animate-pulse" />
+              )}
             </button>
           )
         })}
       </div>
+      
+      {/* Bottom safe area for iOS */}
+      <div className="h-safe-area-inset-bottom bg-white/95" />
     </div>
   )
 }

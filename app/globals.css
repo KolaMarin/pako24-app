@@ -13,39 +13,40 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* Primary color: Dark Blue (previously Secondary) */
-    --primary: 210 100% 25%;
+    /* Enhanced Primary color: Modern blue with better contrast */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary color: Orange (previously Primary) */
-    --secondary: 24 100% 50%;
+    /* Enhanced Secondary color: Vibrant orange */
+    --secondary: 25 95% 53%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 210 40% 98%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* Update accent to match new primary (blue) */
-    --accent: 210 100% 96%;
-    --accent-foreground: 210 100% 30%;
+    /* Enhanced accent colors */
+    --accent: 217 91% 95%;
+    --accent-foreground: 217 91% 35%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 210 100% 25%;
+    /* Softer borders for modern look */
+    --border: 214.3 31.8% 93%;
+    --input: 214.3 31.8% 96%;
+    --ring: 217 91% 60%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    /* Sidebar colors - improved contrast */
+    /* Enhanced sidebar colors with better visual hierarchy */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-primary: 210 100% 25%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 24 100% 50%;
+    --sidebar-accent: 25 95% 53%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 210 100% 25%;
+    --sidebar-border: 214.3 31.8% 93%;
+    --sidebar-ring: 217 91% 60%;
   }
 
   .dark {
@@ -97,18 +98,47 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-to-br from-gray-50 via-white to-blue-50/30 text-foreground min-h-screen;
   }
+  
   /* Prevent horizontal overflow in cards and accordions */
   .card, [data-state="open"].accordion-content {
     overflow-x: hidden;
     max-width: 100%;
     word-break: break-word;
   }
+
+  /* Enhanced card styling */
+  .enhanced-card {
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-lg;
+  }
+
+  /* Modern button variants */
+  .btn-modern-primary {
+    @apply bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-0;
+  }
+
+  .btn-modern-secondary {
+    @apply bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-0;
+  }
 }
 
 .text-gradient {
-  @apply text-primary;
+  @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
+}
+
+/* Enhanced glass morphism effects */
+.glass-card {
+  @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+.glass-card-dark {
+  @apply bg-black/10 backdrop-blur-md border border-white/10 shadow-2xl;
+}
+
+/* Modern focus styles */
+.modern-focus {
+  @apply focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:ring-offset-2 focus-visible:outline-none transition-all duration-200;
 }
 
 /* Mobile zoom prevention - comprehensive solution for all input fields */

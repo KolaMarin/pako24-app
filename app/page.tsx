@@ -108,67 +108,83 @@ function HomePageContent() {
   return (
     <Layout activeTab={activeTab} onTabChange={setActiveTab}>
       <div className="max-w-4xl mx-auto">
-        {/* Desktop tab buttons - hidden on mobile */}
-        <div className="mb-6 w-full hidden md:block">
-          <div className="grid grid-cols-2 gap-2 w-full">
-            <button
-              className={cn(
-                "flex items-center justify-center py-3 px-4 rounded-md transition-all",
-                activeTab === "order"
-                  ? "bg-primary text-white shadow-md"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200",
-              )}
-              onClick={() => setActiveTab("order")}
-            >
-              <ShoppingBag className="h-5 w-5 mr-2" />
-              Dërgo Porosi
-            </button>
-            <button
-              className={cn(
-                "flex items-center justify-center py-3 px-4 rounded-md transition-all",
-                activeTab === "shops"
-                  ? "bg-primary text-white shadow-md"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200",
-              )}
-              onClick={() => setActiveTab("shops")}
-            >
-              <Store className="h-5 w-5 mr-2" />
-              Eksploro Dyqane
-            </button>
+        {/* Enhanced desktop tab buttons with modern design */}
+        <div className="mb-8 w-full hidden md:block">
+          <div className="bg-white/70 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-gray-200/50">
+            <div className="grid grid-cols-2 gap-2 w-full">
+              <button
+                className={cn(
+                  "flex items-center justify-center py-4 px-6 rounded-xl transition-all duration-300 font-semibold relative overflow-hidden",
+                  activeTab === "order"
+                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg transform scale-[1.02]"
+                    : "bg-transparent text-gray-700 hover:bg-gray-100/50 hover:text-blue-600",
+                )}
+                onClick={() => setActiveTab("order")}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 opacity-0 transition-opacity duration-300 hover:opacity-100" />
+                <ShoppingBag className={cn("h-5 w-5 mr-3", activeTab === "order" ? "text-white" : "text-blue-600")} />
+                <span className="relative z-10">Dërgo Porosi</span>
+              </button>
+              <button
+                className={cn(
+                  "flex items-center justify-center py-4 px-6 rounded-xl transition-all duration-300 font-semibold relative overflow-hidden",
+                  activeTab === "shops"
+                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg transform scale-[1.02]"
+                    : "bg-transparent text-gray-700 hover:bg-gray-100/50 hover:text-orange-600",
+                )}
+                onClick={() => setActiveTab("shops")}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-600/10 to-red-600/10 opacity-0 transition-opacity duration-300 hover:opacity-100" />
+                <Store className={cn("h-5 w-5 mr-3", activeTab === "shops" ? "text-white" : "text-orange-600")} />
+                <span className="relative z-10">Eksploro Dyqane</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Content area */}
+        {/* Enhanced content area with modern design */}
         <AnimatePresence mode="wait">
           {activeTab === "order" && (
             <motion.div
               key="order"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <Card className="bg-white shadow-lg border-0 overflow-hidden">
-                <CardContent className="p-0">
-                  <ProductForm onSubmit={handleSubmitOrder} />
-                </CardContent>
-              </Card>
+              <div className="relative">
+                {/* Decorative background elements */}
+                <div className="absolute -top-10 -left-10 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-2xl animate-pulse" />
+                <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full blur-xl animate-pulse delay-1000" />
+                
+                <Card className="enhanced-card rounded-2xl overflow-hidden relative backdrop-blur-sm border-white/50 shadow-2xl">
+                  <CardContent className="p-0">
+                    <ProductForm onSubmit={handleSubmitOrder} />
+                  </CardContent>
+                </Card>
+              </div>
             </motion.div>
           )}
 
           {activeTab === "shops" && (
             <motion.div
               key="shops"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <Card className="bg-white shadow-lg border-0 overflow-hidden">
-                <CardContent className="p-4">
-                  <ShopList />
-                </CardContent>
-              </Card>
+              <div className="relative">
+                {/* Decorative background elements */}
+                <div className="absolute -top-10 -right-10 w-28 h-28 bg-gradient-to-br from-orange-500/10 to-yellow-500/10 rounded-full blur-2xl animate-pulse" />
+                <div className="absolute -bottom-10 -left-10 w-20 h-20 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full blur-xl animate-pulse delay-500" />
+                
+                <Card className="enhanced-card rounded-2xl overflow-hidden relative backdrop-blur-sm border-white/50 shadow-2xl">
+                  <CardContent className="p-6">
+                    <ShopList />
+                  </CardContent>
+                </Card>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

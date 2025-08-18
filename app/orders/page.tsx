@@ -588,84 +588,135 @@ export default function OrdersPage() {
 
   return (
     <Layout>
-        <div className={`${isMobile ? 'w-full px-0' : 'max-w-4xl mx-auto px-4'} pb-20`}>
-        {/* Mobile-optimized filters */}
-        <Card className="mb-4 sm:mb-6 bg-white shadow-md">
-          <CardContent className="p-2 sm:p-3">
+        <div className={`${isMobile ? 'w-full px-2' : 'max-w-4xl mx-auto px-4'} pb-16`}>
+        {/* Compact search and filters section */}
+        <Card className="mb-4 bg-gradient-to-r from-white via-slate-50/50 to-white shadow-lg border-0 rounded-lg">
+          <CardContent className="p-3">
             <div className="space-y-3">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-500" />
                 <Input
-                  placeholder="Kërko porosi..."
+                  placeholder={isMobile ? "Kërko porosi..." : "Kërko porosi sipas ID ose produktit..."}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
+                  className={`pl-10 pr-4 bg-white border border-gray-200 rounded-lg focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-400 transition-all duration-200 ${
+                    isMobile ? 'h-9 text-sm' : 'h-10 text-sm'
+                  }`}
                 />
+                {searchTerm && (
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                    <div className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-xs font-medium">
+                      {sortedOrders.length}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <Tabs defaultValue={statusFilter} onValueChange={setStatusFilter} className="w-full">
-                <TabsList className="w-full h-auto flex overflow-x-auto py-1 justify-start gap-1 bg-transparent">
-                  <TabsTrigger
-                    value="all"
-                    className={`px-3 py-1.5 text-xs rounded-full ${statusFilter === "all" ? "bg-primary text-white" : "bg-gray-100"}`}
-                  >
-                    Të gjitha
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="PENDING"
-                    className={`px-3 py-1.5 text-xs rounded-full flex items-center gap-1 ${statusFilter === "PENDING" ? "bg-amber-500 text-white" : "bg-gray-100"}`}
-                  >
-                    <Clock className="h-3 w-3" />
-                    Në pritje
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="PROCESSING"
-                    className={`px-3 py-1.5 text-xs rounded-full flex items-center gap-1 ${statusFilter === "PROCESSING" ? "bg-blue-500 text-white" : "bg-gray-100"}`}
-                  >
-                    <Package className="h-3 w-3" />
-                    Në proces
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="SHIPPED"
-                    className={`px-3 py-1.5 text-xs rounded-full flex items-center gap-1 ${statusFilter === "SHIPPED" ? "bg-purple-500 text-white" : "bg-gray-100"}`}
-                  >
-                    <Truck className="h-3 w-3" />
-                    Dërguar
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="DELIVERED"
-                    className={`px-3 py-1.5 text-xs rounded-full flex items-center gap-1 ${statusFilter === "DELIVERED" ? "bg-green-500 text-white" : "bg-gray-100"}`}
-                  >
-                    <CheckCircle2 className="h-3 w-3" />
-                    Dorëzuar
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="CANCELLED"
-                    className={`px-3 py-1.5 text-xs rounded-full flex items-center gap-1 ${statusFilter === "CANCELLED" ? "bg-red-500 text-white" : "bg-gray-100"}`}
-                  >
-                    <AlertCircle className="h-3 w-3" />
-                    Anuluar
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <div className="w-full">
+                <div className="overflow-x-auto scrollbar-hide">
+                  <div className="flex gap-1.5 pb-1 min-w-max">
+                    <Button
+                      variant={statusFilter === "all" ? "default" : "outline"}
+                      size="sm"
+                      className={`flex-shrink-0 rounded-full transition-all ${isMobile ? 'px-3 py-1 text-xs h-7' : 'px-3 py-1.5 text-xs h-8'}
+                        ${statusFilter === "all" 
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm" 
+                          : "bg-white text-gray-700 hover:bg-blue-50 border-gray-200"
+                        }`}
+                      onClick={() => setStatusFilter("all")}
+                    >
+                      Të gjitha
+                    </Button>
+                    <Button
+                      variant={statusFilter === "PENDING" ? "default" : "outline"}
+                      size="sm"
+                      className={`flex-shrink-0 rounded-full transition-all ${isMobile ? 'px-3 py-1 text-xs h-7' : 'px-3 py-1.5 text-xs h-8'} flex items-center gap-1
+                        ${statusFilter === "PENDING" 
+                          ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm" 
+                          : "bg-white text-gray-700 hover:bg-amber-50 border-gray-200"
+                        }`}
+                      onClick={() => setStatusFilter("PENDING")}
+                    >
+                      <Clock className={isMobile ? "h-2.5 w-2.5" : "h-3 w-3"} />
+                      {isMobile ? "Pritje" : "Në pritje"}
+                    </Button>
+                    <Button
+                      variant={statusFilter === "PROCESSING" ? "default" : "outline"}
+                      size="sm"
+                      className={`flex-shrink-0 rounded-full transition-all ${isMobile ? 'px-3 py-1 text-xs h-7' : 'px-3 py-1.5 text-xs h-8'} flex items-center gap-1
+                        ${statusFilter === "PROCESSING" 
+                          ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm" 
+                          : "bg-white text-gray-700 hover:bg-blue-50 border-gray-200"
+                        }`}
+                      onClick={() => setStatusFilter("PROCESSING")}
+                    >
+                      <Package className={isMobile ? "h-2.5 w-2.5" : "h-3 w-3"} />
+                      {isMobile ? "Proces" : "Në proces"}
+                    </Button>
+                    <Button
+                      variant={statusFilter === "SHIPPED" ? "default" : "outline"}
+                      size="sm"
+                      className={`flex-shrink-0 rounded-full transition-all ${isMobile ? 'px-3 py-1 text-xs h-7' : 'px-3 py-1.5 text-xs h-8'} flex items-center gap-1
+                        ${statusFilter === "SHIPPED" 
+                          ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-sm" 
+                          : "bg-white text-gray-700 hover:bg-purple-50 border-gray-200"
+                        }`}
+                      onClick={() => setStatusFilter("SHIPPED")}
+                    >
+                      <Truck className={isMobile ? "h-2.5 w-2.5" : "h-3 w-3"} />
+                      Dërguar
+                    </Button>
+                    <Button
+                      variant={statusFilter === "DELIVERED" ? "default" : "outline"}
+                      size="sm"
+                      className={`flex-shrink-0 rounded-full transition-all ${isMobile ? 'px-3 py-1 text-xs h-7' : 'px-3 py-1.5 text-xs h-8'} flex items-center gap-1
+                        ${statusFilter === "DELIVERED" 
+                          ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm" 
+                          : "bg-white text-gray-700 hover:bg-green-50 border-gray-200"
+                        }`}
+                      onClick={() => setStatusFilter("DELIVERED")}
+                    >
+                      <CheckCircle2 className={isMobile ? "h-2.5 w-2.5" : "h-3 w-3"} />
+                      Dorëzuar
+                    </Button>
+                    <Button
+                      variant={statusFilter === "CANCELLED" ? "default" : "outline"}
+                      size="sm"
+                      className={`flex-shrink-0 rounded-full transition-all ${isMobile ? 'px-3 py-1 text-xs h-7' : 'px-3 py-1.5 text-xs h-8'} flex items-center gap-1
+                        ${statusFilter === "CANCELLED" 
+                          ? "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm" 
+                          : "bg-white text-gray-700 hover:bg-red-50 border-gray-200"
+                        }`}
+                      onClick={() => setStatusFilter("CANCELLED")}
+                    >
+                      <AlertCircle className={isMobile ? "h-2.5 w-2.5" : "h-3 w-3"} />
+                      Anuluar
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {sortedOrders.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <ShoppingBag className="h-12 w-12 mx-auto text-gray-300 mb-3" />
-                <h3 className="text-xl font-medium text-gray-700 mb-1">Nuk keni asnjë porosi</h3>
-                <p className="text-gray-500 mb-4">
+            <Card className="bg-white shadow-md border-0 rounded-lg">
+              <CardContent className={`${isMobile ? 'p-6' : 'p-8'} text-center`}>
+                <div className="bg-blue-50 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                  <ShoppingBag className="h-8 w-8 text-blue-500" />
+                </div>
+                <h3 className={`font-bold text-gray-800 mb-2 ${isMobile ? 'text-lg' : 'text-xl'}`}>Nuk keni asnjë porosi</h3>
+                <p className={`text-gray-600 mb-4 max-w-sm mx-auto ${isMobile ? 'text-sm' : 'text-base'}`}>
                   {searchTerm || statusFilter !== "all"
-                    ? "Nuk u gjet asnjë porosi që përputhet me kriteret e kërkimit."
-                    : "Nuk keni bërë ende asnjë porosi. Filloni duke shtuar produkte në porosi."}
+                    ? "Nuk u gjet asnjë porosi që përputhet me kriteret."
+                    : "Nuk keni bërë ende asnjë porosi."}
                 </p>
                 {searchTerm || statusFilter !== "all" ? (
                   <Button
                     variant="outline"
+                    size={isMobile ? "sm" : "default"}
+                    className="bg-white hover:bg-blue-50 border border-blue-200"
                     onClick={() => {
                       setSearchTerm("")
                       setStatusFilter("all")
@@ -674,7 +725,13 @@ export default function OrdersPage() {
                     Pastro filtrat
                   </Button>
                 ) : (
-                  <Button onClick={() => router.push("/")}>Shko tek Kryefaqja</Button>
+                  <Button 
+                    size={isMobile ? "sm" : "default"}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={() => router.push("/")}
+                  >
+                    Shko tek Kryefaqja
+                  </Button>
                 )}
               </CardContent>
             </Card>
@@ -683,53 +740,62 @@ export default function OrdersPage() {
               <Card
                 key={order.id}
                 className={cn(
-                  "bg-white shadow-md overflow-hidden transition-all duration-200",
-                  expandedOrder === order.id ? "border-primary-300" : "border-gray-200",
+                  "bg-white shadow-md border-0 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-lg",
+                  expandedOrder === order.id ? "ring-1 ring-blue-200 shadow-lg" : "",
                 )}
               >
-                {/* Order header - always visible */}
-                <div className="p-3 sm:p-4 border-b">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="secondary"
-                          className={cn(
-                            "px-2 py-1 text-xs sm:text-sm text-white flex items-center gap-1",
-                            getStatusColor(order.status),
-                          )}
-                        >
-                          {getStatusIcon(order.status)}
-                          {getStatusText(order.status)}
-                        </Badge>
-                        <h3 className="text-sm sm:text-base font-medium">#{order.id.slice(0, 8)}</h3>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(order.createdAt).toLocaleDateString()}
+                {/* Compact order header */}
+                <div className={`${isMobile ? 'p-3' : 'p-4'} border-b border-gray-100 bg-gray-50/30`}>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="secondary"
+                        className={cn(
+                          `px-2 py-1 ${isMobile ? 'text-xs' : 'text-sm'} font-medium text-white flex items-center gap-1.5 rounded-full border-0`,
+                          order.status === "PENDING" && "bg-gradient-to-r from-amber-500 to-orange-500",
+                          order.status === "PROCESSING" && "bg-gradient-to-r from-blue-500 to-blue-600",
+                          order.status === "SHIPPED" && "bg-gradient-to-r from-purple-500 to-violet-600",
+                          order.status === "DELIVERED" && "bg-gradient-to-r from-green-500 to-emerald-600",
+                          order.status === "CANCELLED" && "bg-gradient-to-r from-red-500 to-rose-600"
+                        )}
+                      >
+                        {getStatusIcon(order.status)}
+                        {getStatusText(order.status)}
+                      </Badge>
+                      <div className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold text-xs">
+                        #{order.id.slice(0, 8)}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                    {order.totalFinalPriceEUR && (
-                        <div className="text-right">
-                          <div className="font-medium text-primary text-base sm:text-lg">
-                            <Price 
-                              amount={order.totalFinalPriceEUR}
-                              className="font-medium text-primary text-base sm:text-lg"
-                              decimalClassName="text-[0.65em]"
-                            />
+                    <div className="text-right">
+                      {order.totalFinalPriceEUR && (
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            <div className={`font-bold text-primary ${isMobile ? 'text-sm' : 'text-base'}`}>
+                              <Price 
+                                amount={order.totalFinalPriceEUR}
+                                className={`font-bold text-primary ${isMobile ? 'text-sm' : 'text-base'}`}
+                                decimalClassName="text-[0.7em]"
+                              />
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              {order.productLinks.length} {order.productLinks.length === 1 ? 'produkt' : 'produkte'}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-500">{order.productLinks.length} produkte</div>
                         </div>
                       )}
                     </div>
                   </div>
+                  
+                  <div className="flex items-center gap-1.5 mt-2 text-xs text-gray-600">
+                    <Calendar className="h-3 w-3 text-blue-500" />
+                    <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                  </div>
                 </div>
 
-                {/* Order Timeline - always visible */}
+                {/* Compact Order Timeline */}
                 {order.status !== "CANCELLED" ? (
-                  <div className="px-3 py-3 bg-gray-50 border-b">
+                  <div className={`${isMobile ? 'px-3 py-2' : 'px-4 py-3'} bg-gray-50 border-b border-gray-100`}>
                     <OrderTimeline
                       status={order.status}
                       createdAt={order.createdAt}
@@ -738,13 +804,15 @@ export default function OrdersPage() {
                     />
                   </div>
                 ) : (
-                  <div className="p-3 bg-red-50 border-b">
+                  <div className={`${isMobile ? 'p-3' : 'p-4'} bg-red-50 border-b border-red-100`}>
                     <div className="flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4 text-red-500" />
+                      <div className="bg-red-500 p-1 rounded-full">
+                        <AlertCircle className="h-3 w-3 text-white" />
+                      </div>
                       <div>
-                        <p className="text-sm text-red-600 font-medium">Kjo porosi është anuluar</p>
-                        <p className="text-xs text-red-500">
-                          Anuluar më: {new Date(order.updatedAt).toLocaleDateString()}
+                        <p className={`text-red-700 font-medium ${isMobile ? 'text-sm' : 'text-base'}`}>Porosi anuluar</p>
+                        <p className="text-xs text-red-600">
+                          {new Date(order.updatedAt).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -762,31 +830,36 @@ export default function OrdersPage() {
                   }}
                 >
                   <AccordionItem value="products" className="border-b-0">
-                    <AccordionTrigger className="px-3 py-3 sm:py-2 hover:no-underline hover:bg-gray-50">
-                      <span className="flex items-center gap-2 text-sm sm:text-base font-medium w-full">
-                        <ShoppingBag className="h-5 w-5 sm:h-4 sm:w-4 text-primary" />
+                    <AccordionTrigger className={`${isMobile ? 'px-3 py-2' : 'px-4 py-3'} hover:no-underline hover:bg-blue-50/50 transition-all duration-200`}>
+                      <span className={`flex items-center gap-2 ${isMobile ? 'text-sm' : 'text-base'} font-medium w-full`}>
+                        <div className="bg-blue-500 p-1.5 rounded-full">
+                          <ShoppingBag className="h-3 w-3 text-white" />
+                        </div>
                         <span className="flex-1">Produktet ({order.productLinks.length})</span>
+                        <div className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs font-bold">
+                          Detajet
+                        </div>
                       </span>
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3 pt-3">
+                    <AccordionContent className={`${isMobile ? 'px-3 pb-3 pt-2' : 'px-4 pb-4 pt-3'} bg-gray-50/30`}>
                       <div className="space-y-3">
                         {order.productLinks.map((product, index) => (
-                            <div
+                          <div
                             key={index}
-                            className="bg-gray-50 rounded-lg border border-gray-100 overflow-hidden p-3 mb-2 w-full"
+                            className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${isMobile ? 'p-2 mb-2' : 'p-3 mb-2'} w-full shadow-sm hover:shadow-md transition-all duration-200`}
                           >
-                            <div className="flex items-center gap-3">
-                              {/* Package icon - no border, aligned left with no padding */}
-                              <div className="flex-shrink-0 flex items-center justify-center mr-1.5">
-                                <Package className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-primary" />
+                            <div className="flex items-start gap-2">
+                              {/* Number instead of icon */}
+                              <div className="flex-shrink-0 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                {index + 1}
                               </div>
 
-                              {/* Product details - better mobile layout */}
+                              {/* Product details - compact */}
                               <div className="flex-1 min-w-0">
-                                <div className="flex flex-wrap justify-between items-start gap-1 mb-1">
-                                  {/* Display Title if available, otherwise URL - larger text for mobile */}
+                                <div className="flex justify-between items-start mb-1">
+                                  {/* Product title/URL */}
                                   {product.title ? (
-                                    <span className="text-sm sm:text-xs font-medium text-gray-800 truncate max-w-full sm:max-w-[300px] block">
+                                    <span className={`font-medium text-gray-800 truncate ${isMobile ? 'text-sm' : 'text-sm'} block flex-1 mr-2`}>
                                       {product.title}
                                     </span>
                                   ) : (
@@ -794,11 +867,11 @@ export default function OrdersPage() {
                                       href={product.url}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-xs font-medium text-primary hover:text-primary/80 hover:underline truncate max-w-[300px]"
+                                      className={`font-medium text-primary hover:text-primary/80 hover:underline truncate ${isMobile ? 'text-sm' : 'text-sm'} flex-1 mr-2`}
                                     >
                                       {isMobile ? (
                                         <>
-                                          {product.url.substring(0, 20)}...
+                                          {product.url.substring(0, 25)}...
                                           <ExternalLink className="inline h-3 w-3 ml-1" />
                                         </>
                                       ) : (
@@ -809,61 +882,49 @@ export default function OrdersPage() {
                                       )}
                                     </a>
                                   )}
-                                  {/* Show URL below title if title exists */}
-                                  {product.title && (
-                                     <a
-                                      href={product.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-xs text-gray-500 hover:text-primary/80 hover:underline truncate max-w-[200px] block mt-0.5"
-                                    >
-                                      {isMobile ? (
-                                        <>
-                                          {product.url.substring(0, 20)}...
-                                          <ExternalLink className="inline h-3 w-3 ml-1" />
-                                        </>
-                                      ) : (
-                                        <>
-                                          {product.url}
-                                          <ExternalLink className="inline h-3 w-3 ml-1" />
-                                        </>
-                                      )}
-                                    </a>
-                                  )}
-
-                                  {/* Product price on the right */}
+                                  
+                                  {/* Product price */}
                                   {product.priceEUR && (
-                                    <span className="text-xs font-medium text-primary">
+                                    <span className="text-xs font-bold text-primary flex-shrink-0">
                                       <Price 
                                         amount={product.priceEUR || 0}
-                                        className="text-xs font-medium text-primary"
+                                        className="text-xs font-bold text-primary"
                                         decimalClassName="text-[0.6em]"
                                       />
-                                      {!isMobile && (
-                                        <span className="text-xs text-gray-500 ml-1">
-                                          ({product.quantity} copë)
-                                        </span>
-                                      )}
                                     </span>
                                   )}
                                 </div>
 
-                                {/* Product attributes with separators */}
-                                <div className="flex flex-wrap items-center text-xs mt-1 border-b border-gray-100 pb-1.5">
-                                  <span>
-                                    <span className="text-gray-500">Sasia:</span> {product.quantity}
-                                  </span>
-                                  <span className="mx-1.5 text-gray-300">•</span>
+                                {/* Show URL if title exists */}
+                                {product.title && (
+                                  <a
+                                    href={product.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-gray-500 hover:text-primary/80 hover:underline truncate block mb-1"
+                                  >
+                                    {isMobile ? (
+                                      <>
+                                        {product.url.substring(0, 30)}...
+                                        <ExternalLink className="inline h-2.5 w-2.5 ml-1" />
+                                      </>
+                                    ) : (
+                                      <>
+                                        {product.url}
+                                        <ExternalLink className="inline h-3 w-3 ml-1" />
+                                      </>
+                                    )}
+                                  </a>
+                                )}
+
+                                {/* Compact product attributes */}
+                                <div className="flex flex-wrap items-center text-xs text-gray-600 gap-2">
+                                  <span>Sasia: <strong>{product.quantity}</strong></span>
                                   {product.size && (
-                                    <span>
-                                      <span className="text-gray-500">Madhësia:</span> {product.size}
-                                    </span>
+                                    <span>Madhësia: <strong>{product.size}</strong></span>
                                   )}
-                                  {product.size && product.color && <span className="mx-1.5 text-gray-300">•</span>}
                                   {product.color && (
-                                    <span>
-                                      <span className="text-gray-500">Ngjyra:</span> {product.color}
-                                    </span>
+                                    <span>Ngjyra: <strong>{product.color}</strong></span>
                                   )}
                                 </div>
                               </div>
@@ -874,28 +935,23 @@ export default function OrdersPage() {
 
                       {/* Additional info if present */}
                       {order.additionalInfo && (
-                        <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="mt-2 pt-2 border-t border-gray-200">
                           <h4 className="text-sm font-medium mb-1">Informacion shtesë:</h4>
-                          <p className="text-sm text-gray-600">{order.additionalInfo}</p>
+                          <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">{order.additionalInfo}</p>
                         </div>
                       )}
 
-                      {/* Order summary - using database values */}
-                      <div className="mt-4 pt-3 border-t border-gray-100">
-                        <h4 className="text-sm sm:text-base font-medium mb-2">Përmbledhje e Porosisë</h4>
-                        <div className="space-y-2 text-sm bg-gray-50 p-3 sm:p-4 rounded-md">
-                          {/* Base price total */}
+                      {/* Compact order summary */}
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <div className={`space-y-2 ${isMobile ? 'text-xs' : 'text-sm'} bg-blue-50/50 ${isMobile ? 'p-2' : 'p-3'} rounded-lg border border-blue-200/50`}>
                           <div className="flex justify-between">
                             <span className="text-gray-600">Çmimi bazë:</span>
-                            <div>
-                              <Price 
-                                amount={order.totalPriceEUR || 0}
-                                className="font-medium"
-                                decimalClassName="text-[0.65em]"
-                              />
-                            </div>
+                            <Price 
+                              amount={order.totalPriceEUR || 0}
+                              className="font-medium"
+                              decimalClassName="text-[0.65em]"
+                            />
                           </div>
-                          {/* Customs fee total */}
                           <div className="flex justify-between">
                             <span className="text-gray-600">
                               Dogana ({configs.CUSTOMS_FEE_PERCENTAGE ? `${(configs.CUSTOMS_FEE_PERCENTAGE * 100).toFixed(0)}%` : 'N/A'}):
@@ -906,21 +962,19 @@ export default function OrdersPage() {
                               decimalClassName="text-[0.65em]"
                             />
                           </div>
-                          {/* Transport fee total */}
                           <div className="flex justify-between">
-                            <span className="text-gray-600">Menaxhimi dhe Transporti (x{order.productLinks.length}):</span>
+                            <span className="text-gray-600">Transport (x{order.productLinks.length}):</span>
                             <Price 
                               amount={order.totalTransportFee || 0}
                               className="font-medium"
                               decimalClassName="text-[0.65em]"
                             />
                           </div>
-                          {/* Grand total */}
-                          <div className="flex justify-between font-medium pt-2 mt-2 border-t border-gray-200">
-                            <span className="text-base">Totali:</span>
+                          <div className="flex justify-between font-bold pt-1 mt-1 border-t border-blue-300/50">
+                            <span>Totali:</span>
                             <Price 
                               amount={order.totalFinalPriceEUR || 0}
-                              className="text-primary text-base font-medium"
+                              className="text-primary font-bold"
                               decimalClassName="text-[0.7em]"
                             />
                           </div>
@@ -930,22 +984,21 @@ export default function OrdersPage() {
                   </AccordionItem>
                 </Accordion>
 
-                {/* Order summary and actions */}
-                <div className="p-3 sm:p-4 border-t border-gray-100">
-                  {/* Action buttons */}
-                  <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                {/* Compact actions */}
+                <div className={`${isMobile ? 'p-2' : 'p-3'} border-t border-gray-100 bg-gray-50/50`}>
+                  <div className="flex flex-wrap gap-1.5 justify-center">
                     {order.status === "PENDING" && (
                       <Button
                         variant="destructive"
                         size="sm"
-                        className="text-xs sm:text-sm h-9 sm:h-8 px-4"
+                        className={`${isMobile ? 'text-xs h-7 px-2' : 'text-xs h-8 px-3'}`}
                         onClick={() => {
                           setSelectedOrderId(order.id)
                           setShowCancelDialog(true)
                         }}
                       >
-                        <AlertCircle className="h-4 w-4 mr-1.5 sm:mr-1" />
-                        Anulo Porosinë
+                        <AlertCircle className="h-3 w-3 mr-1" />
+                        {isMobile ? "Anulo" : "Anulo Porosinë"}
                       </Button>
                     )}
 
@@ -953,32 +1006,29 @@ export default function OrdersPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-xs sm:text-sm h-9 sm:h-8 px-4"
+                        className={`${isMobile ? 'text-xs h-7 px-2' : 'text-xs h-8 px-3'}`}
                         onClick={() => {
-                          // Handle reorder functionality
                           toast({
                             title: "Porosi e re",
                             description: "Produktet u shtuan në porosi të re.",
                           })
                         }}
                       >
-                        <RefreshCw className="h-4 w-4 mr-1.5 sm:mr-1" />
-                        Porosit Përsëri
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        {isMobile ? "Përsëri" : "Porosit Përsëri"}
                       </Button>
                     )}
 
-                    {/* Allow invoice download for all orders regardless of status */}
                     <Button
                       variant="outline"
                       size="sm"
-                      className="!text-xs sm:!text-sm h-9 sm:h-8 px-4"
+                      className={`${isMobile ? 'text-xs h-7 px-2' : 'text-xs h-8 px-3'}`}
                       onClick={() => {
-                        // Generate and download the invoice
                         generateOrderInvoice(order)
                       }}
                     >
-                      <Download className="h-4 w-4 mr-1.5 sm:mr-1" />
-                      Shkarko Faturën
+                      <Download className="h-3 w-3 mr-1" />
+                      {isMobile ? "Faturë" : "Shkarko Faturën"}
                     </Button>
                   </div>
                 </div>

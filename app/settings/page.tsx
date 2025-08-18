@@ -4,18 +4,20 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import Layout from "@/components/layout"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AuthModal } from "@/components/auth-modal"
 import { OnboardingModal } from "@/components/onboarding-modal"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
-import { Eye, EyeOff, Save, Lock, LogOut, HelpCircle } from "lucide-react"
+import { Eye, EyeOff, Save, Lock, LogOut, HelpCircle, Mail, Phone } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useConfigStore } from "@/lib/config-store"
 
 export default function SettingsPage() {
   const { user, updateUser, updatePassword, logout } = useAuth()
+  const { configs } = useConfigStore()
   const router = useRouter()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showOnboardingModal, setShowOnboardingModal] = useState(false)
@@ -38,7 +40,6 @@ export default function SettingsPage() {
 
   useEffect(() => {
     // Only update settings if user is logged in
-
     if (user) {
       setEmail(user.email || "")
       setPhoneNumber(user.phoneNumber || "")
@@ -122,21 +123,19 @@ export default function SettingsPage() {
     return (
       <Layout>
         <div className="max-w-2xl mx-auto px-4">
-          {/* Removed title for logged out users */}
           <div className="flex items-center justify-center py-10">
-            <Card className="max-w-md w-full">
+            <Card className="max-w-md w-full border-2 border-gray-100 rounded-xl shadow-lg">
               <CardContent className="flex flex-col items-center p-6">
                 <p className="text-center mb-4 text-gray-700">
                   Ju duhet të identifikoheni për të parë cilësimet tuaja
                 </p>
                 <Button 
                   onClick={() => setShowAuthModal(true)}
-                  className="bg-primary hover:bg-primary/90 text-white"
+                  className="bg-primary hover:bg-primary/90 text-white rounded-lg"
                 >
                   Identifikohu
                 </Button>
                 
-                {/* Login Modal */}
                 <AuthModal
                   open={showAuthModal}
                   onOpenChange={setShowAuthModal}
@@ -152,32 +151,39 @@ export default function SettingsPage() {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto px-4">
+      <div className="max-w-md mx-auto px-3 space-y-4 pb-20">
         {/* How it works button */}
-        <div className="mb-6">
-          <Button
-            onClick={() => setShowOnboardingModal(true)}
-            variant="outline"
-            className="w-full border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-300"
-          >
-            <HelpCircle className="mr-2 h-5 w-5" />
-            Si funksionon?
-          </Button>
-        </div>
+        <Button
+          onClick={() => setShowOnboardingModal(true)}
+          variant="outline"
+          className="w-full border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-300 rounded-lg shadow-sm h-11 text-sm"
+        >
+          <HelpCircle className="mr-2 h-4 w-4" />
+          Si funksionon?
+        </Button>
 
-        {/* Section 1: User Information */}
-        <Card className="bg-white shadow-lg border-0 mb-6">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-6 text-primary">Të Dhënat e Përdoruesit</h2>
+        {/* User Information */}
+        <Card className="bg-white border-2 border-gray-100 shadow-lg rounded-lg">
+          <CardHeader className="pb-3 border-b border-gray-100">
+            <CardTitle className="text-lg font-semibold text-primary">Të Dhënat e Përdoruesit</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-4">
             <form onSubmit={handleUserInfoSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-1">
+                <label htmlFor="email" className="block text-xs font-medium text-gray-700">
                   Email
                 </label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  className="border-2 border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg h-10 px-3 text-sm transition-all duration-200"
+                  required 
+                />
               </div>
-              <div>
-                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-1">
+                <label htmlFor="phoneNumber" className="block text-xs font-medium text-gray-700">
                   Numri i WhatsApp
                 </label>
                 <Input
@@ -185,25 +191,32 @@ export default function SettingsPage() {
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="border-2 border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg h-10 px-3 text-sm transition-all duration-200"
                   required
                 />
               </div>
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-1">
+                <label htmlFor="location" className="block text-xs font-medium text-gray-700">
                   Vendndodhja
                 </label>
-                <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} required />
+                <Input 
+                  id="location" 
+                  value={location} 
+                  onChange={(e) => setLocation(e.target.value)} 
+                  className="border-2 border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg h-10 px-3 text-sm transition-all duration-200"
+                  required 
+                />
               </div>
               <Button
                 type="submit"
                 disabled={isSubmittingInfo}
-                className="w-full bg-primary hover:bg-primary/90 text-white mt-6"
+                className="w-full bg-primary hover:bg-primary/90 text-white mt-4 rounded-lg shadow-sm h-10 text-sm transition-all duration-200"
               >
                 {isSubmittingInfo ? (
                   "Duke ruajtur..."
                 ) : (
                   <>
-                    <Save className="mr-2 h-4 w-4" />
+                    <Save className="mr-2 h-3 w-3" />
                     Ruaj Ndryshimet
                   </>
                 )}
@@ -212,13 +225,15 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
         
-        {/* Section 2: Password Change */}
-        <Card className="bg-white shadow-lg border-0 mb-6">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-6 text-primary">Ndryshimi i Fjalëkalimit</h2>
+        {/* Password Change */}
+        <Card className="bg-white border-2 border-gray-100 shadow-lg rounded-lg">
+          <CardHeader className="pb-3 border-b border-gray-100">
+            <CardTitle className="text-lg font-semibold text-primary">Ndryshimi i Fjalëkalimit</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-4">
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="oldPassword" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-1">
+                <label htmlFor="oldPassword" className="block text-xs font-medium text-gray-700">
                   Fjalëkalimi i Vjetër
                 </label>
                 <div className="relative">
@@ -227,21 +242,22 @@ export default function SettingsPage() {
                     type={showOldPassword ? "text" : "password"}
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
+                    className="border-2 border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg h-10 px-3 pr-10 text-sm transition-all duration-200"
                     required
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 hover:bg-gray-100 rounded-md h-8 w-8"
                     onClick={() => setShowOldPassword(!showOldPassword)}
                   >
-                    {showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showOldPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                   </Button>
                 </div>
               </div>
-              <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-1">
+                <label htmlFor="newPassword" className="block text-xs font-medium text-gray-700">
                   Fjalëkalimi i Ri
                 </label>
                 <div className="relative">
@@ -250,21 +266,22 @@ export default function SettingsPage() {
                     type={showNewPassword ? "text" : "password"}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
+                    className="border-2 border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg h-10 px-3 pr-10 text-sm transition-all duration-200"
                     required
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 hover:bg-gray-100 rounded-md h-8 w-8"
                     onClick={() => setShowNewPassword(!showNewPassword)}
                   >
-                    {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showNewPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                   </Button>
                 </div>
               </div>
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-1">
+                <label htmlFor="confirmPassword" className="block text-xs font-medium text-gray-700">
                   Përsëritja e Fjalëkalimit të Ri
                 </label>
                 <div className="relative">
@@ -273,34 +290,37 @@ export default function SettingsPage() {
                     type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="border-2 border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary/20 rounded-lg h-10 px-3 pr-10 text-sm transition-all duration-200"
                     required
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 hover:bg-gray-100 rounded-md h-8 w-8"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showConfirmPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                   </Button>
                 </div>
               </div>
               
               {passwordError && (
-                <div className="text-red-500 text-sm mt-2">{passwordError}</div>
+                <div className="bg-red-50 border-2 border-red-200 text-red-700 text-xs p-3 rounded-lg mt-2">
+                  {passwordError}
+                </div>
               )}
               
               <Button
                 type="submit"
                 disabled={isSubmittingPassword}
-                className="w-full bg-primary hover:bg-primary/90 text-white mt-6"
+                className="w-full bg-primary hover:bg-primary/90 text-white mt-4 rounded-lg shadow-sm h-10 text-sm transition-all duration-200"
               >
                 {isSubmittingPassword ? (
                   "Duke ndryshuar..."
                 ) : (
                   <>
-                    <Lock className="mr-2 h-4 w-4" />
+                    <Lock className="mr-2 h-3 w-3" />
                     Ndrysho Fjalëkalimin
                   </>
                 )}
@@ -308,19 +328,37 @@ export default function SettingsPage() {
             </form>
           </CardContent>
         </Card>
-      </div>
-      
-      {/* Section 3: Logout Button for Mobile Users */}
-      <div className="max-w-2xl mx-auto px-4 pb-20">
-        <Card className="bg-white shadow-lg border-0">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-6 text-primary">Opsionet e Përdoruesit</h2>
+
+        {/* Contact Information */}
+        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-100 shadow-lg rounded-lg">
+          <CardHeader className="pb-3 border-b border-blue-100">
+            <CardTitle className="text-lg font-semibold text-blue-900 flex items-center">
+              Kontakto PAKO24
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 p-3 bg-white/80 rounded-lg border-2 border-blue-200 hover:border-blue-300 transition-all duration-200">
+                <Mail className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                <span className="text-xs text-blue-700 font-semibold break-all">{configs.COMPANY_EMAIL}</span>
+              </div>
+              <div className="flex items-center gap-2 p-3 bg-white/80 rounded-lg border-2 border-blue-200 hover:border-blue-300 transition-all duration-200">
+                <Phone className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                <span className="text-xs text-blue-700 font-semibold">{configs.COMPANY_PHONE}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* User Options */}
+        <Card className="bg-white border-2 border-gray-100 shadow-lg rounded-lg mb-20">
+          <CardContent className="p-4 pt-4">
             <Button 
               onClick={() => logout()}
               variant="outline" 
-              className="w-full border-2 hover:bg-red-50 hover:text-red-700 text-red-600"
+              className="w-full border-2 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 text-red-600 rounded-lg shadow-sm h-10 text-sm transition-all duration-200"
             >
-              <LogOut className="mr-2 h-5 w-5" />
+              <LogOut className="mr-2 h-4 w-4" />
               Dil nga llogaria
             </Button>
           </CardContent>

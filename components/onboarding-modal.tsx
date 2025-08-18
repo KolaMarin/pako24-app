@@ -4,6 +4,7 @@ import React from "react"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { OnboardingFlow } from "@/components/onboarding-flow"
 import { useOnboardingStore } from "@/lib/onboarding-store"
+import { X } from "lucide-react"
 
 interface OnboardingModalProps {
   open: boolean
@@ -19,11 +20,22 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
     onOpenChange(false)
   }
 
+  const handleClose = () => {
+    onOpenChange(false)
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-0 bg-transparent border-none shadow-none">
+      <DialogContent className="max-w-md p-0 bg-transparent border-none shadow-none overflow-hidden [&>button]:hidden">
         <DialogTitle className="sr-only">Onboarding Flow</DialogTitle>
-        <div className="bg-gradient-to-b from-blue-50 to-white rounded-lg overflow-hidden">
+        <div className="relative bg-gradient-to-b from-blue-50 to-white rounded-lg overflow-hidden">
+          {/* Custom close button positioned over the onboarding flow */}
+          <button
+            onClick={handleClose}
+            className="absolute top-4 right-4 z-50 w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-sm transition-all duration-200 flex items-center justify-center group"
+          >
+            <X className="h-4 w-4 text-white group-hover:text-white/90" />
+          </button>
           <OnboardingFlow onComplete={handleComplete} />
         </div>
       </DialogContent>

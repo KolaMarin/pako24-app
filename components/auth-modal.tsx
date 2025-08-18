@@ -154,38 +154,44 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden max-w-[95vw] max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="bg-gray-100 text-gray-900 p-4">
-          <DialogTitle className="text-xl flex items-center">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden max-w-[95vw] max-h-[90vh] overflow-y-auto bg-white">
+        <DialogHeader className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
+          <DialogTitle className="text-2xl flex items-center justify-center">
             <div className="flex items-center">
-              <Package className="h-5 w-5 mr-2 text-secondary" />
-              <span className="text-primary font-extrabold">PAKO</span>
-              <span className="text-secondary font-extrabold">24</span>
+              <Package className="h-6 w-6 mr-2 text-blue-600" />
+              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent font-bold">PAKO</span>
+              <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent font-bold">24</span>
             </div>
           </DialogTitle>
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 text-center text-sm mt-2">
             {activeTab === "register"
               ? "Krijo një llogari të re për të përdorur PAKO24"
               : "Vendosni të dhënat tuaja për të hyrë në llogarinë tuaj"}
           </p>
         </DialogHeader>
 
-        <div className="p-4">
+        <div className="p-6">
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "register")} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login" className="text-sm">
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-50 rounded-lg p-1">
+              <TabsTrigger 
+                value="login" 
+                className="text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+              >
                 Identifikohu
               </TabsTrigger>
-              <TabsTrigger value="register" className="text-sm">
+              <TabsTrigger 
+                value="register" 
+                className="text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+              >
                 Regjistrohu
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="login" className="space-y-4 mt-4">
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email" className="flex items-center gap-2 text-sm">
-                    <Mail className="h-4 w-4 text-primary" />
+            <TabsContent value="login" className="space-y-6 mt-0">
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div className="space-y-3">
+                  <Label htmlFor="login-email" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <Mail className="h-4 w-4 text-blue-600" />
                     Email
                   </Label>
                   <Input
@@ -195,13 +201,13 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
                     placeholder="email@example.com"
                     type="email"
                     required
-                    className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="login-password" className="flex items-center gap-2 text-sm">
-                    <Lock className="h-4 w-4 text-primary" />
+                <div className="space-y-3">
+                  <Label htmlFor="login-password" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <Lock className="h-4 w-4 text-blue-600" />
                     Fjalëkalimi
                   </Label>
                   <Input
@@ -211,16 +217,20 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Fjalëkalimi juaj"
                     required
-                    className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
                   />
                 </div>
 
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-600 text-sm">{error}</p>
+                  </div>
+                )}
 
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 sm:py-6 bg-primary hover:bg-primary/90 text-white text-sm sm:text-base"
+                  className="w-full h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-base"
                 >
                   {isSubmitting
                     ? "Duke identifikuar..."
@@ -229,11 +239,11 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
                       : "Identifikohu"}
                 </Button>
 
-                <div className="text-center">
+                <div className="text-center pt-2">
                   <button
                     type="button"
                     onClick={() => setActiveTab("register")}
-                    className="text-sm text-primary hover:text-primary/80"
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
                   >
                     Nuk keni llogari? Regjistrohuni
                   </button>
@@ -241,11 +251,11 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
               </form>
             </TabsContent>
 
-            <TabsContent value="register" className="space-y-4 mt-4">
+            <TabsContent value="register" className="space-y-6 mt-0">
               <form onSubmit={handleRegister} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="register-email" className="flex items-center gap-2 text-sm">
-                    <Mail className="h-4 w-4 text-primary" />
+                <div className="space-y-3">
+                  <Label htmlFor="register-email" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <Mail className="h-4 w-4 text-blue-600" />
                     Email
                   </Label>
                   <Input
@@ -255,13 +265,13 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
                     placeholder="email@example.com"
                     type="email"
                     required
-                    className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="register-phone" className="flex items-center gap-2 text-sm">
-                    <Phone className="h-4 w-4 text-primary" />
+                <div className="space-y-3">
+                  <Label htmlFor="register-phone" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <Phone className="h-4 w-4 text-blue-600" />
                     Numri i WhatsApp
                   </Label>
                   <Input
@@ -270,13 +280,13 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     placeholder="+355 69 123 4567"
                     required
-                    className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="register-location" className="flex items-center gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-primary" />
+                <div className="space-y-3">
+                  <Label htmlFor="register-location" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <MapPin className="h-4 w-4 text-blue-600" />
                     Vendndodhja
                   </Label>
                   <Input
@@ -285,13 +295,13 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="Tirana, Albania"
                     required
-                    className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="register-password" className="flex items-center gap-2 text-sm">
-                    <Lock className="h-4 w-4 text-primary" />
+                <div className="space-y-3">
+                  <Label htmlFor="register-password" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <Lock className="h-4 w-4 text-blue-600" />
                     Fjalëkalimi
                   </Label>
                   <Input
@@ -301,16 +311,20 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Fjalëkalimi juaj"
                     required
-                    className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
                   />
                 </div>
 
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-600 text-sm">{error}</p>
+                  </div>
+                )}
 
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 sm:py-6 bg-primary hover:bg-primary/90 text-white text-sm sm:text-base"
+                  className="w-full h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-base mt-6"
                 >
                   {isSubmitting
                     ? hasPendingOrder
@@ -321,11 +335,11 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
                       : "Regjistrohu"}
                 </Button>
 
-                <div className="text-center">
+                <div className="text-center pt-2">
                   <button
                     type="button"
                     onClick={() => setActiveTab("login")}
-                    className="text-sm text-primary hover:text-primary/80"
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
                   >
                     Keni një llogari? Identifikohuni
                   </button>

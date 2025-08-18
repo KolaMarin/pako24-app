@@ -136,171 +136,181 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden max-w-[95vw] max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="bg-gray-100 text-gray-900 p-4">
-          <DialogTitle className="text-xl flex items-center">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden max-w-[95vw] max-h-[90vh] overflow-y-auto bg-white">
+        <DialogHeader className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
+          <DialogTitle className="text-2xl flex items-center justify-center">
             <div className="flex items-center">
-              <Package className="h-5 w-5 mr-2 text-secondary" />
-              <span className="text-primary font-extrabold">PAKO</span>
-              <span className="text-secondary font-extrabold">24</span>
+              <Package className="h-6 w-6 mr-2 text-blue-600" />
+              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent font-bold">PAKO</span>
+              <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent font-bold">24</span>
             </div>
           </DialogTitle>
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 text-center text-sm mt-2">
             {isRegistering
               ? "Krijo një llogari të re për të përdorur PAKO24"
               : "Vendosni të dhënat tuaja për të hyrë në llogarinë tuaj"}
           </p>
         </DialogHeader>
 
-        {isRegistering ? (
-          <form onSubmit={handleRegister} className="space-y-4 p-4">
-            <div className="space-y-2">
-              <Label htmlFor="register-email" className="flex items-center gap-2 text-base">
-                <Mail className="h-4 w-4 text-primary" />
-                Email
-              </Label>
-              <Input
-                id="register-email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@example.com"
-                type="email"
-                required
-                className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
-              />
-            </div>
+        <div className="p-6">
+          {isRegistering ? (
+            <form onSubmit={handleRegister} className="space-y-5">
+              <div className="space-y-3">
+                <Label htmlFor="register-email" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Mail className="h-4 w-4 text-blue-600" />
+                  Email
+                </Label>
+                <Input
+                  id="register-email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="email@example.com"
+                  type="email"
+                  required
+                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="register-phone" className="flex items-center gap-2 text-base">
-                <Phone className="h-4 w-4 text-primary" />
-                Numri i WhatsApp
-              </Label>
-              <Input
-                id="register-phone"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="+355 69 123 4567"
-                required
-                className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
-              />
-            </div>
+              <div className="space-y-3">
+                <Label htmlFor="register-phone" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Phone className="h-4 w-4 text-blue-600" />
+                  Numri i WhatsApp
+                </Label>
+                <Input
+                  id="register-phone"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="+355 69 123 4567"
+                  required
+                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="register-location" className="flex items-center gap-2 text-base">
-                <MapPin className="h-4 w-4 text-primary" />
-                Vendndodhja
-              </Label>
-              <Input
-                id="register-location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Tirana, Albania"
-                required
-                className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
-              />
-            </div>
+              <div className="space-y-3">
+                <Label htmlFor="register-location" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <MapPin className="h-4 w-4 text-blue-600" />
+                  Vendndodhja
+                </Label>
+                <Input
+                  id="register-location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Tirana, Albania"
+                  required
+                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="register-password" className="flex items-center gap-2 text-base">
-                <Lock className="h-4 w-4 text-primary" />
-                Fjalëkalimi
-              </Label>
-              <Input
-                id="register-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Fjalëkalimi juaj"
-                required
-                className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
-              />
-            </div>
+              <div className="space-y-3">
+                <Label htmlFor="register-password" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Lock className="h-4 w-4 text-blue-600" />
+                  Fjalëkalimi
+                </Label>
+                <Input
+                  id="register-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Fjalëkalimi juaj"
+                  required
+                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
+                />
+              </div>
 
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <p className="text-red-600 text-sm">{error}</p>
+                </div>
+              )}
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-4 sm:py-6 bg-primary hover:bg-primary/90 text-white text-sm sm:text-base"
-            >
-              {isSubmitting
-                ? hasPendingOrder
-                  ? "Duke regjistruar dhe dërguar porosinë..."
-                  : "Duke regjistruar..."
-                : hasPendingOrder
-                  ? "Regjistrohu dhe dërgo porosinë"
-                  : "Regjistrohu"}
-            </Button>
-
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={() => setIsRegistering(false)}
-                className="text-sm text-primary hover:text-primary/80"
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-base mt-6"
               >
-                Keni një llogari? Identifikohuni
-              </button>
-            </div>
-          </form>
-        ) : (
-          <form onSubmit={handleLogin} className="space-y-4 p-4">
-            <div className="space-y-2">
-              <Label htmlFor="login-email" className="flex items-center gap-2 text-base">
-                <Mail className="h-4 w-4 text-primary" />
-                Email
-              </Label>
-              <Input
-                id="login-email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@example.com"
-                type="email"
-                required
-                className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
-              />
-            </div>
+                {isSubmitting
+                  ? hasPendingOrder
+                    ? "Duke regjistruar dhe dërguar porosinë..."
+                    : "Duke regjistruar..."
+                  : hasPendingOrder
+                    ? "Regjistrohu dhe dërgo porosinë"
+                    : "Regjistrohu"}
+              </Button>
 
-            <div className="space-y-2">
-              <Label htmlFor="login-password" className="flex items-center gap-2 text-base">
-                <Lock className="h-4 w-4 text-primary" />
-                Fjalëkalimi
-              </Label>
-              <Input
-                id="login-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Fjalëkalimi juaj"
-                required
-                className="h-10 sm:h-12 text-sm sm:text-base focus-visible:ring-primary"
-              />
-            </div>
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsRegistering(false)}
+                  className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                >
+                  Keni një llogari? Identifikohuni
+                </button>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div className="space-y-3">
+                <Label htmlFor="login-email" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Mail className="h-4 w-4 text-blue-600" />
+                  Email
+                </Label>
+                <Input
+                  id="login-email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="email@example.com"
+                  type="email"
+                  required
+                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
+                />
+              </div>
 
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+              <div className="space-y-3">
+                <Label htmlFor="login-password" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Lock className="h-4 w-4 text-blue-600" />
+                  Fjalëkalimi
+                </Label>
+                <Input
+                  id="login-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Fjalëkalimi juaj"
+                  required
+                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
+                />
+              </div>
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-4 sm:py-6 bg-primary hover:bg-primary/90 text-white text-sm sm:text-base"
-            >
-              {isSubmitting
-                ? "Duke identifikuar..."
-                : hasPendingOrder
-                  ? "Identifikohu dhe vazhdo me porosinë"
-                  : "Identifikohu"}
-            </Button>
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <p className="text-red-600 text-sm">{error}</p>
+                </div>
+              )}
 
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={() => setIsRegistering(true)}
-                className="text-sm text-primary hover:text-primary/80"
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-base mt-6"
               >
-                Nuk keni llogari? Regjistrohuni
-              </button>
-            </div>
-          </form>
-        )}
+                {isSubmitting
+                  ? "Duke identifikuar..."
+                  : hasPendingOrder
+                    ? "Identifikohu dhe vazhdo me porosinë"
+                    : "Identifikohu"}
+              </Button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsRegistering(true)}
+                  className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                >
+                  Nuk keni llogari? Regjistrohuni
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   )

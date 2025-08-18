@@ -297,162 +297,147 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       
       {/* Product form card - Buttons now in scrollable area for all screen sizes */}
       <div className="relative bg-white overflow-hidden border border-primary/10 shadow-lg w-full h-auto md:flex md:flex-col">
-        {/* Left accent bar - hidden on mobile */}
-        <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70 hidden md:block"></div>
+        {/* Left accent bar - visible on all screen sizes */}
+        <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70"></div>
         
-        {/* Header section - FIXED on desktop, scrolls on mobile */}
-        <div className="bg-gradient-to-r from-slate-50 to-blue-50 py-2.5 sm:py-2 px-3 sm:px-3 border-b border-slate-200 md:flex-shrink-0">
-          <div className="flex flex-col space-y-1">
+        {/* Enhanced header section with modern gradient */}
+        <div className="bg-gradient-to-r from-slate-700 to-slate-800 py-4 sm:py-3 px-4 sm:px-4 border-b border-slate-600 md:flex-shrink-0 relative overflow-hidden">
+          
+          <div className="flex flex-col space-y-2 relative z-10">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <div className="bg-primary/10 p-1 sm:p-1.5 rounded-full">
-                  <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white">
+                    Detajet e Produktit
+                  </h2>
+                  <p className="text-xs text-slate-200 font-medium">Plotëso detajet e produktit dhe shto ne <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 inline text-slate-200"/></p>
                 </div>
-                <h2 className="text-sm sm:text-base font-semibold text-gray-800">Detajet e Produktit</h2>
               </div>
               
               {productLinks[0].price > 0 && (
                 <div className="flex items-center">
-                  <Badge 
-                    variant="outline" 
-                    className="bg-primary/5 border-primary/20 text-primary font-semibold px-1.5 py-0.5"
-                  >
-                    <Price 
-                      amount={calculateEuroPrice(productLinks[0].price, productLinks[0].currency) * productLinks[0].quantity}
-                      className="text-primary"
-                    />
-                    {productLinks[0].quantity > 1 && <span className="ml-0.5 text-primary/80 font-medium">(x{productLinks[0].quantity})</span>}
-                  </Badge>
+                  <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1.5 rounded-full shadow-lg">
+                    <div className="flex items-center gap-1">
+                      <Price 
+                        amount={calculateEuroPrice(productLinks[0].price, productLinks[0].currency) * productLinks[0].quantity}
+                        className="text-white font-bold text-sm"
+                      />
+                      {productLinks[0].quantity > 1 && <span className="text-white/80 text-xs">(×{productLinks[0].quantity})</span>}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
-            <p className="text-[11px] text-blue-500">
-              Vendosni URL dhe detajet. Klikoni Shto dhe vazhdoni me <span className="font-bold">shportën</span> <ShoppingCart className="h-3 w-3 inline-block font-bold" />
-            </p>
           </div>
         </div>
         
-        {/* Form body with buttons - SCROLLABLE on desktop, normal flow on mobile */}
-        <div className="p-3 sm:p-4 md:p-3 lg:p-4">
-          <div className="grid gap-4 sm:gap-5 md:gap-3 lg:gap-4">
-            {/* URL - full width */}
-            <div className="flex flex-col space-y-2 sm:space-y-3">
-              <div>
-                <div className="flex items-center gap-1 mb-0.5">
-                  <LinkIcon className="h-3.5 w-3.5 text-primary" />
-                  <Label className="font-medium text-gray-700 text-xs">
-                    URL <span className="text-red-500">*</span>
-                  </Label>
+        {/* Enhanced form body with responsive spacing */}
+        <div className="p-3 sm:p-4 md:p-3 lg:p-4 bg-gradient-to-b from-white to-gray-50/30">
+          <div className="grid gap-3 sm:gap-4 md:gap-3 lg:gap-4">
+            {/* Enhanced URL input - more compact */}
+            <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-1.5 rounded-lg">
+                  <LinkIcon className="h-3 w-3 text-white" />
                 </div>
-                <div className="relative">
-                  <Input
-                    value={productLinks[0].url}
-                    onChange={(e) => updateProductLink(0, "url", e.target.value)}
-                    required
-                    placeholder="https://example.com/..."
-                    className={cn(
-                      "h-11 pl-2 pr-7 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all",
-                      validationErrors["0-url"] ? "border-red-500 focus-visible:ring-red-300" : "border-gray-200",
-                    )}
-                  />
-                  {urlsLoading[0] && (
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    </div>
+                <Label className="font-semibold text-gray-800 text-sm">
+                  URL e Produktit <span className="text-red-500">*</span>
+                </Label>
+              </div>
+              <div className="relative">
+                <Input
+                  value={productLinks[0].url}
+                  onChange={(e) => updateProductLink(0, "url", e.target.value)}
+                  required
+                  placeholder="https://zara.com/product/..."
+                  className={cn(
+                    "h-10 sm:h-11 pl-3 pr-10 text-sm bg-gray-50/50 border rounded-lg",
+                    validationErrors["0-url"] 
+                      ? "border-red-400 bg-red-50/30" 
+                      : "border-gray-200 focus-visible:border-blue-400 hover:border-gray-300",
+                    "focus-visible:ring-1 focus-visible:ring-blue-200 focus-visible:ring-offset-0"
                   )}
-                  {validationErrors["0-url"] && (
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500">
-                      <AlertCircle className="h-3.5 w-3.5" />
-                    </div>
-                  )}
-                </div>
+                />
+                {urlsLoading[0] && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                  </div>
+                )}
                 {validationErrors["0-url"] && (
-                  <p className="mt-0.5 text-xs text-red-500 flex items-center">
-                    <AlertCircle className="h-3 w-3 mr-0.5 flex-shrink-0" />
-                    {validationErrors["0-url"]}
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <AlertCircle className="h-4 w-4 text-red-500" />
+                  </div>
+                )}
+              </div>
+              {validationErrors["0-url"] && (
+                <p className="mt-1 text-xs text-red-600 flex items-center">
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  {validationErrors["0-url"]}
+                </p>
+              )}
+            </div>
+
+            {/* Compact Price and Quantity layout */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Price Section */}
+              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-1 rounded">
+                    <PoundSterling className="h-3 w-3 text-white" />
+                  </div>
+                  <Label className="font-semibold text-gray-800 text-xs sm:text-sm">Çmimi</Label>
+                </div>
+                <div className="flex h-9 sm:h-10 border border-gray-200 rounded-lg overflow-hidden bg-gray-50/50">
+                  <Select 
+                    value={productLinks[0].currency} 
+                    onValueChange={(value) => updateProductLink(0, "currency", value)}
+                  >
+                    <SelectTrigger className="w-14 sm:w-16 h-full border-0 border-r border-gray-200 rounded-none bg-white text-xs">
+                      <SelectValue>
+                        {productLinks[0].currency === 'EUR' ? '€' : '£'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GBP">GBP (£)</SelectItem>
+                      <SelectItem value="EUR">EUR (€)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    value={productLinks[0].price || ""}
+                    onChange={(e) => {
+                      const value = Number.parseFloat(e.target.value)
+                      updateProductLink(0, "price", isNaN(value) ? 0 : value)
+                    }}
+                    step="0.01"
+                    placeholder="0.00"
+                    className="h-full border-0 rounded-none text-xs sm:text-sm font-semibold focus-visible:ring-0 flex-1 bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none px-2"
+                  />
+                </div>
+                {productLinks[0].price > 0 && productLinks[0].currency === 'GBP' && (
+                  <p className="mt-1 text-xs text-green-600">
+                    ≈ <Price amount={productLinks[0].price * exchangeRate} className="text-green-600" />
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* Price and Quantity - 2 columns */}
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
-              <div>
-                <div className="flex items-center gap-1 mb-0.5">
-                  <Label className="font-medium text-gray-700 text-xs">Çmimi</Label>
-                </div>
-                <div className="relative">
-                  <div className="flex h-11 border border-gray-200 rounded-md overflow-hidden shadow-sm focus-within:ring-1 focus-within:ring-primary/50 focus-within:border-primary/50 transition-all">
-                    {/* Currency Selector */}
-                    <Select 
-                      value={productLinks[0].currency} 
-                      onValueChange={(value) => updateProductLink(0, "currency", value)}
-                    >
-                      <SelectTrigger className="w-16 h-full border-0 border-r border-gray-200 rounded-none bg-gray-50/50 hover:bg-gray-50 focus:ring-0 focus:ring-offset-0">
-                        <SelectValue>
-                          <div className="flex items-center gap-1">
-                            {productLinks[0].currency === 'EUR' ? (
-                              <Euro className="h-3.5 w-3.5 text-gray-600" />
-                            ) : (
-                              <PoundSterling className="h-3.5 w-3.5 text-gray-600" />
-                            )}
-                          </div>
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="GBP">
-                          <div className="flex items-center gap-2">
-                            <span>GBP (£)</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="EUR">
-                          <div className="flex items-center gap-2">
-                            <span>EUR (€)</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    {/* Price Input */}
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      value={productLinks[0].price || ""}
-                      onChange={(e) => {
-                        const value = Number.parseFloat(e.target.value)
-                        updateProductLink(0, "price", isNaN(value) ? 0 : value)
-                      }}
-                      step="0.01"
-                      placeholder="0.00"
-                      className="h-full border-0 rounded-none text-xs focus-visible:ring-0 focus-visible:ring-offset-0 flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
+              {/* Quantity Section */}
+              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-1 rounded">
+                    <Package className="h-3 w-3 text-white" />
                   </div>
-                  
-                  {/* Real-time conversion display */}
-                  {productLinks[0].price > 0 && productLinks[0].currency === 'GBP' && (
-                    <p className="mt-1 text-xs text-gray-500 flex items-center gap-1">
-                       ≈ <Price 
-                         amount={productLinks[0].price * exchangeRate}
-                         className="text-gray-500"
-                         decimalClassName="text-[0.65em]"
-                       />
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-1 mb-0.5">
-                  <Label className="font-medium text-gray-700 text-xs">
+                  <Label className="font-semibold text-gray-800 text-xs sm:text-sm">
                     Sasia <span className="text-red-500">*</span>
                   </Label>
                 </div>
-                <div className="flex h-11 border border-gray-200 rounded-md overflow-hidden shadow-sm">
+                <div className="flex h-9 sm:h-10 border border-gray-200 rounded-lg overflow-hidden bg-gray-50/50">
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-full rounded-none border-r border-gray-200 hover:bg-gray-50 flex-1 px-1"
+                    className="h-full w-8 rounded-none border-r border-gray-200 hover:bg-purple-50 p-0"
                     onClick={() => {
                       if (productLinks[0].quantity > 1) {
                         updateProductLink(0, "quantity", Math.max(1, productLinks[0].quantity - 1))
@@ -473,104 +458,98 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                       }
                     }}
                     min="1"
-                    step="1"
-                    required
-                    className={cn(
-                      "h-full text-center text-xs font-medium focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 border-0 rounded-none flex-1 p-0 w-6",
-                      validationErrors["0-quantity"] ? "border-red-500 focus-visible:ring-red-300" : "",
-                      "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
-                    )}
+                    className="h-full text-center text-sm font-bold bg-white focus-visible:ring-0 border-0 rounded-none flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-full rounded-none border-l border-gray-200 hover:bg-gray-50 flex-1 px-1"
+                    className="h-full w-8 rounded-none border-l border-gray-200 hover:bg-purple-50 p-0"
                     onClick={() => updateProductLink(0, "quantity", productLinks[0].quantity + 1)}
                   >
                     <Plus className="h-3 w-3" />
                   </Button>
                 </div>
                 {validationErrors["0-quantity"] && (
-                  <p className="mt-0.5 text-xs text-red-500 flex items-center">
-                    <AlertCircle className="h-3 w-3 mr-0.5" />
+                  <p className="mt-1 text-xs text-red-600 flex items-center">
+                    <AlertCircle className="h-3 w-3 mr-1" />
                     {validationErrors["0-quantity"]}
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Size and Color - 2 columns */}
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
-              <div>
-                <div className="flex items-center gap-1 mb-0.5">
-                  <Ruler className="h-3.5 w-3.5 text-primary" />
-                  <Label className="font-medium text-gray-700 text-xs">Madhësia</Label>
+            {/* Compact Size, Color and Additional Info in one row */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Size */}
+              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Ruler className="h-3 w-3 text-indigo-600" />
+                  <Label className="font-semibold text-gray-800 text-xs sm:text-sm">Madhësia</Label>
                 </div>
                 <Input
                   value={productLinks[0].size}
                   onChange={(e) => updateProductLink(0, "size", e.target.value)}
-                  placeholder="XL/42"
-                  inputMode="text"
-                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all pl-2 border-gray-200"
+                  placeholder="XL, 42"
+                  className="h-9 sm:h-10 text-sm bg-gray-50/50 border border-gray-200 rounded-lg focus-visible:border-indigo-400 focus-visible:ring-1 focus-visible:ring-indigo-200 px-3"
                 />
               </div>
 
-              <div>
-                <div className="flex items-center gap-1 mb-0.5">
-                  <Palette className="h-3.5 w-3.5 text-primary" />
-                  <Label className="font-medium text-gray-700 text-xs">Ngjyra</Label>
+              {/* Color */}
+              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Palette className="h-3 w-3 text-pink-600" />
+                  <Label className="font-semibold text-gray-800 text-xs sm:text-sm">Ngjyra</Label>
                 </div>
                 <Input
                   value={productLinks[0].color}
                   onChange={(e) => updateProductLink(0, "color", e.target.value)}
-                  placeholder="blu/kuqe"
-                  inputMode="text"
-                  className="h-11 text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all pl-2 border-gray-200"
+                  placeholder="blu, kuqe"
+                  className="h-9 sm:h-10 text-sm bg-gray-50/50 border border-gray-200 rounded-lg focus-visible:border-pink-400 focus-visible:ring-1 focus-visible:ring-pink-200 px-3"
+                />
+              </div>
+
+              {/* Additional Info - spans full width on mobile */}
+              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm sm:col-span-1">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Info className="h-3 w-3 text-amber-600" />
+                  <Label className="font-semibold text-gray-800 text-xs sm:text-sm">Info</Label>
+                </div>
+                <Textarea
+                  value={productLinks[0].additionalInfo}
+                  onChange={(e) => updateProductLink(0, "additionalInfo", e.target.value)}
+                  placeholder="Udhëzime speciale..."
+                  className="min-h-[36px] sm:min-h-[40px] text-sm bg-gray-50/50 border border-gray-200 rounded-lg focus-visible:border-amber-400 focus-visible:ring-1 focus-visible:ring-amber-200 resize-none py-2 px-3"
+                  rows={1}
                 />
               </div>
             </div>
-
-            {/* Additional info - more compact for mobile */}
-            <div>
-              <div className="flex items-center gap-1 mb-0.5">
-                <Info className="h-3.5 w-3.5 text-primary" />
-                <Label className="font-medium text-gray-700 text-xs">Info shtesë</Label>
-              </div>
-              <Textarea
-                value={productLinks[0].additionalInfo}
-                onChange={(e) => updateProductLink(0, "additionalInfo", e.target.value)}
-                placeholder="p.sh. Dërgesa të bëhet pas orës 17:00"
-                className="min-h-[60px] text-xs focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0 transition-all border-gray-200 resize-none py-2 px-2 overflow-hidden"
-                rows={2}
-              />
-            </div>
             
-            {/* Action buttons - inside scrollable area for all screen sizes */}
-            <div className="flex justify-end gap-2 mt-4">
+            {/* Compact action buttons */}
+            <div className="flex justify-between items-center gap-3 pt-3 border-t border-gray-100">
               <Button 
                 variant="outline"
-                size="sm"
                 onClick={clearForm}
-                className="text-gray-700 border-gray-300 shadow-sm text-sm h-11 px-3 bg-white hover:bg-gray-50"
+                className="h-10 px-4 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium flex items-center gap-2"
               >
-                <RefreshCw className="h-4 w-4 mr-1" />
-                Pastro
+                <RefreshCw className="h-4 w-4" />
+                <span className="hidden sm:inline">Pastro</span>
               </Button>
               
               <Button
                 onClick={handleAddToBasket}
                 disabled={isSubmitting}
-                className="bg-primary hover:bg-primary/90 text-white text-sm h-11 px-4 shadow-sm"
-                size="sm"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold h-10 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
               >
                 {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Po shtohet...</span>
+                  </>
                 ) : (
                   <>
-                    <Plus className="h-4 w-4 mr-1" />
-                    <span className="hidden sm:inline">Shto në Shportë</span>
-                    <span className="sm:hidden">Shto</span>
+                    <Plus className="h-4 w-4" />
+                    <span className="text-sm font-bold">Shto në Shportë</span>
                   </>
                 )}
               </Button>

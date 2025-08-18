@@ -104,21 +104,21 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 overflow-hidden max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="bg-gray-100 text-gray-900 p-4 relative">
-          <h2 className="text-xl font-semibold flex items-center">
-            <Package className="h-5 w-5 mr-2 text-secondary" />
-            <span className="text-primary font-extrabold">PAKO</span>
-            <span className="text-secondary font-extrabold">24</span>
+      <DialogContent className="p-0 overflow-hidden max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto bg-white">
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
+          <h2 className="text-2xl font-bold flex items-center justify-center">
+            <Package className="h-6 w-6 mr-2 text-blue-600" />
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent font-bold">PAKO</span>
+            <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent font-bold">24</span>
           </h2>
-          <p className="text-gray-600 text-sm mt-1">Krijo një llogari të re për të përdorur PAKO24</p>
+          <p className="text-gray-600 text-center text-sm mt-2">Krijo një llogari të re për të përdorur PAKO24</p>
         </div>
 
-        <form onSubmit={handleRegister} className="p-4 space-y-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 mb-1">
-              <Mail className="h-5 w-5 text-indigo-600" />
-              <span className="font-medium">Email</span>
+        <form onSubmit={handleRegister} className="p-6 space-y-5">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <Mail className="h-4 w-4 text-blue-600" />
+              <span>Email</span>
             </div>
             <Input
               value={email}
@@ -126,42 +126,42 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
               placeholder="email@example.com"
               type="email"
               required
-              className="h-10 sm:h-12 text-sm sm:text-base"
+              className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
             />
           </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 mb-1">
-              <Phone className="h-5 w-5 text-indigo-600" />
-              <span className="font-medium">Numri i WhatsApp</span>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <Phone className="h-4 w-4 text-blue-600" />
+              <span>Numri i WhatsApp</span>
             </div>
             <Input
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="+355 69 123 4567"
               required
-              className="h-10 sm:h-12 text-sm sm:text-base"
+              className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
             />
           </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 mb-1">
-              <MapPin className="h-5 w-5 text-indigo-600" />
-              <span className="font-medium">Vendndodhja</span>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <MapPin className="h-4 w-4 text-blue-600" />
+              <span>Vendndodhja</span>
             </div>
             <Input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Tirana, Albania"
               required
-              className="h-10 sm:h-12 text-sm sm:text-base"
+              className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
             />
           </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 mb-1">
-              <Lock className="h-5 w-5 text-indigo-600" />
-              <span className="font-medium">Fjalëkalimi</span>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <Lock className="h-4 w-4 text-blue-600" />
+              <span>Fjalëkalimi</span>
             </div>
             <Input
               type="password"
@@ -169,16 +169,20 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Fjalëkalimi juaj"
               required
-              className="h-10 sm:h-12 text-sm sm:text-base"
+              className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
             />
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
 
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-4 sm:py-6 bg-primary hover:bg-primary/90 text-white text-sm sm:text-base"
+            className="w-full h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-base mt-6"
           >
             {isSubmitting
               ? "Duke regjistruar..."
@@ -187,14 +191,14 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
                 : "Regjistrohu"}
           </Button>
 
-          <div className="text-center">
+          <div className="text-center pt-2">
             <button
               type="button"
               onClick={() => {
                 onOpenChange(false)
                 // Qui potresti aprire il modal di login se necessario
               }}
-              className="text-sm text-indigo-600 hover:text-indigo-800"
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
             >
               Keni një llogari? Identifikohuni
             </button>
