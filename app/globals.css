@@ -196,28 +196,6 @@
   touch-action: manipulation;
 }
 
-/* Smooth scrolling for better UX */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Enhanced mobile scrolling with momentum and smoothness */
-body,
-main,
-[data-scroll-container] {
-  -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
-  scroll-behavior: smooth;
-  overscroll-behavior: contain; /* Prevent pull-to-refresh and overscroll effects */
-}
-
-/* Smooth scrolling for all scrollable containers */
-.overflow-y-auto,
-.overflow-auto {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  overscroll-behavior: contain;
-}
-
 /* Additional webkit-specific fixes */
 @supports (-webkit-touch-callout: none) {
   input[type="text"],
@@ -231,14 +209,5 @@ main,
   textarea {
     -webkit-text-size-adjust: 100%;
     -webkit-user-select: text;
-  }
-  
-  /* Enhanced iOS scrolling */
-  body,
-  main,
-  .overflow-y-auto,
-  .overflow-auto {
-    -webkit-overflow-scrolling: touch;
-    -webkit-transform: translate3d(0, 0, 0); /* Hardware acceleration */
   }
 }
