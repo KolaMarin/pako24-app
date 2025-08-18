@@ -152,7 +152,7 @@ function HomePageContent() {
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <div className="relative">
+              <div className="relative overflow-hidden">
                 {/* Decorative background elements */}
                 <div className="absolute -top-10 -left-10 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-2xl animate-pulse" />
                 <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full blur-xl animate-pulse delay-1000" />
@@ -174,7 +174,7 @@ function HomePageContent() {
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <div className="relative">
+              <div className="relative overflow-hidden">
                 {/* Decorative background elements */}
                 <div className="absolute -top-10 -right-10 w-28 h-28 bg-gradient-to-br from-orange-500/10 to-yellow-500/10 rounded-full blur-2xl animate-pulse" />
                 <div className="absolute -bottom-10 -left-10 w-20 h-20 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full blur-xl animate-pulse delay-500" />
