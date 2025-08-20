@@ -104,7 +104,7 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 overflow-hidden max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto bg-white">
+      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-md max-h-[95vh] overflow-y-auto bg-white p-0">
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
           <h2 className="text-2xl font-bold flex items-center justify-center">
             <Package className="h-6 w-6 mr-2 text-blue-600" />
@@ -116,61 +116,69 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
 
         <form onSubmit={handleRegister} className="p-6 space-y-5">
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <Mail className="h-4 w-4 text-blue-600" />
+            <div className="text-sm font-medium text-gray-700">
               <span>Email</span>
             </div>
-            <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@example.com"
-              type="email"
-              required
-              className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
-            />
+            <div className="relative">
+              <Input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email@example.com"
+                type="email"
+                required
+                className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors pr-10"
+              />
+              <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+            </div>
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <Phone className="h-4 w-4 text-blue-600" />
+            <div className="text-sm font-medium text-gray-700">
               <span>Numri i WhatsApp</span>
             </div>
-            <Input
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="+355 69 123 4567"
-              required
-              className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
-            />
+            <div className="relative">
+              <Input
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+355 69 123 4567"
+                required
+                className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors pr-10"
+              />
+              <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+            </div>
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <MapPin className="h-4 w-4 text-blue-600" />
+            <div className="text-sm font-medium text-gray-700">
               <span>Vendndodhja</span>
             </div>
-            <Input
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Tirana, Albania"
-              required
-              className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
-            />
+            <div className="relative">
+              <Input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Tirana, Albania"
+                required
+                className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors pr-10"
+              />
+              <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+            </div>
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <Lock className="h-4 w-4 text-blue-600" />
+            <div className="text-sm font-medium text-gray-700">
               <span>Fjalëkalimi</span>
             </div>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Fjalëkalimi juaj"
-              required
-              className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
-            />
+            <div className="relative">
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Fjalëkalimi juaj"
+                required
+                className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors pr-10"
+              />
+              <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+            </div>
           </div>
 
           {error && (

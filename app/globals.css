@@ -113,10 +113,15 @@
   
   /* Mobile-specific body fixes */
   @media screen and (max-width: 768px) {
-    html, body {
+    html {
       overflow: hidden; /* Prevent body scroll on mobile only */
-      position: fixed; /* Fix body to prevent scrolling on mobile only */
       width: 100%;
+    }
+    
+    body {
+      overflow: hidden; /* Prevent body scroll on mobile only */
+      width: 100%;
+      /* Removed position: fixed as it breaks modal centering */
     }
   }
   
@@ -179,7 +184,7 @@
   textarea {
     font-size: 16px !important;
     -webkit-appearance: none;
-    border-radius: 0;
+    border-radius: 8px !important; /* Force rounded borders on mobile */
     transform-origin: left top;
     transition: none;
   }
@@ -207,6 +212,14 @@
   [data-testid*="input"],
   [placeholder] {
     font-size: 16px !important;
+    border-radius: 8px !important; /* Ensure rounded borders on all input elements */
+  }
+  
+  /* Force rounded borders on all input elements on mobile */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]) {
+    border-radius: 8px !important;
+    -webkit-border-radius: 8px !important;
+    -moz-border-radius: 8px !important;
   }
 }
 
@@ -261,9 +274,8 @@ main,
   
   body {
     overscroll-behavior: none;
-    /* Only apply position fixed and overflow hidden on mobile */
+    /* Only apply overflow hidden on mobile, removed position: fixed */
     overflow: hidden;
-    position: fixed;
     width: 100%;
   }
 }
@@ -291,13 +303,13 @@ main,
     -webkit-transform: translate3d(0, 0, 0); /* Hardware acceleration */
   }
   
-  /* Fix iOS body scroll issues - only on mobile */
-  @media screen and (max-width: 768px) {
-    html, body {
-      height: 100dvh;
-      overflow: hidden;
-      position: fixed;
-      width: 100%;
+    /* Fix iOS body scroll issues - only on mobile */
+    @media screen and (max-width: 768px) {
+      html, body {
+        height: 100dvh;
+        overflow: hidden;
+        width: 100%;
+        /* Removed position: fixed to allow proper modal positioning */
+      }
     }
-  }
 }

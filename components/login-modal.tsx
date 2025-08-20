@@ -136,7 +136,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden max-w-[95vw] max-h-[90vh] overflow-y-auto bg-white">
+      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-md max-h-[95vh] overflow-y-auto bg-white p-0">
         <DialogHeader className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
           <DialogTitle className="text-2xl flex items-center justify-center">
             <div className="flex items-center">
@@ -156,65 +156,73 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
           {isRegistering ? (
             <form onSubmit={handleRegister} className="space-y-5">
               <div className="space-y-3">
-                <Label htmlFor="register-email" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Mail className="h-4 w-4 text-blue-600" />
+                <Label htmlFor="register-email" className="text-sm font-medium text-gray-700">
                   Email
                 </Label>
-                <Input
-                  id="register-email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email@example.com"
-                  type="email"
-                  required
-                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
-                />
+                <div className="relative">
+                  <Input
+                    id="register-email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="email@example.com"
+                    type="email"
+                    required
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors pr-10"
+                  />
+                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                </div>
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="register-phone" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Phone className="h-4 w-4 text-blue-600" />
+                <Label htmlFor="register-phone" className="text-sm font-medium text-gray-700">
                   Numri i WhatsApp
                 </Label>
-                <Input
-                  id="register-phone"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="+355 69 123 4567"
-                  required
-                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
-                />
+                <div className="relative">
+                  <Input
+                    id="register-phone"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="+355 69 123 4567"
+                    required
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors pr-10"
+                  />
+                  <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                </div>
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="register-location" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <MapPin className="h-4 w-4 text-blue-600" />
+                <Label htmlFor="register-location" className="text-sm font-medium text-gray-700">
                   Vendndodhja
                 </Label>
-                <Input
-                  id="register-location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Tirana, Albania"
-                  required
-                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
-                />
+                <div className="relative">
+                  <Input
+                    id="register-location"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Tirana, Albania"
+                    required
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors pr-10"
+                  />
+                  <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                </div>
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="register-password" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Lock className="h-4 w-4 text-blue-600" />
+                <Label htmlFor="register-password" className="text-sm font-medium text-gray-700">
                   Fjalëkalimi
                 </Label>
-                <Input
-                  id="register-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Fjalëkalimi juaj"
-                  required
-                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
-                />
+                <div className="relative">
+                  <Input
+                    id="register-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Fjalëkalimi juaj"
+                    required
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors pr-10"
+                  />
+                  <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                </div>
               </div>
 
               {error && (
@@ -250,35 +258,39 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
           ) : (
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-3">
-                <Label htmlFor="login-email" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Mail className="h-4 w-4 text-blue-600" />
+                <Label htmlFor="login-email" className="text-sm font-medium text-gray-700">
                   Email
                 </Label>
-                <Input
-                  id="login-email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email@example.com"
-                  type="email"
-                  required
-                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
-                />
+                <div className="relative">
+                  <Input
+                    id="login-email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="email@example.com"
+                    type="email"
+                    required
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors pr-10"
+                  />
+                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                </div>
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="login-password" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Lock className="h-4 w-4 text-blue-600" />
+                <Label htmlFor="login-password" className="text-sm font-medium text-gray-700">
                   Fjalëkalimi
                 </Label>
-                <Input
-                  id="login-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Fjalëkalimi juaj"
-                  required
-                  className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors"
-                />
+                <div className="relative">
+                  <Input
+                    id="login-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Fjalëkalimi juaj"
+                    required
+                    className="h-12 text-base border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-lg transition-colors pr-10"
+                  />
+                  <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                </div>
               </div>
 
               {error && (

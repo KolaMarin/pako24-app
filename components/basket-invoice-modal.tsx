@@ -180,7 +180,7 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
       />
       
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto overflow-x-hidden bg-gradient-to-br from-slate-50 to-white border-0 shadow-2xl rounded-xl p-0">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-4xl lg:max-w-5xl max-h-[95vh] overflow-y-auto overflow-x-hidden bg-gradient-to-br from-slate-50 to-white border-0 shadow-2xl rounded-xl p-0">
           <DialogTitle className="sr-only">Shporta</DialogTitle>
           
           {items.length === 0 ? (
