@@ -34,6 +34,8 @@ import {
   RefreshCw,
   Download,
   Package,
+  Sparkles,
+  Tag,
 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Separator } from "@/components/ui/separator"
@@ -282,66 +284,77 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full bg-slate-50 sm:bg-transparent">
-      {/* Modals */}
-      <BasketInvoiceModal 
-        open={showBasketModal} 
-        onOpenChange={setShowBasketModal} 
-        onSubmit={handleFinalSubmit} 
-      />
-      
-      <LoginModal
-        open={showLoginModal}
-        onOpenChange={setShowLoginModal}
-      />
-      
-      {/* Product form card - Buttons now in scrollable area for all screen sizes */}
-      <div className="relative bg-white overflow-hidden border border-primary/10 shadow-lg w-full h-auto md:flex md:flex-col">
-        {/* Left accent bar - visible on all screen sizes */}
-        <div className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary to-primary/70"></div>
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 p-4 md:p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Modals */}
+        <BasketInvoiceModal 
+          open={showBasketModal} 
+          onOpenChange={setShowBasketModal} 
+          onSubmit={handleFinalSubmit} 
+        />
         
-        {/* Enhanced header section with modern gradient */}
-        <div className="bg-gradient-to-r from-slate-700 to-slate-800 py-4 sm:py-3 px-4 sm:px-4 border-b border-slate-600 md:flex-shrink-0 relative overflow-hidden">
-          
-          <div className="flex flex-col space-y-2 relative z-10">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div>
-                  <h2 className="text-base sm:text-lg font-bold text-white">
-                    Detajet e Produktit
-                  </h2>
-                  <p className="text-xs text-slate-200 font-medium">Plotëso detajet e produktit dhe shto ne <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 inline text-slate-200"/></p>
-                </div>
-              </div>
-              
-              {productLinks[0].price > 0 && (
-                <div className="flex items-center">
-                  <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1.5 rounded-full shadow-lg">
-                    <div className="flex items-center gap-1">
-                      <Price 
-                        amount={calculateEuroPrice(productLinks[0].price, productLinks[0].currency) * productLinks[0].quantity}
-                        className="text-white font-bold text-sm"
-                      />
-                      {productLinks[0].quantity > 1 && <span className="text-white/80 text-xs">(×{productLinks[0].quantity})</span>}
-                    </div>
+        <LoginModal
+          open={showLoginModal}
+          onOpenChange={setShowLoginModal}
+        />
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-xl shadow-slate-900/5 overflow-hidden"
+        >
+          <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-500"></div>
+
+          <div className="relative bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 px-6 py-6 border-b border-slate-600/50">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                    <Sparkles className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg md:text-xl font-bold text-white mb-1">Detajet e Produktit</h2>
+                    <p className="text-xs md:text-sm text-slate-200 flex items-center gap-2">
+                      Plotëso detajet dhe shto në shportë
+                      <ShoppingCart className="h-4 w-4" />
+                    </p>
                   </div>
                 </div>
-              )}
+
+                {productLinks[0].price > 0 && (
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl shadow-lg border border-white/20"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-4 w-4" />
+                      <div className="text-right">
+                        <Price
+                          amount={calculateEuroPrice(productLinks[0].price, productLinks[0].currency) * productLinks[0].quantity}
+                          className="text-white font-bold text-sm md:text-lg"
+                        />
+                        {productLinks[0].quantity > 1 && (
+                          <div className="text-white/80 text-xs">×{productLinks[0].quantity} copë</div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
         
-        {/* Enhanced form body with responsive spacing */}
-        <div className="p-3 sm:p-4 md:p-3 lg:p-4 bg-gradient-to-b from-white to-gray-50/30">
-          <div className="grid gap-3 sm:gap-4 md:gap-3 lg:gap-4">
-            {/* Enhanced URL input - more compact */}
-            <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-100 shadow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-1.5 rounded-lg">
-                  <LinkIcon className="h-3 w-3 text-white" />
+          <div className="p-6 space-y-6">
+            <div className="group">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-sm">
+                  <LinkIcon className="h-3.5 w-3.5 text-white" />
                 </div>
-                <Label className="font-semibold text-gray-800 text-sm">
-                  URL e Produktit <span className="text-red-500">*</span>
+                <Label className="font-semibold text-slate-800 text-base">
+                  URL e Produktit <span className="text-red-500 ml-1">*</span>
                 </Label>
               </div>
               <div className="relative">
@@ -351,51 +364,48 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                   required
                   placeholder="https://zara.com/product/..."
                   className={cn(
-                    "h-10 sm:h-11 pl-3 pr-10 text-sm bg-gray-50/50 border rounded-lg",
-                    validationErrors["0-url"] 
-                      ? "border-red-400 bg-red-50/30" 
-                      : "border-gray-200 focus-visible:border-blue-400 hover:border-gray-300",
-                    "focus-visible:ring-1 focus-visible:ring-blue-200 focus-visible:ring-offset-0"
+                    "h-12 pl-4 pr-12 text-base bg-slate-50/50 border-2 rounded-xl transition-all duration-200",
+                    validationErrors["0-url"]
+                      ? "border-red-400 bg-red-50/50 focus-visible:border-red-500"
+                      : "border-slate-200 focus-visible:border-blue-500 hover:border-slate-300 group-hover:border-blue-300",
+                    "focus-visible:ring-0 focus-visible:ring-offset-0 shadow-sm",
                   )}
                 />
                 {urlsLoading[0] && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
                   </div>
                 )}
                 {validationErrors["0-url"] && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <AlertCircle className="h-4 w-4 text-red-500" />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <AlertCircle className="h-5 w-5 text-red-500" />
                   </div>
                 )}
               </div>
               {validationErrors["0-url"] && (
-                <p className="mt-1 text-xs text-red-600 flex items-center">
-                  <AlertCircle className="h-3 w-3 mr-1" />
+                <motion.p
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-2 text-sm text-red-600 flex items-center gap-2 bg-red-50 px-3 py-2 rounded-lg"
+                >
+                  <AlertCircle className="h-4 w-4" />
                   {validationErrors["0-url"]}
-                </p>
+                </motion.p>
               )}
             </div>
 
-            {/* Compact Price and Quantity layout */}
-            <div className="grid grid-cols-2 gap-3">
-              {/* Price Section */}
-              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-1 rounded">
-                    <PoundSterling className="h-3 w-3 text-white" />
+            <div className="grid grid-cols-2 gap-6">
+              <div className="group">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg shadow-sm">
+                    <PoundSterling className="h-3.5 w-3.5 text-white" />
                   </div>
-                  <Label className="font-semibold text-gray-800 text-xs sm:text-sm">Çmimi</Label>
+                  <Label className="font-semibold text-slate-800 text-base">Çmimi</Label>
                 </div>
-                <div className="flex h-9 sm:h-10 border border-gray-200 rounded-lg overflow-hidden bg-gray-50/50">
-                  <Select 
-                    value={productLinks[0].currency} 
-                    onValueChange={(value) => updateProductLink(0, "currency", value)}
-                  >
-                    <SelectTrigger className="w-14 sm:w-16 h-full border-0 border-r border-gray-200 rounded-none bg-white text-xs">
-                      <SelectValue>
-                        {productLinks[0].currency === 'EUR' ? '€' : '£'}
-                      </SelectValue>
+                <div className="flex h-12 border-2 border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm group-hover:border-emerald-300 transition-colors">
+                  <Select value={productLinks[0].currency} onValueChange={(value) => updateProductLink(0, "currency", value)}>
+                    <SelectTrigger className="w-20 h-full border-0 border-r-2 border-slate-200 rounded-none bg-slate-50 text-sm font-medium">
+                      <SelectValue>{productLinks[0].currency === "EUR" ? "€" : "£"}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="GBP">GBP (£)</SelectItem>
@@ -412,32 +422,35 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                     }}
                     step="0.01"
                     placeholder="0.00"
-                    className="h-full border-0 rounded-none text-xs sm:text-sm font-semibold focus-visible:ring-0 flex-1 bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none px-2"
+                    className="h-full border-0 rounded-none text-base font-semibold focus-visible:ring-0 flex-1 bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none px-4"
                   />
                 </div>
-                {productLinks[0].price > 0 && productLinks[0].currency === 'GBP' && (
-                  <p className="mt-1 text-xs text-green-600">
-                    ≈ <Price amount={productLinks[0].price * exchangeRate} className="text-green-600" />
-                  </p>
+                {productLinks[0].price > 0 && productLinks[0].currency === "GBP" && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-2 text-sm text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg"
+                  >
+                    ≈ <Price amount={productLinks[0].price * exchangeRate} className="text-emerald-600 font-medium" />
+                  </motion.p>
                 )}
               </div>
 
-              {/* Quantity Section */}
-              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-1 rounded">
-                    <Package className="h-3 w-3 text-white" />
+              <div className="group">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg shadow-sm">
+                    <Package className="h-3.5 w-3.5 text-white" />
                   </div>
-                  <Label className="font-semibold text-gray-800 text-xs sm:text-sm">
-                    Sasia <span className="text-red-500">*</span>
+                  <Label className="font-semibold text-slate-800 text-base">
+                    Sasia <span className="text-red-500 ml-1">*</span>
                   </Label>
                 </div>
-                <div className="flex h-9 sm:h-10 border border-gray-200 rounded-lg overflow-hidden bg-gray-50/50">
+                <div className="flex h-12 border-2 border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm group-hover:border-purple-300 transition-colors">
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-full w-8 rounded-none border-r border-gray-200 hover:bg-purple-50 p-0"
+                    className="h-full w-12 rounded-none border-r-2 border-slate-200 hover:bg-purple-50 transition-colors"
                     onClick={() => {
                       if (productLinks[0].quantity > 1) {
                         updateProductLink(0, "quantity", Math.max(1, productLinks[0].quantity - 1))
@@ -445,7 +458,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                     }}
                     disabled={productLinks[0].quantity <= 1}
                   >
-                    <Minus className="h-3 w-3" />
+                    <Minus className="h-4 w-4" />
                   </Button>
                   <Input
                     type="number"
@@ -458,104 +471,103 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
                       }
                     }}
                     min="1"
-                    className="h-full text-center text-sm font-bold bg-white focus-visible:ring-0 border-0 rounded-none flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="h-full text-center text-base font-bold bg-white focus-visible:ring-0 border-0 rounded-none flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-full w-8 rounded-none border-l border-gray-200 hover:bg-purple-50 p-0"
+                    className="h-full w-12 rounded-none border-l-2 border-slate-200 hover:bg-purple-50 transition-colors"
                     onClick={() => updateProductLink(0, "quantity", productLinks[0].quantity + 1)}
                   >
-                    <Plus className="h-3 w-3" />
+                    <Plus className="h-4 w-4" />
                   </Button>
                 </div>
                 {validationErrors["0-quantity"] && (
-                  <p className="mt-1 text-xs text-red-600 flex items-center">
-                    <AlertCircle className="h-3 w-3 mr-1" />
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-2 text-sm text-red-600 flex items-center gap-2 bg-red-50 px-3 py-2 rounded-lg"
+                  >
+                    <AlertCircle className="h-4 w-4" />
                     {validationErrors["0-quantity"]}
-                  </p>
+                  </motion.p>
                 )}
               </div>
             </div>
 
-            {/* Compact Size, Color and Additional Info in one row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {/* Size */}
-              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Ruler className="h-3 w-3 text-indigo-600" />
-                  <Label className="font-semibold text-gray-800 text-xs sm:text-sm">Madhësia</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="group">
+                <div className="flex items-center gap-3 mb-3">
+                  <Ruler className="h-4 w-4 text-indigo-600" />
+                  <Label className="font-semibold text-slate-800 text-base">Madhësia</Label>
                 </div>
                 <Input
                   value={productLinks[0].size}
                   onChange={(e) => updateProductLink(0, "size", e.target.value)}
-                  placeholder="XL, 42"
-                  className="h-9 sm:h-10 text-sm bg-gray-50/50 border border-gray-200 rounded-lg focus-visible:border-indigo-400 focus-visible:ring-1 focus-visible:ring-indigo-200 px-3"
+                  placeholder="XL, 42, Medium..."
+                  className="h-12 text-base bg-slate-50/50 border-2 border-slate-200 rounded-xl focus-visible:border-indigo-500 focus-visible:ring-0 px-4 group-hover:border-indigo-300 transition-colors shadow-sm"
                 />
               </div>
 
-              {/* Color */}
-              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Palette className="h-3 w-3 text-pink-600" />
-                  <Label className="font-semibold text-gray-800 text-xs sm:text-sm">Ngjyra</Label>
+              <div className="group">
+                <div className="flex items-center gap-3 mb-3">
+                  <Palette className="h-4 w-4 text-pink-600" />
+                  <Label className="font-semibold text-slate-800 text-base">Ngjyra</Label>
                 </div>
                 <Input
                   value={productLinks[0].color}
                   onChange={(e) => updateProductLink(0, "color", e.target.value)}
-                  placeholder="blu, kuqe"
-                  className="h-9 sm:h-10 text-sm bg-gray-50/50 border border-gray-200 rounded-lg focus-visible:border-pink-400 focus-visible:ring-1 focus-visible:ring-pink-200 px-3"
-                />
-              </div>
-
-              {/* Additional Info - spans full width on mobile */}
-              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm sm:col-span-1">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Info className="h-3 w-3 text-amber-600" />
-                  <Label className="font-semibold text-gray-800 text-xs sm:text-sm">Info</Label>
-                </div>
-                <Textarea
-                  value={productLinks[0].additionalInfo}
-                  onChange={(e) => updateProductLink(0, "additionalInfo", e.target.value)}
-                  placeholder="Udhëzime speciale..."
-                  className="min-h-[36px] sm:min-h-[40px] text-sm bg-gray-50/50 border border-gray-200 rounded-lg focus-visible:border-amber-400 focus-visible:ring-1 focus-visible:ring-amber-200 resize-none py-2 px-3"
-                  rows={1}
+                  placeholder="Blu, Kuqe, Bardhë..."
+                  className="h-12 text-base bg-slate-50/50 border-2 border-slate-200 rounded-xl focus-visible:border-pink-500 focus-visible:ring-0 px-4 group-hover:border-pink-300 transition-colors shadow-sm"
                 />
               </div>
             </div>
-            
-            {/* Compact action buttons */}
-            <div className="flex justify-between items-center gap-3 pt-3 border-t border-gray-100">
-              <Button 
+
+            <div className="group">
+              <div className="flex items-center gap-3 mb-3">
+                <Info className="h-4 w-4 text-amber-600" />
+                <Label className="font-semibold text-slate-800 text-base">Informacione Shtesë</Label>
+              </div>
+              <Textarea
+                value={productLinks[0].additionalInfo}
+                onChange={(e) => updateProductLink(0, "additionalInfo", e.target.value)}
+                placeholder="Udhëzime speciale, preferenca, ose detaje të tjera..."
+                className="min-h-[100px] text-base bg-slate-50/50 border-2 border-slate-200 rounded-xl focus-visible:border-amber-500 focus-visible:ring-0 resize-none py-3 px-4 group-hover:border-amber-300 transition-colors shadow-sm"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 pt-6 border-t border-slate-200">
+              <Button
                 variant="outline"
                 onClick={clearForm}
-                className="h-10 px-4 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium flex items-center gap-2"
+                className="h-12 px-6 rounded-xl border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 font-medium flex items-center justify-center gap-3 transition-all duration-200 shadow-sm bg-transparent"
               >
-                <RefreshCw className="h-4 w-4" />
-                <span className="hidden sm:inline">Pastro</span>
+                <RefreshCw className="h-5 w-5" />
+                <span>Pastro Formularin</span>
               </Button>
-              
+
               <Button
                 onClick={handleAddToBasket}
                 disabled={isSubmitting}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold h-10 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold h-12 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">Po shtohet...</span>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Po shtohet...</span>
                   </>
                 ) : (
                   <>
-                    <Plus className="h-4 w-4" />
-                    <span className="text-sm font-bold">Shto në Shportë</span>
+                    <Plus className="h-5 w-5" />
+                    <span>Shto në Shportë</span>
                   </>
                 )}
               </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   )

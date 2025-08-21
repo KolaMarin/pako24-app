@@ -152,17 +152,7 @@ function HomePageContent() {
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <div className="relative overflow-hidden">
-                {/* Decorative background elements */}
-                <div className="absolute -top-10 -left-10 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-2xl animate-pulse" />
-                <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full blur-xl animate-pulse delay-1000" />
-                
-                <Card className="enhanced-card rounded-2xl overflow-hidden relative backdrop-blur-sm border-white/50 shadow-2xl">
-                  <CardContent className="p-0">
-                    <ProductForm onSubmit={handleSubmitOrder} />
-                  </CardContent>
-                </Card>
-              </div>
+              <ProductForm onSubmit={handleSubmitOrder} />
             </motion.div>
           )}
 
