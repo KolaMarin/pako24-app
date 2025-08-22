@@ -114,14 +114,14 @@
   /* Mobile-specific body fixes */
   @media screen and (max-width: 768px) {
     html {
-      overflow: hidden; /* Prevent body scroll on mobile only */
       width: 100%;
     }
     
     body {
-      overflow: hidden; /* Prevent body scroll on mobile only */
       width: 100%;
       /* Removed position: fixed as it breaks modal centering */
+      /* Removed overflow: hidden to fix modal centering on iOS Safari */
+      /* Body scroll prevention is now handled by the modal-open class */
     }
   }
   
@@ -324,7 +324,7 @@ main,
         -webkit-overflow-scrolling: touch;
       }
       
-      /* Prevent body scroll only when modal is open */
+      /* Prevent body scroll only when modal is open - this is the correct approach */
       body.modal-open {
         overflow: hidden;
         position: fixed;
