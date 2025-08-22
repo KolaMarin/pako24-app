@@ -181,7 +181,7 @@ export function BasketInvoiceModal({ open, onOpenChange, onSubmit }: BasketInvoi
       />
       
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-3xl lg:max-w-4xl max-h-[95vh] bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200/60 shadow-2xl rounded-xl p-0 flex flex-col [&>button]:hidden">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-3xl lg:max-w-4xl max-h-[95vh] bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200/60 shadow-2xl rounded-xl p-0 flex flex-col">
           <DialogTitle className="sr-only">Shporta</DialogTitle>
           
           {items.length === 0 ? (

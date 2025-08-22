@@ -327,8 +327,11 @@ main,
       /* Prevent body scroll only when modal is open */
       body.modal-open {
         overflow: hidden;
-        position: fixed;
+        /* Removed position: fixed as it breaks modal centering on iOS Safari */
         width: 100%;
+        /* Use touch-action to prevent scrolling instead */
+        touch-action: none;
+        -webkit-overflow-scrolling: auto;
       }
     }
 }
