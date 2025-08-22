@@ -324,11 +324,9 @@ main,
         -webkit-overflow-scrolling: touch;
       }
       
-      /* Prevent body scroll only when modal is open - this is the correct approach */
+      /* Clean modal body lock - handled by JavaScript in dialog.tsx */
       body.modal-open {
         overflow: hidden;
-        position: fixed;
-        width: 100%;
       }
     }
 }
