@@ -10,49 +10,46 @@ import { cn } from "@/lib/utils"
 interface OnboardingFlowProps {
   onComplete: () => void
 }
-
 const brandLogos = [
   { 
     name: "ZARA", 
     text: "ZARA", 
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Zara_Logo.svg" 
+    logoUrl: "https://logo.clearbit.com/zara.com" 
   },
   { 
     name: "BOTTEGA VENETA", 
     text: "BOTTEGA\nVENETA", 
-    logoUrl: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/bottegaveneta.svg"
+    logoUrl: "https://logo.clearbit.com/bottegaveneta.com"
   },
   { 
     name: "FERRAGAMO", 
     text: "FERRAGAMO", 
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/8/8b/Salvatore_Ferragamo_logo.svg"
+    logoUrl: "https://logo.clearbit.com/ferragamo.com"
   },
   { 
     name: "LOUIS VUITTON", 
     text: "LV", 
-    logoUrl: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/louisvuitton.svg", 
-    isBlack: true 
+    logoUrl: "https://logo.clearbit.com/louisvuitton.com"
   },
   { 
     name: "CHANEL", 
     text: "CC", 
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Chanel_logo_interlocking_cs.svg"
+    logoUrl: "https://logo.clearbit.com/chanel.com"
   },
   { 
     name: "AMAZON", 
     text: "amazon", 
-    logoUrl: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/amazon.svg", 
-    isAmazon: true 
+    logoUrl: "https://logo.clearbit.com/amazon.com"
   },
   { 
     name: "MASSIMO DUTTI", 
     text: "Massimo Dutti", 
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/8/8c/Massimo_Dutti_logo.svg"
+    logoUrl: "https://logo.clearbit.com/massimodutti.com"
   },
   { 
     name: "PRADA", 
     text: "PRADA", 
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/4/44/Prada_logo.svg"
+    logoUrl: "https://logo.clearbit.com/prada.com"
   }
 ]
 
@@ -128,13 +125,10 @@ function OnboardingStep1({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
             <br />
             <span className="text-xl sm:text-2xl md:text-3xl text-gray-700">Ndërkombëtar</span>
           </h1>
-          <p className="text-gray-600 text-base sm:text-lg font-medium">
-            Krijo porosine
-          </p>
         </div>
 
         {/* Social proof */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-gray-200/50">
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 mt-4 sm:mt-6 shadow-lg border border-gray-200/50">
           <div className="flex items-center gap-2">
             <div className="flex -space-x-1">
               {[...Array(3)].map((_, i) => (
@@ -152,8 +146,8 @@ function OnboardingStep1({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
 
         {/* Featured brands */}
         <div className="w-full">
-          <h3 className="text-center text-xs sm:text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
-            Markat Premium
+          <h3 className="text-center text-xs mt-2 sm:text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
+            Markat më të kërkuara
           </h3>
           <div className="grid grid-cols-4 gap-2 sm:gap-3 md:grid-cols-4 md:gap-4">
             {brandLogos.slice(0, 8).map((brand, index) => (
@@ -168,9 +162,7 @@ function OnboardingStep1({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
                       src={brand.logoUrl}
                       alt={brand.name}
                       className={cn(
-                        "w-full h-full object-contain transition-transform duration-300 group-hover:scale-110",
-                        brand.isBlack && "filter brightness-0",
-                        brand.isAmazon && "object-contain"
+                        "w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
                       )}
                       onError={(e) => {
                         const img = e.target as HTMLImageElement;
@@ -185,7 +177,6 @@ function OnboardingStep1({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
                   ) : null}
                   <div className={cn(
                     "text-center font-bold text-[8px] sm:text-[10px] leading-tight",
-                    brand.isAmazon ? "text-orange-500" : "text-gray-700",
                     brand.logoUrl ? "hidden" : ""
                   )}>
                     {brand.text.split('\n').map((line, i) => (
@@ -200,7 +191,7 @@ function OnboardingStep1({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
       </div>
 
       {/* Bottom section */}
-      <div className="flex flex-col items-center w-full space-y-3">
+      <div className="flex flex-col items-center w-full mt-4 space-y-3">
         {/* Progress indicator */}
         <div className="flex gap-1">
           <div className="w-2 h-2 bg-indigo-600 rounded-full shadow-md shadow-indigo-500/50"></div>
@@ -282,12 +273,9 @@ function OnboardingStep2({ onNext, onBack, onSkip }: { onNext: () => void; onBac
 
         {/* Title */}
         <div className="text-center space-y-1">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+          <h1 className="text-xl sm:text-xl md:text-4xl font-bold text-gray-900 leading-tight">
             Proces i Thjeshtë në 3 Hapa
           </h1>
-          <p className="text-gray-600 text-base sm:text-lg">
-            Porositni, Ndiqni, Merrni - Është kaq e thjeshtë!
-          </p>
         </div>
 
         {/* Steps */}

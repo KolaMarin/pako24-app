@@ -26,7 +26,7 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl max-h-[95vh] p-0 bg-transparent border-none shadow-none overflow-y-auto [&>button]:hidden">
+      <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl max-h-[95vh] p-0 bg-transparent border-none shadow-none overflow-y-auto scrollbar-hide [&>button]:hidden">
         <DialogTitle className="sr-only">Onboarding Flow</DialogTitle>
         <div className="relative bg-white rounded-2xl overflow-hidden max-h-[95vh] overflow-y-auto shadow-2xl">
           {/* Enhanced close button */}
