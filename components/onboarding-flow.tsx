@@ -78,7 +78,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   }
 
   return (
-    <div className="min-h-[calc(100vh-2rem)] sm:min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 via-white to-slate-100 relative overflow-hidden">
+    <div className="min-h-[90vh] sm:min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 via-white to-slate-100 relative overflow-hidden">
       {/* Enhanced background pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-50/30 via-transparent to-transparent"></div>
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-50/30 via-transparent to-transparent"></div>
@@ -107,7 +107,7 @@ function OnboardingStep1({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
   }, [shops.length, fetchShops])
 
   return (
-    <div className="flex flex-col justify-between items-center px-4 py-6 max-w-sm mx-auto relative z-10 h-[85vh] sm:h-auto sm:min-h-[85vh] sm:max-w-lg md:max-w-xl">
+    <div className="flex flex-col justify-between items-center px-4 py-4 max-w-sm mx-auto relative z-10 min-h-[80vh] sm:h-auto sm:min-h-[85vh] sm:max-w-lg md:max-w-xl">
       {/* Header section */}
       <div className="flex flex-col items-center w-full space-y-4">
         {/* Premium animated icon */}
@@ -258,7 +258,7 @@ function OnboardingStep2({ onNext, onBack, onSkip }: { onNext: () => void; onBac
   ]
 
   return (
-    <div className="flex flex-col justify-between items-center px-3 py-4 sm:px-4 sm:py-5 max-w-sm mx-auto relative z-10 h-auto sm:max-w-md md:max-w-lg">
+    <div className="flex flex-col justify-between items-center px-3 py-3 sm:px-4 sm:py-5 max-w-sm mx-auto relative z-10 min-h-[75vh] sm:max-w-md md:max-w-lg">
       {/* Back button */}
       <button
         onClick={onBack}
@@ -269,7 +269,7 @@ function OnboardingStep2({ onNext, onBack, onSkip }: { onNext: () => void; onBac
       </button>
 
       {/* Main content */}
-      <div className="flex flex-col items-center w-full space-y-4 pt-10 sm:pt-12">
+      <div className="flex flex-col items-center w-full space-y-3 sm:space-y-4 pt-8 sm:pt-10">
         {/* Icon */}
         <div className="relative">
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl shadow-orange-500/25">
