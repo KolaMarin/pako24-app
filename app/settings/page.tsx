@@ -20,6 +20,7 @@ export default function SettingsPage() {
   const { configs } = useConfigStore()
   const router = useRouter()
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authModalTab, setAuthModalTab] = useState<"login" | "register">("login")
   const [showOnboardingModal, setShowOnboardingModal] = useState(false)
   
   // User info form state
@@ -140,13 +141,13 @@ export default function SettingsPage() {
                   Identifikohu
                 </Button>
                 <p className="text-sm text-gray-500 mt-4 text-center">
-                  Nuk keni llogari? <button onClick={() => setShowAuthModal(true)} className="text-blue-600 hover:underline">Regjistrohu këtu</button>
+                  Nuk keni llogari? <button onClick={() => {setShowAuthModal(true); setAuthModalTab('register')}} className="text-blue-600 hover:underline">Regjistrohu këtu</button>
                 </p>
                 
                 <AuthModal
                   open={showAuthModal}
                   onOpenChange={setShowAuthModal}
-                  defaultTab="login"
+                  defaultTab={authModalTab}
                 />
               </CardContent>
             </Card>

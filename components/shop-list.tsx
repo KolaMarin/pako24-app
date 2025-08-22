@@ -329,7 +329,7 @@ export function ShopList() {
                   id={`category-${category.name.toLowerCase().replace(/\s+/g, '-')}`}
                 >
                   {/* Professional separator with category title */}
-                  <div className="relative mb-6">
+                  <div className="relative mb-4">
                     {/* Main separator line */}
                     <div className="absolute inset-0 flex items-center">
                       <div className="w-full h-px bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200"></div>
@@ -337,27 +337,27 @@ export function ShopList() {
                     
                     {/* Category title container */}
                     <div className="relative flex justify-center">
-                      <div className={`bg-gradient-to-r from-blue-50 via-white to-indigo-50 px-6 py-3 border-2 border-blue-200/60 rounded-full shadow-lg hover:shadow-xl hover:from-blue-100 hover:to-indigo-100 transition-all duration-300 backdrop-blur-sm ${
-                        isMobile ? 'mx-4' : 'mx-8'
+                      <div className={`bg-gradient-to-r from-blue-200 via-blue-50 to-purple-200 px-4 py-2 border-2 border-blue-400/80 rounded-full shadow-lg hover:shadow-xl hover:from-blue-300 hover:via-blue-100 hover:to-purple-300 hover:border-blue-500 transition-all duration-300 backdrop-blur-sm ${
+                        isMobile ? 'mx-3' : 'mx-6'
                       }`}>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                           {/* Category icon */}
-                          <div className={`flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 shadow-md hover:shadow-lg transition-shadow duration-300 ${
-                            isMobile ? 'w-7 h-7' : 'w-9 h-9'
+                          <div className={`flex items-center justify-center rounded-full bg-gradient-to-r from-blue-700 via-blue-800 to-purple-700 shadow-md hover:shadow-lg hover:from-blue-800 hover:via-blue-900 hover:to-purple-800 transition-all duration-300 ${
+                            isMobile ? 'w-6 h-6' : 'w-7 h-7'
                           }`}>
-                            <Store className={`text-white ${isMobile ? 'h-3.5 w-3.5' : 'h-5 w-5'}`} />
+                            <Store className={`text-white ${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
                           </div>
                           
                           {/* Category name */}
-                          <h3 className={`font-bold text-gray-900 tracking-tight drop-shadow-sm ${
-                            isMobile ? 'text-base' : 'text-xl'
+                          <h3 className={`font-bold text-gray-900 tracking-tight ${
+                            isMobile ? 'text-sm' : 'text-lg'
                           }`}>
                             {category.name}
                           </h3>
                           
                           {/* Shop count badge */}
-                          <div className={`bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full font-semibold border-2 border-blue-300/50 shadow-sm ${
-                            isMobile ? 'px-2.5 py-1 text-xs' : 'px-3.5 py-1.5 text-sm'
+                          <div className={`bg-gradient-to-r from-blue-300 to-purple-300 text-blue-900 rounded-full font-bold border-2 border-blue-500/60 shadow-md ${
+                            isMobile ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs'
                           }`}>
                             {category.shops.length}
                           </div>
@@ -442,7 +442,7 @@ function ShopCard({
   isMobile?: boolean
 }) {
   return (
-    <Card key={shop.url} className="overflow-hidden hover:shadow-lg transition-all duration-300 border-gray-200/60 bg-white/90 backdrop-blur-sm">
+    <Card key={shop.url} className="overflow-hidden border border-blue-200/70 bg-white/95 backdrop-blur-sm shadow-md shadow-blue-100/60 hover:shadow-lg hover:shadow-blue-200/70 hover:border-blue-300/90 transition-all duration-300">
       <CardContent className="p-0">
         <div className={`flex items-center cursor-pointer hover:bg-gray-50/50 transition-colors duration-200 ${isMobile ? 'p-3' : 'p-4'}`} onClick={() => onShopClick(shop.url)}>
           <div className={`flex items-center min-w-0 ${isMobile ? 'gap-2 flex-1 mr-2' : 'gap-3 flex-1 mr-3'}`}>

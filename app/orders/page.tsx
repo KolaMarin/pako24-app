@@ -84,6 +84,7 @@ export default function OrdersPage() {
   const [sortOrder] = useState<"newest">("newest")
   const [isMobile, setIsMobile] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authModalTab, setAuthModalTab] = useState<"login" | "register">("login")
   const router = useRouter()
   const searchParams = useSearchParams()
   const { configs } = useConfigStore() // Get configs from the store
@@ -549,7 +550,7 @@ export default function OrdersPage() {
                   Identifikohu
                 </Button>
                 <p className="text-sm text-gray-500 mt-4 text-center">
-                  Nuk keni llogari? <button onClick={() => setShowAuthModal(true)} className="text-purple-600 hover:underline">Regjistrohu këtu</button>
+                  Nuk keni llogari? <button onClick={() => {setShowAuthModal(true); setAuthModalTab('register')}} className="text-purple-600 hover:underline">Regjistrohu këtu</button>
                 </p>
               </CardContent>
             </Card>
@@ -558,7 +559,7 @@ export default function OrdersPage() {
         <AuthModal
         open={showAuthModal}
         onOpenChange={setShowAuthModal}
-        defaultTab="login"
+        defaultTab={authModalTab}
       />
     </Layout>
     )
