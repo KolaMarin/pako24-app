@@ -222,7 +222,7 @@ function OnboardingStep1({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
           onClick={onSkip}
           className="text-gray-500 hover:text-gray-700 transition-colors text-sm font-medium"
         >
-          Kalojeni për tani
+          Skip
         </button>
       </div>
     </div>
@@ -343,7 +343,7 @@ function OnboardingStep2({ onNext, onBack, onSkip }: { onNext: () => void; onBac
           onClick={onSkip}
           className="text-gray-500 hover:text-gray-700 transition-colors text-xs sm:text-sm font-medium"
         >
-          Kalojeni për tani
+          Skip
         </button>
       </div>
     </div>
