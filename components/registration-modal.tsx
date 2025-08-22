@@ -104,7 +104,7 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-md max-h-[95vh] overflow-y-auto bg-white p-0">
+      <DialogContent className="sm:max-w-md max-h-[95vh] overflow-y-auto bg-white p-0">
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
           <h2 className="text-2xl font-bold flex items-center justify-center">
             <Package className="h-6 w-6 mr-2 text-blue-600" />
