@@ -284,7 +284,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 p-2 md:p-4">
+    <div className="w-full">
       <div className="max-w-4xl mx-auto">
         {/* Modals */}
         <BasketInvoiceModal 
@@ -306,7 +306,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
         >
           <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-500"></div>
 
-          <div className="relative bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 px-3 py-4 md:px-6 md:py-6 border-b border-slate-600/50">
+          <div className="relative bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 px-2 py-1.5 md:px-6 md:py-3 border-b border-slate-600/50">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
             <div className="relative z-10">
               <div className="flex items-center justify-between">

@@ -254,11 +254,12 @@ export default function Layout({ children, activeTab, onTabChange }: { children:
         <main
           className={cn(
             "flex-1 transition-all duration-300 ease-in-out",
-            isMobile ? "px-2" : "px-4",
-            isMobile ? "py-3 pb-20" : "py-6", // Restored original padding
+            isMobile ? "px-1" : "px-4",
+            isMobile ? "py-3 pb-20" : "py-4", // Reduced desktop padding
             "mt-16", // Back to margin-top for proper spacing
             user && !isMobile ? (isSidebarCollapsed ? "ml-16" : "ml-64") : "ml-0",
-            "overflow-y-auto overflow-x-hidden",
+            // Only disable scrolling on shops page for mobile, allow scrolling on other pages
+            isMobile && pathname === "/shops" ? "overflow-hidden" : "overflow-y-auto overflow-x-hidden",
             isMobile && "touch-pan-y", // Better touch scrolling on mobile
           )}
           style={isMobile ? {

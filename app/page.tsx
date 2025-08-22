@@ -107,9 +107,9 @@ function HomePageContent() {
 
   return (
     <Layout activeTab={activeTab} onTabChange={setActiveTab}>
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto px-0 md:px-0">
         {/* Enhanced desktop tab buttons with modern design */}
-        <div className="mb-8 w-full hidden md:block">
+        <div className="mb-4 w-full hidden md:block">
           <div className="bg-white/70 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-gray-200/50">
             <div className="grid grid-cols-2 gap-2 w-full">
               <button
