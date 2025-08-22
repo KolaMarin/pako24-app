@@ -136,7 +136,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[95vh] overflow-y-auto bg-white p-0">
+      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-md max-h-[95vh] overflow-y-auto bg-white p-0">
         <DialogHeader className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
           <DialogTitle className="text-2xl flex items-center justify-center">
             <div className="flex items-center">
