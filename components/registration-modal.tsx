@@ -108,8 +108,8 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
           <h2 className="text-2xl font-bold flex items-center justify-center">
             <Package className="h-6 w-6 mr-2 text-blue-600" />
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent font-bold">PAKO</span>
-            <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent font-bold">24</span>
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">PAKO</span>
+            <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent font-bold">24</span>
           </h2>
           <p className="text-gray-600 text-center text-sm mt-2">Krijo një llogari të re për të përdorur PAKO24</p>
         </div>
@@ -190,7 +190,7 @@ export function RegistrationModal({ open, onOpenChange }: RegistrationModalProps
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-base mt-6"
+            className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-base mt-6"
           >
             {isSubmitting
               ? "Duke regjistruar..."

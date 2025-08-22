@@ -274,8 +274,7 @@ main,
   
   body {
     overscroll-behavior: none;
-    /* Only apply overflow hidden on mobile, removed position: fixed */
-    overflow: hidden;
+    /* Removed overflow: hidden to fix modal centering on iOS Safari */
     width: 100%;
   }
 }
@@ -307,9 +306,18 @@ main,
     @media screen and (max-width: 768px) {
       html, body {
         height: 100dvh;
-        overflow: hidden;
         width: 100%;
-        /* Removed position: fixed to allow proper modal positioning */
+        /* Removed overflow: hidden to fix modal centering on iOS Safari */
+        /* Use overscroll-behavior instead to prevent rubber band scrolling */
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      /* Prevent body scroll only when modal is open */
+      body.modal-open {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
       }
     }
 }

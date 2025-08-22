@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Globe, ShoppingBag, ShoppingCart, Package, Truck, Star, User, Sparkles, Shield, Clock, ArrowRight, Store } from "lucide-react"
+import { Globe, ShoppingBag, ShoppingCart, Package, Truck, Star, User, Sparkles, Shield, Clock, ArrowRight, Store, CheckCircle, TrendingUp, Award, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useOnboardingStore } from "@/lib/onboarding-store"
 import { useShopsStore } from "@/lib/shops-store"
@@ -10,6 +10,51 @@ import { cn } from "@/lib/utils"
 interface OnboardingFlowProps {
   onComplete: () => void
 }
+
+const brandLogos = [
+  { 
+    name: "ZARA", 
+    text: "ZARA", 
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Zara_Logo.svg" 
+  },
+  { 
+    name: "BOTTEGA VENETA", 
+    text: "BOTTEGA\nVENETA", 
+    logoUrl: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/bottegaveneta.svg"
+  },
+  { 
+    name: "FERRAGAMO", 
+    text: "FERRAGAMO", 
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/8/8b/Salvatore_Ferragamo_logo.svg"
+  },
+  { 
+    name: "LOUIS VUITTON", 
+    text: "LV", 
+    logoUrl: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/louisvuitton.svg", 
+    isBlack: true 
+  },
+  { 
+    name: "CHANEL", 
+    text: "CC", 
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Chanel_logo_interlocking_cs.svg"
+  },
+  { 
+    name: "AMAZON", 
+    text: "amazon", 
+    logoUrl: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/amazon.svg", 
+    isAmazon: true 
+  },
+  { 
+    name: "MASSIMO DUTTI", 
+    text: "Massimo Dutti", 
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/8/8c/Massimo_Dutti_logo.svg"
+  },
+  { 
+    name: "PRADA", 
+    text: "PRADA", 
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/4/44/Prada_logo.svg"
+  }
+]
 
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const { currentStep, setCurrentStep } = useOnboardingStore()
@@ -33,14 +78,19 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   }
 
   return (
-    <div className="min-h-[85vh] bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 relative overflow-hidden">
-      {/* Background decorative elements - reduced for compactness */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-16 h-16 bg-orange-300 rounded-full blur-lg animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-yellow-200 rounded-full blur-md animate-pulse delay-500"></div>
-      </div>
+    <div className="min-h-[calc(100vh-2rem)] sm:min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 via-white to-slate-100 relative overflow-hidden">
+      {/* Enhanced background pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-50/30 via-transparent to-transparent"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-50/30 via-transparent to-transparent"></div>
       
+      {/* Enhanced decorative elements */}
+      <div className="absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-gradient-to-br from-indigo-100/25 to-purple-100/25 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-64 h-64 md:w-96 md:h-96 bg-gradient-to-tr from-orange-100/25 to-pink-100/25 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 animate-pulse" style={{ animationDelay: '1s' }}></div>
+      
+      {/* Additional subtle decorative elements */}
+      <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-gradient-to-br from-green-100/20 to-blue-100/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-gradient-to-br from-pink-100/20 to-purple-100/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '3s' }}></div>
+
       {currentStep === 1 && <OnboardingStep1 onNext={handleNext} onSkip={handleSkip} />}
       {currentStep === 2 && <OnboardingStep2 onNext={handleNext} onBack={handleBack} onSkip={handleSkip} />}
     </div>
@@ -56,125 +106,123 @@ function OnboardingStep1({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
     }
   }, [shops.length, fetchShops])
 
-  // Predefined brand logos with enhanced styling
-  const brandLogos = [
-    { name: "ZARA", text: "ZARA", logoUrl: null },
-    { name: "BOTTEGA VENETA", text: "BOTTEGA\nVENETA", logoUrl: null },
-    { name: "FERRAGAMO", text: "FERRAGAMO", logoUrl: null },
-    { name: "LUXURY", text: "L", logoUrl: null, isBlack: true },
-    { name: "CHANEL", text: "CC", logoUrl: null },
-    { name: "AMAZON", text: "amazon", logoUrl: null, isAmazon: true },
-    { name: "MASSIMO DUTTI", text: "Massimo Dutti", logoUrl: null },
-    { name: "PRADA", text: "PRADA", logoUrl: null }
-  ]
-
-  // Try to get actual logos from shops data if available
-  const getBrandLogo = (brandName: string) => {
-    const shop = shops.find((shop: any) => 
-      shop.name.toLowerCase().includes(brandName.toLowerCase().split(' ')[0])
-    )
-    return shop?.logoUrl || null
-  }
-
   return (
-    <div className="flex flex-col justify-between items-center px-3 py-2 max-w-sm mx-auto relative z-10 min-h-[85vh]">
-      {/* Main content area - more compact */}
-      <div className="flex flex-col justify-center items-center w-full space-y-2">
-        {/* Compact animated icon */}
-        <div className="relative mb-2">
-          <div className="w-12 h-12 bg-gradient-to-br from-white to-blue-50 rounded-full flex items-center justify-center shadow-xl border border-white/50 backdrop-blur-sm">
-            <Globe className="w-6 h-6 text-blue-600 animate-pulse" />
+    <div className="flex flex-col justify-between items-center px-4 py-6 max-w-sm mx-auto relative z-10 h-[85vh] sm:h-auto sm:min-h-[85vh] sm:max-w-lg md:max-w-xl">
+      {/* Header section */}
+      <div className="flex flex-col items-center w-full space-y-4">
+        {/* Premium animated icon */}
+        <div className="relative">
+          <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-500/25">
+            <Globe className="w-8 h-8 text-white animate-pulse" />
           </div>
-          <div className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-            <Sparkles className="w-2 h-2 text-white" />
+          <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-orange-400 to-pink-500 rounded-full flex items-center justify-center shadow-md">
+            <Sparkles className="w-3 h-3 text-white animate-spin" />
           </div>
         </div>
 
-        {/* Compact title */}
-        <h1 className="text-lg font-bold text-white mb-1 text-center leading-tight">
-          <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-            Porosit nga Çdo Dyqan
-          </span>
-          <br />
-          <span className="text-orange-300 text-base">në Botë</span>
-        </h1>
+        {/* Premium title */}
+        <div className="text-center space-y-1 sm:space-y-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+            Blini nga
+            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"> Çdo Dyqan</span>
+            <br />
+            <span className="text-xl sm:text-2xl md:text-3xl text-gray-700">Ndërkombëtar</span>
+          </h1>
+          <p className="text-gray-600 text-base sm:text-lg font-medium">
+            Krijo porosine
+          </p>
+        </div>
 
-        {/* Compact subtitle */}
-        <p className="text-blue-100 text-xs mb-2 leading-relaxed text-center px-2 font-medium">
-          Qasje në market dhe dyqanet më të mira ndërkombëtare
-        </p>
+        {/* Social proof */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-gray-200/50">
+          <div className="flex items-center gap-2">
+            <div className="flex -space-x-1">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full border-2 border-white flex items-center justify-center">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+              ))}
+            </div>
+            <div>
+              <div className="font-bold text-gray-900 text-sm">2,500+</div>
+              <div className="text-xs text-gray-600">Klientë të kënaqur</div>
+            </div>
+          </div>
+        </div>
 
-        {/* Compact customer count */}
-        <div className="flex items-center justify-center gap-2 mb-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-green-400/30 shadow-lg">
-          <div className="flex -space-x-1">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="w-4 h-4 bg-gradient-to-br from-white to-green-100 rounded-full border border-white flex items-center justify-center shadow-sm">
-                <User className="w-2 h-2 text-green-600" />
+        {/* Featured brands */}
+        <div className="w-full">
+          <h3 className="text-center text-xs sm:text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
+            Markat Premium
+          </h3>
+          <div className="grid grid-cols-4 gap-2 sm:gap-3 md:grid-cols-4 md:gap-4">
+            {brandLogos.slice(0, 8).map((brand, index) => (
+              <div
+                key={brand.name}
+                className="bg-white/90 backdrop-blur-sm rounded-xl p-2 sm:p-3 shadow-lg border border-gray-200/50 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="w-full h-12 sm:h-16 bg-white rounded-lg flex items-center justify-center p-1 sm:p-2 overflow-hidden">
+                  {brand.logoUrl ? (
+                    <img
+                      src={brand.logoUrl}
+                      alt={brand.name}
+                      className={cn(
+                        "w-full h-full object-contain transition-transform duration-300 group-hover:scale-110",
+                        brand.isBlack && "filter brightness-0",
+                        brand.isAmazon && "object-contain"
+                      )}
+                      onError={(e) => {
+                        const img = e.target as HTMLImageElement;
+                        img.style.display = 'none';
+                        const fallback = img.nextElementSibling as HTMLElement;
+                        if (fallback) {
+                          fallback.classList.remove('hidden');
+                        }
+                      }}
+                      loading="lazy"
+                    />
+                  ) : null}
+                  <div className={cn(
+                    "text-center font-bold text-[8px] sm:text-[10px] leading-tight",
+                    brand.isAmazon ? "text-orange-500" : "text-gray-700",
+                    brand.logoUrl ? "hidden" : ""
+                  )}>
+                    {brand.text.split('\n').map((line, i) => (
+                      <div key={i}>{line}</div>
+                    ))}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
-          <div className="flex flex-col">
-            <span className="text-green-300 font-bold text-xs">+2.5K</span>
-            <span className="text-green-200 text-xs">klientë</span>
-          </div>
-        </div>
-
-        {/* Compact brand logos grid */}
-        <div className="grid grid-cols-4 gap-1.5 mb-2 w-full max-w-xs">
-          {shops.slice(0, 8).map((shop, index) => (
-            <div 
-              key={shop.id} 
-              className="rounded-md shadow-md transition-all duration-300 flex items-center justify-center h-10 w-full backdrop-blur-sm border border-white/20 bg-white/90 overflow-hidden"
-              style={{
-                animationDelay: `${index * 50}ms`
-              }}
-            >
-              {shop.logoUrl ? (
-                <img 
-                  src={shop.logoUrl} 
-                  alt={`${shop.name} logo`} 
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                    if (nextElement) {
-                      nextElement.style.display = 'flex';
-                    }
-                  }}
-                />
-              ) : null}
-              <div className={`${shop.logoUrl ? "hidden" : "flex"} items-center justify-center w-full h-full`}>
-                <Store className="h-4 w-4 text-gray-500" />
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 
-      {/* Bottom section - compact */}
-      <div className="flex flex-col items-center w-full space-y-2">
-        {/* Compact progress dots */}
-        <div className="flex gap-1.5">
-          <div className="w-2 h-2 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full shadow-sm animate-pulse" />
-          <div className="w-2 h-2 bg-white/40 rounded-full" />
+      {/* Bottom section */}
+      <div className="flex flex-col items-center w-full space-y-3">
+        {/* Progress indicator */}
+        <div className="flex gap-1">
+          <div className="w-2 h-2 bg-indigo-600 rounded-full shadow-md shadow-indigo-500/50"></div>
+          <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
         </div>
 
-        {/* Compact continue button */}
-        <Button 
+        {/* Continue button */}
+        <Button
           onClick={onNext}
-          className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-2 text-sm font-bold rounded-lg shadow-xl hover:shadow-orange-500/25 transition-all duration-300 border border-orange-400/50"
+          className="w-full max-w-[280px] sm:max-w-xs md:max-w-sm bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl hover:shadow-indigo-500/25 transition-all duration-300"
         >
-          <span className="flex items-center justify-center gap-1">
-            Vazhdo <ArrowRight className="w-3 h-3" />
+          <span className="flex items-center justify-center gap-2">
+            Filloni <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </span>
         </Button>
 
-        {/* Compact skip button */}
-        <button 
+        {/* Skip link */}
+        <button
           onClick={onSkip}
-          className="text-white/80 hover:text-white transition-colors text-xs font-medium pb-1"
+          className="text-gray-500 hover:text-gray-700 transition-colors text-sm font-medium"
         >
-          Kalo
+          Kalojeni për tani
         </button>
       </div>
     </div>
@@ -185,132 +233,117 @@ function OnboardingStep2({ onNext, onBack, onSkip }: { onNext: () => void; onBac
   const steps = [
     {
       icon: ShoppingCart,
-      title: "Shto Produktet",
-      description: "Vendos linkun e produktit nga dyqani online që dëshiron",
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50"
+      title: "Shtoni Produkte",
+      description: "Hidhni lidhjet e produkteve nga çdo dyqan online",
+      color: "from-indigo-500 to-indigo-600",
+      bgColor: "bg-indigo-50",
+      accentColor: "text-indigo-600"
     },
     {
       icon: Package,
-      title: "Konfirmo Porosinë",
-      description: "Rishiko detajet dhe konfirmo porosinë tënde",
+      title: "Shqyrtoni & Konfirmoni",
+      description: "Kontrolloni detajet dhe konfirmoni porosinë tuaj",
       color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-50"
+      bgColor: "bg-purple-50",
+      accentColor: "text-purple-600"
     },
     {
       icon: Truck,
-      title: "Merr Pakon Tënde",
-      description: "Ne e dërgojmë pakon direkt te dera jote",
+      title: "Merrni Dërgesat",
+      description: "Merrni pakon tuaj të dërguar deri në derë",
       color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50"
+      bgColor: "bg-green-50",
+      accentColor: "text-green-600"
     }
   ]
 
   return (
-    <div className="flex flex-col px-3 py-1 max-w-sm mx-auto relative z-10 min-h-[85vh]">
-      {/* Compact Back Button */}
-      <button 
+    <div className="flex flex-col justify-between items-center px-3 py-4 sm:px-4 sm:py-5 max-w-sm mx-auto relative z-10 h-auto sm:max-w-md md:max-w-lg">
+      {/* Back button */}
+      <button
         onClick={onBack}
-        className="absolute top-2 left-3 text-white/80 hover:text-white transition-colors text-xs flex items-center gap-1 font-medium z-20"
+        className="absolute top-3 left-3 sm:top-4 sm:left-4 text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1 font-medium z-20 text-sm"
       >
-        ← Prapa
+        <ArrowRight className="w-3 h-3 rotate-180" />
+        Mbrapa
       </button>
 
-      {/* Main content area - ultra compact */}
-      <div className="flex flex-col justify-center items-center w-full pt-6 space-y-1.5">
-        {/* Ultra compact icon */}
-        <div className="relative mb-1">
-          <div className="w-10 h-10 bg-gradient-to-br from-white to-orange-50 rounded-full flex items-center justify-center shadow-xl border border-white/50 backdrop-blur-sm">
-            <ShoppingBag className="w-5 h-5 text-orange-600 animate-bounce" />
+      {/* Main content */}
+      <div className="flex flex-col items-center w-full space-y-4 pt-10 sm:pt-12">
+        {/* Icon */}
+        <div className="relative">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl shadow-orange-500/25">
+            <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
-          <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center shadow-lg">
-            <Clock className="w-1.5 h-1.5 text-white" />
+          <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-md">
+            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
           </div>
         </div>
 
-        {/* Ultra compact title */}
-        <h1 className="text-base font-bold text-white mb-1 text-center leading-tight">
-          <span className="bg-gradient-to-r from-white via-orange-100 to-white bg-clip-text text-transparent">
-            Proces i Thjeshtë
-          </span>
-          <br />
-          <span className="text-orange-300 text-sm">me 3 Hapa</span>
-        </h1>
+        {/* Title */}
+        <div className="text-center space-y-1">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+            Proces i Thjeshtë në 3 Hapa
+          </h1>
+          <p className="text-gray-600 text-base sm:text-lg">
+            Porositni, Ndiqni, Merrni - Është kaq e thjeshtë!
+          </p>
+        </div>
 
-        {/* Ultra compact subtitle */}
-        <p className="text-blue-100 text-xs mb-1 text-center font-medium">
-          Porosit, Gjurmo, Merr
-        </p>
-
-        {/* Ultra compact steps */}
-        <div className="w-full space-y-1 mb-1">
+        {/* Steps */}
+        <div className="w-full space-y-3">
           {steps.map((step, index) => {
             const IconComponent = step.icon
             return (
-              <div 
+              <div
                 key={index}
-                className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-md p-2 border border-white/20 shadow-md"
-                style={{
-                  animationDelay: `${index * 100}ms`
-                }}
+                className="bg-white/80 backdrop-blur-sm rounded-xl p-3 sm:p-4 shadow-md border border-gray-200/50 hover:shadow-lg transition-all duration-300"
+                style={{ animationDelay: `${index * 200}ms` }}
               >
-                <div className={`w-6 h-6 bg-gradient-to-r ${step.color} rounded-md flex items-center justify-center flex-shrink-0 shadow-md`}>
-                  <span className="text-white font-bold text-xs">{index + 1}</span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-1 mb-0.5">
-                    <IconComponent className="w-2.5 h-2.5 text-orange-300" />
-                    <h3 className="font-bold text-white text-xs">{step.title}</h3>
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r ${step.color} rounded-lg flex items-center justify-center flex-shrink-0 shadow-md`}>
+                    <span className="text-white font-bold text-base sm:text-lg">{index + 1}</span>
                   </div>
-                  <p className="text-blue-100 text-xs leading-tight">
-                    {step.description}
-                  </p>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <IconComponent className={`w-4 h-4 sm:w-5 sm:h-5 ${step.accentColor}`} />
+                      <h3 className="font-bold text-gray-900 text-base sm:text-lg">{step.title}</h3>
+                    </div>
+                    <p className="text-gray-600 text-xs sm:text-sm leading-snug">
+                      {step.description}
+                    </p>
+                  </div>
                 </div>
               </div>
             )
           })}
         </div>
-
-        {/* Ultra compact guarantee section */}
-        <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm rounded-md p-2 mb-1 w-full border border-green-400/30 shadow-md">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-0.5">
-              <Shield className="w-2.5 h-2.5 text-green-300" />
-              <h4 className="font-bold text-green-300 text-xs">100% Garanci</h4>
-            </div>
-            <div className="flex justify-center gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* Bottom section - ultra compact */}
-      <div className="flex flex-col items-center w-full space-y-1.5 pb-1 mt-auto">
-        {/* Compact progress dots */}
+      {/* Bottom section */}
+      <div className="flex flex-col items-center w-full space-y-2 mt-4">
+        {/* Progress indicator */}
         <div className="flex gap-1.5">
-          <div className="w-2 h-2 bg-white/40 rounded-full" />
-          <div className="w-2 h-2 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full shadow-sm animate-pulse" />
+          <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+          <div className="w-2 h-2 bg-indigo-600 rounded-full shadow-md shadow-indigo-500/50"></div>
         </div>
 
-        {/* Compact start button */}
-        <Button 
+        {/* Start button */}
+        <Button
           onClick={onNext}
-          className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-2 text-sm font-bold rounded-lg shadow-xl hover:shadow-green-500/25 transition-all duration-300 border border-green-400/50"
+          className="w-full max-w-[240px] sm:max-w-xs bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2.5 sm:py-3 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl hover:shadow-green-500/25 transition-all duration-300"
         >
-          <span className="flex items-center justify-center gap-1">
-            FILLO TANI <ArrowRight className="w-3 h-3" />
+          <span className="flex items-center justify-center gap-1.5">
+            Filloni Blerjen <ArrowRight className="w-4 h-4" />
           </span>
         </Button>
 
-        {/* Compact skip button */}
-        <button 
+        {/* Skip link */}
+        <button
           onClick={onSkip}
-          className="text-white/80 hover:text-white transition-colors text-xs font-medium"
+          className="text-gray-500 hover:text-gray-700 transition-colors text-xs sm:text-sm font-medium"
         >
-          Kalo
+          Kalojeni për tani
         </button>
       </div>
     </div>

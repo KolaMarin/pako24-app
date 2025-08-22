@@ -61,7 +61,7 @@ export function OnboardingTrigger({
         >
           <HelpCircle className="h-4 w-4" />
           <span className="hidden sm:inline">Si Funksionon?</span>
-          <span className="sm:hidden">Help</span>
+          <span className="sm:hidden">Ndihmë</span>
         </Button>
         
         <OnboardingModal 
