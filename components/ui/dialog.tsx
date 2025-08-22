@@ -51,13 +51,13 @@ const DialogContent = React.forwardRef<
   return (
     <DialogPortal>
       <DialogOverlay />
-      {/* Simple flexbox centering that works everywhere */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Flexbox centering with safe margins */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
         <DialogPrimitive.Content
           ref={ref}
           className={cn(
             "relative w-full max-w-lg bg-background rounded-lg shadow-lg border",
-            "max-h-[85vh] overflow-y-auto",
+            "max-h-[85vh]", // Limit height to ensure margins
             "p-6",
             "grid gap-4",
             // Animations

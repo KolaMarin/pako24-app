@@ -104,7 +104,7 @@ function OnboardingStep1({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
   }, [shops.length, fetchShops])
 
   return (
-    <div className="flex flex-col justify-between items-center px-4 py-4 max-w-sm mx-auto relative z-10 min-h-[80vh] sm:h-auto sm:min-h-[85vh] sm:max-w-lg md:max-w-xl">
+    <div className="flex flex-col justify-between items-center px-4 mt-4 py-4 max-w-sm mx-auto relative z-10 min-h-[80vh] sm:h-auto sm:min-h-[85vh] sm:max-w-lg md:max-w-xl">
       {/* Header section */}
       <div className="flex flex-col items-center w-full space-y-4">
         {/* Premium animated icon */}
@@ -146,10 +146,10 @@ function OnboardingStep1({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
 
         {/* Featured brands */}
         <div className="w-full">
-          <h3 className="text-center text-xs mt-2 sm:text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
+          <h3 className="text-center text-xs mt-2 sm:text-sm font-semibold text-gray-700 mt-4 sm:mb-4">
             Markat më të kërkuara
           </h3>
-          <div className="grid grid-cols-4 gap-2 sm:gap-3 md:grid-cols-4 md:gap-4">
+          <div className="grid grid-cols-4 gap-2 sm:gap-3 md:grid-cols-4 md:gap-4 mt-2">
             {brandLogos.slice(0, 8).map((brand, index) => (
               <div
                 key={brand.name}
@@ -279,7 +279,7 @@ function OnboardingStep2({ onNext, onBack, onSkip }: { onNext: () => void; onBac
         </div>
 
         {/* Steps */}
-        <div className="w-full space-y-3">
+        <div className="w-full space-y-4">
           {steps.map((step, index) => {
             const IconComponent = step.icon
             return (

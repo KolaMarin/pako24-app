@@ -11,7 +11,7 @@ import { OnboardingModal } from "@/components/onboarding-modal"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
-import { Eye, EyeOff, Save, Lock, LogOut, HelpCircle, Mail, Phone } from "lucide-react"
+import { Eye, EyeOff, Save, Lock, LogOut, HelpCircle, Mail, Phone, Settings } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useConfigStore } from "@/lib/config-store"
 
@@ -124,17 +124,24 @@ export default function SettingsPage() {
       <Layout>
         <div className="max-w-2xl mx-auto px-4">
           <div className="flex items-center justify-center py-10">
-            <Card className="max-w-md w-full border-2 border-gray-100 rounded-xl shadow-lg">
-              <CardContent className="flex flex-col items-center p-6">
-                <p className="text-center mb-4 text-gray-700">
-                  Ju duhet të identifikoheni për të parë cilësimet tuaja
+            <Card className="max-w-md w-full border-2 border-blue-100 shadow-xl rounded-xl">
+              <CardContent className="flex flex-col items-center p-8">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                  <Settings className="w-8 h-8 text-blue-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-800 mb-2">Cilësimet e Llogarisë</h2>
+                <p className="text-center mb-6 text-gray-600">
+                  Identifikohuni për të menaxhuar cilësimet e llogarisë tuaja dhe për të personalizuar përvojën tuaj.
                 </p>
-                <Button 
+                <Button
                   onClick={() => setShowAuthModal(true)}
-                  className="bg-primary hover:bg-primary/90 text-white rounded-lg"
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                 >
                   Identifikohu
                 </Button>
+                <p className="text-sm text-gray-500 mt-4 text-center">
+                  Nuk keni llogari? <button onClick={() => setShowAuthModal(true)} className="text-blue-600 hover:underline">Regjistrohu këtu</button>
+                </p>
                 
                 <AuthModal
                   open={showAuthModal}

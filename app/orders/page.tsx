@@ -493,7 +493,10 @@ export default function OrdersPage() {
     // Filter by search term
     const matchesSearch =
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.productLinks.some((product) => product.url.toLowerCase().includes(searchTerm.toLowerCase()))
+      order.productLinks.some((product) =>
+        product.url.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.title && product.title.toLowerCase().includes(searchTerm.toLowerCase()))
+      )
 
     // Filter by status
     const matchesStatus = statusFilter === "all" || order.status === statusFilter
@@ -528,28 +531,34 @@ export default function OrdersPage() {
   if (!user) {
     return (
     <Layout>
-        <div className={`${isMobile ? 'w-full px-0' : 'max-w-4xl mx-auto px-4'} pb-20`}>
-          {/* Removed title for logged out users */}
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <Card className="max-w-md w-full">
-              <CardContent className="flex flex-col items-center p-6">
-                <p className="text-center mb-4 text-gray-700">
-                  Ju duhet të identifikoheni për të parë porositë tuaja
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="flex items-center justify-center py-10">
+            <Card className="max-w-md w-full border-2 border-purple-100 shadow-xl rounded-xl">
+              <CardContent className="flex flex-col items-center p-8">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                  <ShoppingBag className="w-8 h-8 text-purple-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-800 mb-2">Blerjet Tuaja</h2>
+                <p className="text-center mb-6 text-gray-600">
+                  Identifikohuni për të parë historinë e porosive tuaja dhe për të ndjekur statusin e tyre.
                 </p>
-                <Button 
+                <Button
                   onClick={() => setShowAuthModal(true)}
-                  className="bg-primary hover:bg-primary/90 text-white"
+                  className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                 >
                   Identifikohu
                 </Button>
+                <p className="text-sm text-gray-500 mt-4 text-center">
+                  Nuk keni llogari? <button onClick={() => setShowAuthModal(true)} className="text-purple-600 hover:underline">Regjistrohu këtu</button>
+                </p>
               </CardContent>
             </Card>
           </div>
         </div>
-        <AuthModal 
-        open={showAuthModal} 
-        onOpenChange={setShowAuthModal} 
-        defaultTab="login" 
+        <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        defaultTab="login"
       />
     </Layout>
     )
