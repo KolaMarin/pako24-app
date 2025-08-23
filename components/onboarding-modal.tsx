@@ -26,15 +26,15 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-md max-h-[95vh] p-0 bg-transparent border-none shadow-none overflow-y-auto scrollbar-hide [&>button]:hidden">
+      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-md max-h-[90vh] p-0 bg-transparent border-none shadow-none overflow-y-auto scrollbar-hide [&>button]:hidden my-4">
         <DialogTitle className="sr-only">Onboarding Flow</DialogTitle>
-        <div className="relative bg-white rounded-2xl overflow-hidden max-h-[95vh] overflow-y-auto shadow-2xl">
+        <div className="relative bg-white rounded-2xl overflow-hidden max-h-[85vh] overflow-y-auto shadow-2xl">
           {/* Enhanced close button */}
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-gray-900/20 hover:bg-gray-900/40 backdrop-blur-sm transition-all duration-200 flex items-center justify-center group shadow-lg"
+            className="absolute top-4 right-4 z-50 w-8 h-8 rounded-full bg-gray-900/20 hover:bg-gray-900/40 backdrop-blur-sm transition-all duration-200 flex items-center justify-center group shadow-lg"
           >
-            <X className="h-5 w-5 text-white group-hover:text-white/90" />
+            <X className="h-4 w-4 text-white group-hover:text-white/90" />
           </button>
           <OnboardingFlow onComplete={handleComplete} />
         </div>
