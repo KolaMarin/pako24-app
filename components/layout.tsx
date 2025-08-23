@@ -255,7 +255,7 @@ export default function Layout({ children, activeTab, onTabChange }: { children:
           className={cn(
             "flex-1 transition-all duration-300 ease-in-out",
             isMobile ? "px-1" : "px-4",
-            isMobile ? "py-3 pb-20" : "py-4", // Reduced desktop padding
+            isMobile ? (pathname === "/shops" ? "py-2 pb-16" : "py-3 pb-20") : "py-4", // Less bottom padding for shops page
             "mt-16", // Back to margin-top for proper spacing
             user && !isMobile ? (isSidebarCollapsed ? "ml-16" : "ml-64") : "ml-0",
             // Only disable scrolling on shops page for mobile, allow scrolling on other pages

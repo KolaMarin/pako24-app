@@ -169,10 +169,18 @@ export function ShopList() {
   const handleCategoryClick = (categoryName: string) => {
     setActiveCategory(categoryName)
     const categoryElement = categoryRefs.current[categoryName]
-    if (categoryElement && scrollAreaRef.current) {
-      categoryElement.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
+    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
+    
+    if (categoryElement && scrollContainer) {
+      // Calculate the position to scroll to, keeping some offset from the top
+      const containerRect = scrollContainer.getBoundingClientRect()
+      const elementRect = categoryElement.getBoundingClientRect()
+      const scrollTop = scrollContainer.scrollTop
+      const targetScrollTop = scrollTop + (elementRect.top - containerRect.top) - 20 // 20px offset from top
+      
+      scrollContainer.scrollTo({
+        top: Math.max(0, targetScrollTop),
+        behavior: 'smooth'
       })
     }
   }
@@ -237,7 +245,7 @@ export function ShopList() {
   }
 
   return (
-    <div className="w-full space-y-4">
+    <div className={`w-full space-y-4 ${isMobile ? 'h-full flex flex-col' : ''}`}>
       <div className="relative">
         <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
           <Search className="h-5 w-5 text-blue-500" />
@@ -297,9 +305,9 @@ export function ShopList() {
         </div>
       )}
 
-      <ScrollArea 
+      <ScrollArea
         ref={scrollAreaRef}
-        className={`${isMobile ? "h-[calc(100vh-350px)] pr-1" : "h-[500px] pr-4"}`}
+        className={`${isMobile ? "flex-1 pr-1" : "h-[500px] pr-4"}`}
       >
         {loading ? (
           <div className={`text-center text-gray-500 ${isMobile ? 'py-6 text-sm' : 'py-8 text-base'}`}>

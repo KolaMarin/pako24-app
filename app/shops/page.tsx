@@ -22,9 +22,9 @@ export default function ShopsPage() {
   
   return (
     <Layout>
-      <div className={`${isMobile ? 'w-full px-0' : 'max-w-4xl mx-auto px-4'}`}>
-        <Card className="bg-white shadow-md w-full">
-          <CardContent className={`${isMobile ? 'p-2' : 'p-4'} h-full`}>
+      <div className={`${isMobile ? 'w-full px-0 h-full' : 'max-w-4xl mx-auto px-4'}`}>
+        <Card className={`bg-white shadow-md w-full ${isMobile ? 'h-full' : ''}`}>
+          <CardContent className={`${isMobile ? 'p-2 h-full flex flex-col' : 'p-4'}`}>
             <ShopList />
           </CardContent>
         </Card>
