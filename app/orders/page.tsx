@@ -750,8 +750,8 @@ export default function OrdersPage() {
               <div key={order.id} className="relative">
                 <Card
                   className={cn(
-                    "bg-white shadow-xl border border-gray-200/60 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-blue-300/60 hover:-translate-y-1",
-                    expandedOrder === order.id ? "ring-2 ring-blue-400/60 shadow-2xl border-blue-300/60 transform -translate-y-1" : "",
+                    "bg-gradient-to-br from-blue-50/30 via-white to-blue-50/20 shadow-xl border-2 border-blue-200/80 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-blue-300/80 hover:-translate-y-1 shadow-blue-100/50",
+                    expandedOrder === order.id ? "ring-2 ring-blue-400/60 shadow-2xl border-blue-300/80 transform -translate-y-1 shadow-blue-200/60 bg-gradient-to-br from-blue-50/50 via-white to-blue-50/30" : "",
                   )}
                 >
                 {/* Compact order header */}
